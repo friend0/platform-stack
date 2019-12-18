@@ -44,6 +44,6 @@ func init() {
 
 	buildCmd.PersistentFlags().StringVarP(&tag, "tag", "t", "latest", "tag for images to be built")
 
-	buildCmd.PersistentFlags().BoolVarP(&noCache, "noCache", "c", false, "build images without cache")
+	buildCmd.PersistentFlags().BoolVar(&noCache, "noCache", false, "build images without cache")
 
 }
