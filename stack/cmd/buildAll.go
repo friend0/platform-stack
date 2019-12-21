@@ -32,23 +32,23 @@ func containsString(slice []string, element string) bool {
 
 func buildAllComponents() (err error) {
 
-	componentBuildMap := map[string]func()error {
-		"database": buildDatabaseComponents,
-		//"datadog": buildDatadogComponents,
-		"frontend": buildFrontendComponents,
-		"logflights": buildLogflightsComponents,
-		"proxy": buildProxyComponents,
-		"redis": buildRedisComponents,
-	}
-
-	for component, componentBuildFunction := range componentBuildMap {
-		fmt.Println("Building component ", component)
-		err := componentBuildFunction()
-		if err != nil {
-			fmt.Printf("Build %v component failed", component)
-			return err
-		}
-	}
+	//componentBuildMap := map[string]func()error {
+	//	"database": buildDatabaseComponents,
+	//	//"datadog": buildDatadogComponents,
+	//	"frontend": buildFrontendComponents,
+	//	"logflights": buildLogflightsComponents,
+	//	"proxy": buildProxyComponents,
+	//	"redis": buildRedisComponents,
+	//}
+	//
+	//for component, componentUpFunction := range componentBuildMap {
+	//	fmt.Println("Building component ", component)
+	//	err := componentUpFunction()
+	//	if err != nil {
+	//		fmt.Printf("Build %v component failed", component)
+	//		return err
+	//	}
+	//}
 	return nil
 }
 
