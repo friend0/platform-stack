@@ -18,8 +18,8 @@ jobs:
             #go test -v ./...
   deploy:
     docker:
-      - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/masroorhasan/spotifycli
+      - image: circleci/golang:1.12
+    working_directory: /go/src/github.com/altiscope/platform-stack
     steps:
       - checkout
       - run: go get -u github.com/mitchellh/gox
