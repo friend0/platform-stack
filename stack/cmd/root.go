@@ -168,3 +168,19 @@ func confirmWithUser(confirmationText string) (confirmation bool) {
 
 	return confirmation
 }
+
+func homeDir() string {
+	if h := os.Getenv("HOME"); h != "" {
+		return h
+	}
+	return os.Getenv("USERPROFILE") // windows
+}
+
+func containsString(slice []string, element string) bool {
+	for _, elem := range slice {
+		if elem == element {
+			return true
+		}
+	}
+	return false
+}
