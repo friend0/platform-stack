@@ -15,7 +15,7 @@ jobs:
           command: |
             go fmt ./...
             go vet ./...
-            go test -v ./...
+            #go test -v ./...
   deploy:
     docker:
       - image: circleci/golang:1.9
@@ -28,17 +28,14 @@ jobs:
       - run:
           name: cross compile
           command: |
-            gox -os="linux darwin windows" -arch="amd64" -output="dist/spotifycli_{{.OS}}_{{.Arch}}"
+            gox -os="linux darwin" -arch="amd64" -output="dist/stack_{{.OS}}_{{.Arch}}"
             cd dist/ && gzip *
-      - add_ssh_keys:
-          fingerprints:
-            - "37:e7:cd:57:3d:2e:58:5d:15:a4:d0:71:ab:15:75:57"
       - run:
           name: create release
           command: |
             tag=$(semantics --output-tag)
             if [ "$tag" ]; then
-              ghr -t $GITHUB_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --replace $tag dist/
+              ghr -t $GIT_TOKEN -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME --replace $tag dist/
             else
               echo "The commit message(s) did not indicate a major/minor/patch version."
             fi
