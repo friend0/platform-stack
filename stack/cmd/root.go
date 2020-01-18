@@ -1,0 +1,171 @@
+package cmd
+
+import (
+	"bytes"
+	"flag"
+	"fmt"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"text/template"
+)
+
+// alias for simple mocking in test. Do not remove
+var execCommand = exec.Command
+
+var cfgFile string
+var clientset *kubernetes.Clientset
+
+// rootCmd represents the base command when called without any subcommands
+var rootCmd = &cobra.Command{
+	Use:   "stack",
+	Short: "Commands for building, deploying, and maintaining platform services.",
+	Long:  `Commands for building, deploying, and maintaining platform services.`,
+}
+
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+func init() {
+	cobra.OnInitialize(initConfig)
+
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.internal-logflights-new.yaml)")
+}
+
+func initK8s() {
+
+
+	fmt.Println("init k8s")
+	var kubeconfig *string
+	if home := homeDir(); home != "" {
+		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	} else {
+		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	}
+	flag.Parse()
+
+	// use the current context in kubeconfig
+	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// create the clientset
+	clientset, err = kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Println(clientset)
+	for {
+		if clientset != nil {
+			break
+		}
+	}
+}
+
+// initConfig reads in config file and ENV variables if set.
+func initConfig() {
+	if cfgFile != "" {
+		// Use config file from the flag.
+		viper.SetConfigFile(cfgFile)
+	} else {
+
+		dir, err := os.Getwd()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+
+		}
+
+		viper.AddConfigPath(dir)
+		viper.SetConfigName(".stack")
+	}
+
+	fmt.Println("config file used:", viper.ConfigFileUsed())
+	// If a config file is found, read it in.
+	if err := viper.ReadInConfig(); err == nil {
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	}
+
+	fmt.Println("ENV PREFIX:::::")
+	fmt.Println(viper.GetString("env_prefix"))
+
+	viper.SetEnvPrefix(viper.GetString("env_prefix"))
+	viper.AutomaticEnv() // read in environment variables that match
+
+	viper.GetString("db_password")
+}
+
+// GenerateCommandString builds a non-executable command string
+func GenerateCommandString(tmpl string, data interface{}) (cmd string, err error) {
+	var templateBytes bytes.Buffer
+
+	funcMap := template.FuncMap{
+		"minus_one": func(i int) int {
+			return i - 1
+		},
+	}
+
+	parsedTemplate, err := template.New("").Funcs(funcMap).Parse(tmpl)
+	if err != nil {
+		return "", err
+	}
+
+	err = parsedTemplate.Execute(&templateBytes, data)
+	if err != nil {
+		return "", err
+	}
+
+	return templateBytes.String(), nil
+}
+
+// GenerateCommand returns an executable command from an input template, and corresponding data interface.
+func GenerateCommand(tmpl string, data interface{}) (cmd *exec.Cmd, err error) {
+
+	result, err := GenerateCommandString(tmpl, data)
+	if err != nil {
+		return nil, err
+	}
+	cmd = execCommand("sh", "-c", result)
+	return cmd, err
+}
+
+// confirmWithUser ensures an action with confirmation from user input
+func confirmWithUser(confirmationText string) (confirmation bool) {
+
+	var response string
+
+	affirmative := []string{"y", "Y", "yes", "Yes", "YES"}
+	negative := []string{"n", "N", "no", "No", "NO"}
+
+	if confirmationText != "" {
+		fmt.Printf("%v - are you sure you want to proceed?", confirmationText)
+	}
+
+	_, err := fmt.Scanln(&response)
+	if err != nil {
+		return false
+	}
+
+	if containsString(affirmative, response) {
+		return true
+	} else if containsString(negative, response) {
+		return false
+	} else {
+		fmt.Println("Please type yes or no and then press enter:")
+		return confirmWithUser(confirmationText)
+	}
+
+	return confirmation
+}
