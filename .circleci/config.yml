@@ -6,14 +6,24 @@ jobs:
     steps:
       - checkout
       - run:
+          name: echo PATH
+          command: |
+            echo $PATH
+      - run:
           name: run build
           command: |
             go build -o stack -v ./platform-stack/main.go
       - run:
-          name: run tests
+          name: go fmt
           command: |
             go fmt ./...
+      - run:
+          name: go vet
+          command: |
             go vet ./...
+      - run:
+          name: go test
+          command: |
             go test -v ./...
   deploy:
     docker:
