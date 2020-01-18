@@ -165,8 +165,6 @@ func confirmWithUser(confirmationText string) (confirmation bool) {
 		fmt.Println("Please type yes or no and then press enter:")
 		return confirmWithUser(confirmationText)
 	}
-
-	return confirmation
 }
 
 func homeDir() string {
