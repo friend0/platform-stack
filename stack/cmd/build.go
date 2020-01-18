@@ -24,19 +24,22 @@ type DockerBuildRequest struct {
 
 // buildCmd represents the build command
 var buildCmd = &cobra.Command{
-	Use:   "build [component]",
+	Use:   "build <component> [tag]",
 	Args: cobra.RangeArgs(1, 2),
-	Short: "Builds an image from the Dockerfile at the determined context.",
-	Long: `Builds an image from the Dockerfile at the determined context.
+	Short: "Builds image for the given component using the Dockerfile at the configured build directory.",
+	Long: `Builds image for the given component using the Dockerfile at the configured build directory.
+An optional tag can be provided after the component name, or as an option.
 
-Example:
+We assume deployable objects are organized in a single build directory.
+The 'build_directory' variable must be configured in the current project's stack configuration file.
 
-	stack build  myComponent 	# builds Dockerfile of myComponent at the configured context
-	stack build -c ./myContext -d Dockerfile.env myComponent 	# builds Dockerfile "Dockerfile.env" of 'myComponent' using the context "./myContext" 
+For example, where build_directory=./containers:
 
-If a configuration file is present, the context is inferred from the 'build_directory' env variable and the name of the component.
-For example, for build_directory=./containers, the first example command would build the Dockerfile at ./containers/[component name]
+	stack build <component>		# builds the Dockerfile at ./containers/component with a context at that directory
 
+You can also set your own context or dockerfile, and provide tags if needed: 
+
+	stack build -c <context> -d <dockerfile> -t <tag> <component>
 `,
 	RunE: buildComponent,
 }
@@ -82,14 +85,14 @@ func buildComponent(cmd *cobra.Command, args []string) (err error) {
 func init() {
 	rootCmd.AddCommand(buildCmd)
 
-	buildCmd.PersistentFlags().StringP("tag", "t", "latest", "tag for images to be built")
+	buildCmd.PersistentFlags().StringP("tag", "t", "latest", "Image tag. Tag parameter will override this.")
 
-	buildCmd.PersistentFlags().BoolVar(&noCache, "noCache", false, "build images without cache")
+	buildCmd.PersistentFlags().BoolVar(&noCache, "noCache", false, "Build images without cache")
 
 	buildCmd.Flags().StringP("context", "c", ".", "Select Docker build context")
 	viper.BindPFlag("build_directory", buildCmd.Flags().Lookup("context"))
 
-	buildCmd.Flags().StringP("dockerfile", "d", "Dockerfile","Select name of Dockerfile")
+	buildCmd.Flags().StringP("dockerfile", "d", "Dockerfile","Select Dockerfile")
 
 
 }

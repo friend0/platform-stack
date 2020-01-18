@@ -92,19 +92,18 @@ func initConfig() {
 		viper.SetConfigName(".stack")
 	}
 
+	viper.SetEnvPrefix(viper.GetString("env_prefix"))
+	viper.AutomaticEnv() // read in environment variables that match
+
 	fmt.Println("config file used:", viper.ConfigFileUsed())
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 
-	fmt.Println("ENV PREFIX:::::")
-	fmt.Println(viper.GetString("env_prefix"))
+	viper.SetDefault("deployment_directory", "./deployments")
+	viper.SetDefault("build_directory", "./build")
 
-	viper.SetEnvPrefix(viper.GetString("env_prefix"))
-	viper.AutomaticEnv() // read in environment variables that match
-
-	viper.GetString("db_password")
 }
 
 // GenerateCommandString builds a non-executable command string
