@@ -68,10 +68,9 @@ func initConfig() {
 	viper.SetEnvPrefix(viper.GetString("env_prefix"))
 	viper.AutomaticEnv() // read in environment variables that match
 
-	fmt.Println("config file used:", viper.ConfigFileUsed())
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		//fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 
 	// Defaults

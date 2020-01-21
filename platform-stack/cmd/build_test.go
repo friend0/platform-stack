@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"gotest.tools/v3/golden"
+	"gotest.tools/v3/icmd"
 	"os/exec"
 	"path"
 	"testing"
@@ -13,35 +15,24 @@ func TestCliArgs(t *testing.T) {
 		args    []string
 		fixture string
 	}{
-		{"no arguments", []string{}, "no-args.golden"},
-		{"build", []string{}, "build-no-args.golden"},
+		{"no arguments", []string{}, "stack-no-args.golden"},
+		{"build", []string{"build"}, "stack-build-no-args.golden"},
+		{"build", []string{"-r=../../examples", "build", "app"}, ""},
+
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			//dir, err := os.Getwd()
-			//if err != nil {
-			//	t.Fatal(err)
-			//}
 
-			fmt.Println("ATTEMPTED PATH TO STACK::", path.Join(".", "stack"))
-			cmd := exec.Command(path.Join(".", "stack"), tt.args...)
-			_, err := cmd.CombinedOutput()
-			if err != nil {
-				t.Fatal(err)
+			if tt.fixture != "" {
+				cmd := exec.Command(path.Join(".", "stack"), tt.args...)
+				result, _ := cmd.CombinedOutput()
+				golden.AssertBytes(t, result, tt.fixture)
+			} else {
+				result := icmd.RunCmd(icmd.Command(path.Join(".", "stack"), tt.args...))
+				result.Assert(t, icmd.Success)
 			}
 
-			//if *update {
-			//	writeFixture(t, tt.fixture, output)
-			//}
-
-			//actual := string(output)
-
-			//expected := loadFixture(t, tt.fixture)
-
-			//if !reflect.DeepEqual(actual, expected) {
-			//	t.Fatalf("actual = %s, expected = %s", actual, expected)
-			//}
 		})
 	}
 }
