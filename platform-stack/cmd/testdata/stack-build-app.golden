@@ -1,0 +1,13 @@
+Using config file: /Users/ryanrodriguez/Developer/platform-stack/examples/.stack.yaml
+Sending build context to Docker daemon  2.048kB
+Step 1/3 : FROM alpine
+ ---> e7d92cdc71fe
+Step 2/3 : WORKDIR /app
+ ---> Using cache
+ ---> becfafad4be6
+Step 3/3 : ADD . /app
+ ---> Using cache
+ ---> 906e60c30aa0
+[Warning] One or more build-args [GIT_TOKEN] were not consumed
+Successfully built 906e60c30aa0
+Successfully tagged app:latest
