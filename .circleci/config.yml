@@ -1,8 +1,11 @@
-version: 2
+version: 2.1
+orbs:
+  go: circleci/go@0.2.0
 jobs:
   build:
-    docker:
-      - image: circleci/golang:1.12
+    machine:
+      image: circleci/classic:201808-01
+      docker_layer_caching: true
     environment:
       K8S_VERSION: v1.14.0
       KUBECONFIG: /home/circleci/.kube/config
@@ -11,9 +14,9 @@ jobs:
       MINIKUBE_WANTREPORTERRORPROMPT: false
       MINIKUBE_HOME: /home/circleci
       CHANGE_MINIKUBE_NONE_USER: true
+    working_directory: /home/circleci/src/github.com/altiscope/platform-stack
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: Build executable
           command: |
