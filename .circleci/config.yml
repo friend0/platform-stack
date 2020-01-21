@@ -9,6 +9,22 @@ jobs:
       - run:
           name: Build executable
           command: |
+            printf "Installing kubetpl ...\n"
+            curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-"$(
+            bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux'
+            )"-amd64 -o kubetpl && chmod a+x kubetpl && sudo mv kubetpl /usr/local/bin/
+
+            printf "Installing kubectl ...\n"
+            curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/"${K8S_VERSION}"/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+            mkdir -p "${HOME}"/.kube
+            touch "${HOME}"/.kube/config
+
+            printf "Installing minikube ...\n"
+            curl -Lo minikube https://storage.googleapis.com/minikube/releases/"${MINIKUBE_VERSION}"/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
+
+      - run:
+          name: Build executable
+          command: |
             go build -o stack -v ./platform-stack/main.go
       - run:
           name: Copy executable onto path

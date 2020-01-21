@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestCliArgs(t *testing.T) {
+func TestUpCLI(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    []string
