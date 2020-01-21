@@ -6,6 +6,7 @@ Usage:
 Available Commands:
   build       Builds an image for the given component using the Dockerfile at the configured build directory.
   help        Help about any command
+  up          Brings up components of the stack.
 
 Flags:
       --config string              config file (default is $HOME/.internal-logflights-new.yaml)
