@@ -2,15 +2,12 @@ package cmd
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"text/template"
 )
 
@@ -40,38 +37,6 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.internal-logflights-new.yaml)")
-}
-
-func initK8s() {
-
-
-	fmt.Println("init k8s")
-	var kubeconfig *string
-	if home := homeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	}
-	flag.Parse()
-
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// create the clientset
-	clientset, err = kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	fmt.Println(clientset)
-	for {
-		if clientset != nil {
-			break
-		}
-	}
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -138,47 +103,4 @@ func GenerateCommand(tmpl string, data interface{}) (cmd *exec.Cmd, err error) {
 	}
 	cmd = execCommand("sh", "-c", result)
 	return cmd, err
-}
-
-// confirmWithUser ensures an action with confirmation from user input
-func confirmWithUser(confirmationText string) (confirmation bool) {
-
-	var response string
-
-	affirmative := []string{"y", "Y", "yes", "Yes", "YES"}
-	negative := []string{"n", "N", "no", "No", "NO"}
-
-	if confirmationText != "" {
-		fmt.Printf("%v - are you sure you want to proceed?", confirmationText)
-	}
-
-	_, err := fmt.Scanln(&response)
-	if err != nil {
-		return false
-	}
-
-	if containsString(affirmative, response) {
-		return true
-	} else if containsString(negative, response) {
-		return false
-	} else {
-		fmt.Println("Please type yes or no and then press enter:")
-		return confirmWithUser(confirmationText)
-	}
-}
-
-func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
-	}
-	return os.Getenv("USERPROFILE") // windows
-}
-
-func containsString(slice []string, element string) bool {
-	for _, elem := range slice {
-		if elem == element {
-			return true
-		}
-	}
-	return false
 }

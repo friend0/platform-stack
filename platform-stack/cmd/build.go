@@ -26,8 +26,8 @@ type DockerBuildRequest struct {
 var buildCmd = &cobra.Command{
 	Use:   "build <component> [tag]",
 	Args: cobra.RangeArgs(1, 2),
-	Short: "Builds image for the given component using the Dockerfile at the configured build directory.",
-	Long: `Builds image for the given component using the Dockerfile at the configured build directory.
+	Short: "Builds an image for the given component using the Dockerfile at the configured build directory.",
+	Long: `Builds an image for the given component using the Dockerfile at the configured build directory.
 An optional tag can be provided after the component name, or as an option.
 
 We assume deployable objects are organized in a single build directory.
