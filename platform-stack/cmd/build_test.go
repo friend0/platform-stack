@@ -15,14 +15,13 @@ func TestCliArgs(t *testing.T) {
 		fixture string
 	}{
 		{"no arguments", []string{}, "stack-no-args.golden"},
-		{"build", []string{"build"}, "stack-build-no-args.golden"},
-		{"build", []string{"-r=../../examples", "build", "app"}, ""},
+		{"build command", []string{"build"}, "stack-build-no-args.golden"},
+		{"build command with component", []string{"-r=../../examples", "build", "app"}, ""},
 
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			if tt.fixture != "" {
 				cmd := exec.Command(path.Join(".", "stack"), tt.args...)
 				result, _ := cmd.CombinedOutput()
@@ -31,7 +30,6 @@ func TestCliArgs(t *testing.T) {
 				result := icmd.RunCmd(icmd.Command(path.Join(".", "stack"), tt.args...))
 				result.Assert(t, icmd.Success)
 			}
-
 		})
 	}
 }

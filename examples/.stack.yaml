@@ -2,11 +2,13 @@ context: ./containers
 build_directory: ./containers
 deployment_directory: ./deployments
 components:
+  - name: config
+    requiredVariables:
+      - ENV
   - name: app
     requiredVariables:
       - PWD
       - HOME
     exposable: true
-  - anotherApp
 postgres_deployment: postgres
 env_prefix: examples

@@ -1,0 +1,5 @@
+Building component config
+configmap/logflights-env configured
+Building component app
+service/app unchanged
+deployment.apps/app unchanged

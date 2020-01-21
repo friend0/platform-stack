@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
+	"path/filepath"
 
 	//"github.com/spf13/viper"
 	"os"
@@ -52,8 +53,8 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	for _, component := range components {
-		fmt.Println("Building component ", component.Name)
-		err := componentUpFunction(component)
+		fmt.Println("Building component", component.Name)
+		err := componentUpFunction(cmd, component)
 		if err != nil {
 			fmt.Printf("Build %v component failed", component)
 			return err
@@ -62,9 +63,16 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func componentUpFunction(component ComponentDescription) (err error) {
+func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (err error) {
+
+	projectDirectory, _ := cmd.Flags().GetString("project_directory")
+	projectDirectory, _ = filepath.Abs(projectDirectory)
 
 	deploymentsDirectory := viper.GetString("deployment_directory")
+	if projectDirectory != "" {
+		deploymentsDirectory = filepath.Join(projectDirectory, deploymentsDirectory)
+	}
+
 	outputYamlFile := fmt.Sprintf("%v/%v-generated.yaml", deploymentsDirectory, component.Name)
 
 	requiredVariables := component.RequiredVariables
