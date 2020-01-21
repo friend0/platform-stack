@@ -12,7 +12,11 @@ jobs:
       - run:
           name: run build
           command: |
-            env GOOS=linux GOARCH=amd64 go install -o stack -v ./platform-stack/main.go
+            go build -o stack -v ./platform-stack/main.go
+      - run:
+          name: copy stack onto path
+          command: |
+            sudo cp ./stack /usr/local/bin
       - run:
           name: go fmt
           command: |
