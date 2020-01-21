@@ -1,13 +1,11 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-
 )
 
 const dockerBuildTemplate = `docker build {{if .NoCache}} --no-cache {{end}} --build-arg GIT_TOKEN="$GIT_TOKEN" -t {{.Image}}:{{.Tag}} -f {{.Dockerfile}} {{.Context}}`
@@ -41,13 +39,23 @@ You can also set your own context or dockerfile, and provide tags if needed:
 
 	stack build -c <context> -d <dockerfile> -t <tag> <component>
 `,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		viper.BindPFlag("build_directory", cmd.Flags().Lookup("context"))
+	},
 	RunE: buildComponent,
 }
 
 func buildComponent(cmd *cobra.Command, args []string) (err error) {
 
+	project_directory, _ := cmd.Flags().GetString("project_directory")
+	project_directory, _ = filepath.Abs(project_directory)
+
 	tag, _ := cmd.Flags().GetString("tag")
-	context, _ := cmd.Flags().GetString("context")
+	context := viper.GetString("context")
+
+	if project_directory != "" {
+		context = filepath.Join(project_directory, context)
+	}
 	dockerfile, _ := cmd.Flags().GetString("dockerfile")
 
 	image := args[0]
@@ -55,11 +63,8 @@ func buildComponent(cmd *cobra.Command, args []string) (err error) {
 		tag = args[1]
 	}
 
-	fmt.Println(image, ":", tag)
-
 	buildDirectory, _ := filepath.Abs(context)
 	componentDirectory := filepath.Join(buildDirectory, image)
-
 
 	dockerBuildCommand, err := GenerateCommand(dockerBuildTemplate, DockerBuildRequest{
 		Dockerfile: filepath.Join(componentDirectory, dockerfile),
@@ -69,7 +74,6 @@ func buildComponent(cmd *cobra.Command, args []string) (err error) {
 		NoCache:    noCache,
 	})
 
-	fmt.Println(dockerBuildCommand)
 	if err != nil {
 		return err
 	}
@@ -89,8 +93,7 @@ func init() {
 
 	buildCmd.PersistentFlags().BoolVar(&noCache, "noCache", false, "Build images without cache")
 
-	buildCmd.Flags().StringP("context", "c", ".", "Select Docker build context")
-	viper.BindPFlag("build_directory", buildCmd.Flags().Lookup("context"))
+	buildCmd.Flags().StringP("context", "c", "", "Select Docker build context")
 
 	buildCmd.Flags().StringP("dockerfile", "d", "Dockerfile","Select Dockerfile")
 

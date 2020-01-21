@@ -37,6 +37,9 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.internal-logflights-new.yaml)")
+	rootCmd.PersistentFlags().StringP("project_directory", "r", "", "set the project directory for stack command")
+	viper.BindPFlag("project_directory", rootCmd.PersistentFlags().Lookup("project_directory"))
+
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -53,7 +56,12 @@ func initConfig() {
 
 		}
 
-		viper.AddConfigPath(dir)
+		config_directory := viper.GetString("project_directory")
+		if config_directory != "" {
+			viper.AddConfigPath(config_directory)
+		} else {
+			viper.AddConfigPath(dir)
+		}
 		viper.SetConfigName(".stack")
 	}
 
@@ -66,6 +74,7 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 
+	// Defaults
 	viper.SetDefault("deployment_directory", "./deployments")
 	viper.SetDefault("build_directory", "./build")
 
