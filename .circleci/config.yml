@@ -17,6 +17,8 @@ jobs:
     working_directory: /home/circleci/src/github.com/altiscope/platform-stack
     steps:
       - checkout
+      - go/install:
+          - version: 1.13
       - run:
           name: Build executable
           command: |
