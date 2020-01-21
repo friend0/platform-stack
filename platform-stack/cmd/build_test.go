@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
 	"os/exec"
@@ -24,7 +25,10 @@ func TestCliArgs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.fixture != "" {
 				cmd := exec.Command(path.Join(".", "stack"), tt.args...)
-				result, _ := cmd.CombinedOutput()
+				result, err := cmd.CombinedOutput()
+				if err != nil {
+					fmt.Println(err)
+				}
 				golden.AssertBytes(t, result, tt.fixture)
 			} else {
 				result := icmd.RunCmd(icmd.Command(path.Join(".", "stack"), tt.args...))

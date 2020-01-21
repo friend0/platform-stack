@@ -27,6 +27,7 @@ func TestUpCLI(t *testing.T) {
 				if err != nil {
 					fmt.Println(err)
 				}
+				fmt.Println(string(result))
 				golden.AssertBytes(t, result, tt.fixture)
 			} else {
 				result := icmd.RunCmd(icmd.Command(path.Join(".", "stack"), tt.args...))
