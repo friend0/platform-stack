@@ -22,7 +22,7 @@ jobs:
           command: |
             sudo rm -rf /usr/local/go
       - go/install:
-          version: 1.13
+          version: "1.13.6"
       - go/load-cache
 
       - run:
