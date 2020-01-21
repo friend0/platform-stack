@@ -18,10 +18,13 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Uninstall machine go
+          name: Uninstall machine executor go
           command: |
             sudo rm -rf /usr/local/go
-      - go/install
+      - go/install:
+          version: 1.13
+      - go/load-cache
+
       - run:
           name: Install kube dependencies
           command: |
@@ -41,7 +44,7 @@ jobs:
       - run:
           name: Start minikube
           command: |
-            sudo -E minikube start --vm-driver=none --cpus 2 --memory 2048 --kubernetes-version=${K8S_VERSION} &
+            sudo -E minikube start --vm-driver=none --cpus 2 --memory 2048 --kubernetes-version=${K8S_VERSION}
 
       - run:
           name: Build executable
@@ -75,6 +78,9 @@ jobs:
           name: Test source
           command: |
             go test -v ./...
+
+      - go/save-cache
+
   deploy:
     docker:
       - image: circleci/golang:1.12
