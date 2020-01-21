@@ -112,3 +112,46 @@ func GenerateCommand(tmpl string, data interface{}) (cmd *exec.Cmd, err error) {
 	cmd = execCommand("sh", "-c", result)
 	return cmd, err
 }
+
+// confirmWithUser ensures an action with confirmation from user input
+func confirmWithUser(confirmationText string) (confirmation bool) {
+
+	var response string
+
+	affirmative := []string{"y", "Y", "yes", "Yes", "YES"}
+	negative := []string{"n", "N", "no", "No", "NO"}
+
+	if confirmationText != "" {
+		fmt.Printf("%v - are you sure you want to proceed?", confirmationText)
+	}
+
+	_, err := fmt.Scanln(&response)
+	if err != nil {
+		return false
+	}
+
+	if containsString(affirmative, response) {
+		return true
+	} else if containsString(negative, response) {
+		return false
+	} else {
+		fmt.Println("Please type yes or no and then press enter:")
+		return confirmWithUser(confirmationText)
+	}
+}
+
+func homeDir() string {
+	if h := os.Getenv("HOME"); h != "" {
+		return h
+	}
+	return os.Getenv("USERPROFILE") // windows
+}
+
+func containsString(slice []string, element string) bool {
+	for _, elem := range slice {
+		if elem == element {
+			return true
+		}
+	}
+	return false
+}

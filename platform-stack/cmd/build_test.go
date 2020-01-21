@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
 	"os/exec"
