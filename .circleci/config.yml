@@ -6,27 +6,23 @@ jobs:
     steps:
       - checkout
       - run:
-          name: echo PATH
-          command: |
-            echo $PATH
-      - run:
-          name: run build
+          name: Build executable
           command: |
             go build -o stack -v ./platform-stack/main.go
       - run:
-          name: copy stack onto path
+          name: Copy executable onto path
           command: |
             sudo cp ./stack /usr/local/bin
       - run:
-          name: go fmt
+          name: Check source formatting
           command: |
             go fmt ./...
       - run:
-          name: go vet
+          name: Vet source
           command: |
             go vet ./...
       - run:
-          name: go test
+          name: Test source
           command: |
             go test -v ./...
   deploy:
