@@ -4,7 +4,7 @@ orbs:
 jobs:
   build:
     machine:
-      image: circleci/classic:201808-01
+      image: ubuntu-1604:201903-01    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
       docker_layer_caching: true
     environment:
       K8S_VERSION: v1.14.0
