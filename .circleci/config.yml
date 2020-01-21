@@ -12,7 +12,7 @@ jobs:
       - run:
           name: run build
           command: |
-            go build -o stack -v ./platform-stack/main.go
+            env GOOS=linux GOARCH=amd64 go install -o stack -v ./platform-stack/main.go
       - run:
           name: go fmt
           command: |
