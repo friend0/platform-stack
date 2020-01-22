@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
 	"os/exec"
@@ -12,13 +13,24 @@ func TestDownCLI(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    []string
+		setupArgs string
 		fixture string
 	}{
-		{"down", []string{"-r=../../examples", "down"}, "stack-down-no-args.golden"},
+		{"down", []string{"-r=../../examples", "down"}, "","stack-down-no-args-none-running.golden"},
+		{"down with running", []string{"-r=../../examples", "down"}, "stack -r=../../examples up", "stack-down-no-args-with-running.golden"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+
+			if len(tt.setupArgs) > 1 {
+				cmd := exec.Command("sh", "-c", tt.setupArgs)
+				result, err := cmd.CombinedOutput()
+				if err != nil {
+					t.Error(err)
+				}
+				fmt.Println(string(result))
+			}
 
 			if tt.fixture != "" {
 				cmd := exec.Command(path.Join(".", "stack"), tt.args...)
