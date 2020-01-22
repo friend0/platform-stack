@@ -1,0 +1,15 @@
+Commands for building, deploying, and maintaining platform services.
+
+Usage:
+  stack [command]
+
+Available Commands:
+  build       Builds an image for the given component using the Dockerfile at the configured build directory.
+  help        Help about any command
+
+Flags:
+      --config string              config file (default is $HOME/.internal-logflights-new.yaml)
+  -h, --help                       help for stack
+  -r, --project_directory string   set the project directory for stack command
+
+Use "stack [command] --help" for more information about a command.

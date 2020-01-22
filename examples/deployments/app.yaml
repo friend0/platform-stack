@@ -1,0 +1,38 @@
+# kubetpl:syntax:$
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  ports:
+    - name: app
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: dataplane
+          image: $APP_IMAGE:$APP_TAG
+          imagePullPolicy: $APP_IMAGE_PULL_POLICY
+          ports:
+            - containerPort: 8001
+          # TODO: More templating for more fields (later)
+          env:
+            - name: TEST_VARIABLE
+              value: $TEST_VARIABLE
