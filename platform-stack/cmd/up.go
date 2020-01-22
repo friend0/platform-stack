@@ -39,9 +39,7 @@ var upCmd = &cobra.Command{
 	Short: "Brings up components of the stack.",
 	Long: `Brings up components of the stack.
 
-If no components are provided as arguments, all components will be brought up.
-Components must be configured in the project's stack.yaml. For each component, you may specify required environment 
-variables, or whether or not a component is exposable.'`,
+If no components are provided as arguments, all configured components will be brought up.'`,
 	RunE: upAllComponents,
 }
 
