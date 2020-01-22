@@ -59,7 +59,7 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 		fmt.Println("Bringing up", component.Name)
 		err := componentUpFunction(cmd, component)
 		if err != nil {
-			fmt.Printf("Up `%v` failed", component)
+			fmt.Printf("Bringing up `%v` failed", component)
 			return err
 		}
 	}
@@ -69,12 +69,9 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (err error) {
 
 	projectDirectory, _ := cmd.Flags().GetString("project_directory")
-	projectDirectory, _ = filepath.Abs(projectDirectory)
+	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
 
-	deploymentsDirectory := viper.GetString("deployment_directory")
-	if projectDirectory != "" {
-		deploymentsDirectory = filepath.Join(projectDirectory, deploymentsDirectory)
-	}
+	deploymentsDirectory := filepath.Join(absoluteProjectDirectory, viper.GetString("deployment_directory"))
 
 	outputYamlFile := fmt.Sprintf("%v/%v-generated.yaml", deploymentsDirectory, component.Name)
 
@@ -120,13 +117,14 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (er
 // parseComponentArgs generates a list of ComponentDescriptions from the `up`, and will
 // use the configured components in the project's stack.yaml if no arguments are provided.
 func parseComponentArgs(args []string) (components []ComponentDescription, err error) {
+
 	if len(args) >= 1 {
 		for _, arg := range args {
 			components = append(components, ComponentDescription{Name: arg})
 		}
 		return components, nil
-
 	} else {
+		// Use components from the project's config
 		configuredComponents := viper.Get("components").([]interface{})
 		for _, component := range configuredComponents {
 			if componentString, ok := component.(string); ok {

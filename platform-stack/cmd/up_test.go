@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/magiconair/properties/assert"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
@@ -16,6 +15,7 @@ func TestUpCLI(t *testing.T) {
 		args    []string
 		fixture string
 	}{
+		{"up", []string{"-r=../../examples", "up", "app"}, "stack-up-app.golden"},
 		{"up", []string{"-r=../../examples", "up"}, "stack-up-no-args.golden"},
 	}
 
@@ -26,7 +26,7 @@ func TestUpCLI(t *testing.T) {
 				cmd := exec.Command(path.Join(".", "stack"), tt.args...)
 				result, err := cmd.CombinedOutput()
 				if err != nil {
-					fmt.Println(err)
+					t.Error(err)
 				}
 				golden.AssertBytes(t, result, tt.fixture)
 			} else {
@@ -38,10 +38,6 @@ func TestUpCLI(t *testing.T) {
 	}
 }
 
-func mockEnv(required string) string {
-	return required
-}
-
 func TestParseComponentArgs(t *testing.T) {
 
 	componentArgs := []string{"app", "db"}
@@ -49,6 +45,10 @@ func TestParseComponentArgs(t *testing.T) {
 	assert.Equal(t, []ComponentDescription{
 		{Name:"app"}, {Name:"db"},
 	}, parsedComponentArgs)
+}
+
+func mockEnv(required string) string {
+	return required
 }
 
 func TestGenerateEnvs(t *testing.T) {
