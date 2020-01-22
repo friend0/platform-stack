@@ -31,7 +31,7 @@ spec:
           image: $APP_IMAGE:$APP_TAG
           imagePullPolicy: $APP_IMAGE_PULL_POLICY
           ports:
-            - containerPort: 8001
+            - containerPort: 8080
           # TODO: More templating for more fields (later)
           env:
             - name: TEST_VARIABLE

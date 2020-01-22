@@ -1,15 +1,16 @@
 version: 2.1
 orbs:
   go: circleci/go@0.2.0
+  kubernetes: circleci/kubernetes@0.11.0
 jobs:
   build:
     machine:
       image: ubuntu-1604:201903-01    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
       docker_layer_caching: true
     environment:
-      K8S_VERSION: v1.14.0
+      K8S_VERSION: v1.17.0
       KUBECONFIG: /home/circleci/.kube/config
-      MINIKUBE_VERSION: v1.0.0
+      MINIKUBE_VERSION: v1.6.2
       MINIKUBE_WANTUPDATENOTIFICATION: false
       MINIKUBE_WANTREPORTERRORPROMPT: false
       MINIKUBE_HOME: /home/circleci
@@ -18,26 +19,22 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Uninstall machine executor go
+          name: Uninstall machine go
           command: |
             sudo rm -rf /usr/local/go
-      - go/install:
-          version: "1.13.6"
-      - go/load-cache
-
+      - go/install
+      - kubernetes/install-kubectl
       - run:
-          name: Install kube dependencies
+          name: Install kubetpl
           command: |
             printf "Installing kubetpl ...\n"
             curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-"$(
             bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux'
             )"-amd64 -o kubetpl && chmod a+x kubetpl && sudo mv kubetpl /usr/local/bin/
 
-            printf "Installing kubectl ...\n"
-            curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/"${K8S_VERSION}"/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-            mkdir -p "${HOME}"/.kube
-            touch "${HOME}"/.kube/config
-
+      - run:
+          name: Install minikube
+          command: |
             printf "Installing minikube ...\n"
             curl -Lo minikube https://storage.googleapis.com/minikube/releases/"${MINIKUBE_VERSION}"/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
 
@@ -45,6 +42,14 @@ jobs:
           name: Start minikube
           command: |
             sudo -E minikube start --vm-driver=none --cpus 2 --memory 2048 --kubernetes-version=${K8S_VERSION}
+
+      - run:
+          name: Wait for minikube
+          command: |
+            JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}';
+            until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do
+              sleep 1;
+            done
 
       - run:
           name: Build executable
@@ -67,23 +72,26 @@ jobs:
             go vet ./...
 
       - run:
-          name: Wait for minikube
-          command: |
-            JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}';
-            until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do
-              sleep 1;
-            done
-
-      - run:
           name: Test source
           command: |
             go test -v ./...
 
-      - go/save-cache
+      - run:
+          name: Delete kubernetes resources
+          command: |
+            kubectl delete all --all
+
+      - run:
+          name: Stop minikube
+          command: |
+            minikube stop
+
+      - store_test_results:
+          path: test-results
 
   deploy:
     docker:
-      - image: circleci/golang:1.12
+      - image: circleci/golang:1.13.6
     steps:
       - checkout
       - run: go get -u github.com/mitchellh/gox

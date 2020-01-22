@@ -1,5 +1,5 @@
-Building component config
+Bringing up config
 configmap/logflights-env created
-Building component app
+Bringing up app
 service/app created
 deployment.apps/app created
