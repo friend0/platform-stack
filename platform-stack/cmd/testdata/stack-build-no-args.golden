@@ -1,0 +1,16 @@
+Error: accepts between 1 and 2 arg(s), received 0
+Usage:
+  stack build <component> [tag] [flags]
+
+Flags:
+  -c, --context string      Select Docker build context
+  -d, --dockerfile string   Select Dockerfile (default "Dockerfile")
+  -h, --help                help for build
+      --noCache             Build images without cache
+  -t, --tag string          Image tag. Tag parameter will override this. (default "latest")
+
+Global Flags:
+      --config string              config file (default is $HOME/.internal-logflights-new.yaml)
+  -r, --project_directory string   set the project directory for stack command
+
+accepts between 1 and 2 arg(s), received 0
