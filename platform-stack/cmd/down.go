@@ -31,13 +31,17 @@ func downAllComponents(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
+	projectDirectory, _ := cmd.Flags().GetString("project_directory")
+	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
+
+	deploymentsDirectory := filepath.Join(absoluteProjectDirectory, viper.GetString("deployment_directory"))
+
 	for _, component := range components {
 		fmt.Printf("Tearing down components at %v...\n", component.Name)
-		deploymentsDirectory, _ := filepath.Abs(viper.Get("deployments_directory").(string))
-		generatedYaml := filepath.Join(deploymentsDirectory, fmt.Sprintf("%v-generated", component.Name))
+		generatedYaml := filepath.Join(deploymentsDirectory, fmt.Sprintf("%v-generated.yaml", component.Name))
 		err := downComponent(generatedYaml)
 		if err != nil {
-			fmt.Printf("Tear down %v component failed: %v", component.Name, err.Error())
+			fmt.Printf("`%v` component failed teardown. You may need to delete it manually.\n", component.Name)
 		}
 	}
 	return nil
