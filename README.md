@@ -4,6 +4,9 @@ Stack is the Platform deployment CLI.
 Add a minimal `.stack.yaml` configuration to your project, and Stack will help make the development and deployment of your service 
 easier. 
 
+Core
+=====
+
 Stack provides a set of core commands - `build`, `up`, and `down`:
 
 - `build` provides simple building and tagging.
@@ -40,4 +43,9 @@ required environment variables, or whether or not a component is able to be expo
 The `up` command uses the name of configured components to locate kubernetes manifests. In the list of descriptions 
 above, `app` should have a corresponding `app.yaml` in the deployments directory.
 
+Development
+===========
 
+Stack also provides tools useful for development, and debugging.
+
+- `expose` will port forward between a running pod and the local machine
