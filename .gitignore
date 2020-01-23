@@ -1,2 +1,5 @@
 
 .idea/
+
+# Generated templates
+**/deployments/*-generated.yaml
