@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
 	"os/exec"
@@ -25,11 +24,10 @@ func TestDownCLI(t *testing.T) {
 
 			if len(tt.setupArgs) > 1 {
 				cmd := exec.Command("sh", "-c", tt.setupArgs)
-				result, err := cmd.CombinedOutput()
+				_, err := cmd.CombinedOutput()
 				if err != nil {
 					t.Error(err)
 				}
-				fmt.Println(string(result))
 			}
 
 			if tt.fixture != "" {
