@@ -10,7 +10,7 @@ Flags:
   -t, --tag string          Image tag. Tag parameter will override this. (default "latest")
 
 Global Flags:
-      --config string              config file (default is $HOME/.internal-logflights-new.yaml)
-  -r, --project_directory string   set the project directory for stack command
+      --config string              config file (default is $HOME/.{{name of project}}.yaml)
+  -r, --project_directory string   set the project directory for stack command (default ".")
 
 accepts between 1 and 2 arg(s), received 0

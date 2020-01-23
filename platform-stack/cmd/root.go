@@ -34,12 +34,11 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
-
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.internal-logflights-new.yaml)")
-	rootCmd.PersistentFlags().StringP("project_directory", "r", "", "set the project directory for stack command")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.{{name of project}}.yaml)")
+	rootCmd.PersistentFlags().StringP("project_directory", "r", ".", "set the project directory for stack command")
 	viper.BindPFlag("project_directory", rootCmd.PersistentFlags().Lookup("project_directory"))
 
+	cobra.OnInitialize(initConfig)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -49,17 +48,16 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	} else {
 
-		dir, err := os.Getwd()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-
-		}
-
-		config_directory := viper.GetString("project_directory")
-		if config_directory != "" {
-			viper.AddConfigPath(config_directory)
+		configDirectory := viper.GetString("project_directory")
+		if configDirectory != "." {
+			viper.AddConfigPath(configDirectory)
 		} else {
+			dir, err := os.Getwd()
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+
+			}
 			viper.AddConfigPath(dir)
 		}
 		viper.SetConfigName(".stack")
@@ -68,10 +66,7 @@ func initConfig() {
 	viper.SetEnvPrefix(viper.GetString("env_prefix"))
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		//fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
+	viper.ReadInConfig()
 
 	// Defaults
 	viper.SetDefault("deployment_directory", "./deployments")
@@ -146,6 +141,7 @@ func homeDir() string {
 	}
 	return os.Getenv("USERPROFILE") // windows
 }
+
 
 func containsString(slice []string, element string) bool {
 	for _, elem := range slice {

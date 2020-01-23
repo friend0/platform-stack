@@ -1,0 +1,5 @@
+Bringing up config
+configmap/logflights-env created
+Bringing up app
+service/app unchanged
+deployment.apps/app unchanged
