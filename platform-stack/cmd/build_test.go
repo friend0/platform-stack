@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestCliArgs(t *testing.T) {
+func TestBuildCLI(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    []string
@@ -30,7 +30,7 @@ func TestCliArgs(t *testing.T) {
 				}
 				golden.AssertBytes(t, result, tt.fixture)
 			} else {
-				result := icmd.RunCmd(icmd.Command(path.Join(".", "stack"), tt.args...))
+				result := icmd.RunCmd(icmd.Command(path.Join( "stack"), tt.args...))
 				result.Assert(t, icmd.Success)
 			}
 		})
