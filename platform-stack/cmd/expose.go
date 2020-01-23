@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -24,6 +25,13 @@ var forwardCmds = map[string]*exec.Cmd {
 	"redis": nil,
 }
 
+
+type Config struct {
+	Components []ComponentDescription
+}
+
+var config Config
+
 // exposeCmd represents the expose command
 var exposeCmd = &cobra.Command{
 	Use:   "expose",
@@ -32,47 +40,54 @@ var exposeCmd = &cobra.Command{
 	Args: func(cmd *cobra.Command, args []string) error {
 
 		if len(args) != 3 {
-			return fmt.Errorf("Expecting exactly three args")
+			return fmt.Errorf("expecting exactly three args")
 		}
 
-		// todo: filter only exposable components
-		components, _ := parseComponentArgs(args)
-		for idx, component := range components {
-
-			if component.Name == args[0] {
-				break
-			}
-			if idx >= len(components) - 1 {
-				return fmt.Errorf("component is not exposable")
-			}
-		}
-
-		return nil
-	},
-	RunE: func(cmd *cobra.Command, args []string) (err error) {
-		fmt.Printf("Exposing %v", args[0])
-
-		// todo: can make cleanup async by tracking PIDs in leveldb
-		c := make(chan os.Signal)
-		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-
-		err = exposeDeployment(args[0], args[1], args[2])
+		err := viper.Unmarshal(&config)
 		if err != nil {
 			return err
 		}
 
-		<-c
-		forwardCmd, ok := forwardCmds[args[0]]
-		if ok && forwardCmd != nil {
-			fmt.Println()
-			return forwardCmd.Process.Kill()
+		if len(config.Components) < 1 {
+			return fmt.Errorf("no configured components")
 		}
 
+		for idx, component := range config.Components {
+			if component.Name == args[0] {
+				if !component.Exposable {
+					return fmt.Errorf("component not exposable")
+				}
+				break
+			}
+			if idx >= len(config.Components) - 1 {
+				return fmt.Errorf("component not found")
+			}
+		}
 		return nil
 	},
+	RunE: runExpose,
 }
 
-func exposeDeployment(deployment, localPort, remotePort string) (err error) {
+func runExpose(cmd *cobra.Command, args []string) (err error) {
+	fmt.Printf("Exposing %v", args[0])
+
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+	forwardCmd, err := exposeDeployment(args[0], args[1], args[2])
+	if err != nil {
+		return err
+	}
+
+	<-c
+	if forwardCmd != nil {
+		return forwardCmd.Process.Kill()
+	}
+	return nil
+}
+
+
+func exposeDeployment(deployment, localPort, remotePort string) (cmd *exec.Cmd, err error) {
 
 	exposeCmd, err := GenerateCommand(kubectlExposeTemplate, KubectlExposeRequest{
 		Deployment: deployment,
@@ -81,16 +96,16 @@ func exposeDeployment(deployment, localPort, remotePort string) (err error) {
 	})
 
 	if err != nil {
-		return err
+		return exposeCmd,err
 	}
 
 	exposeCmd.Stdout = os.Stdout
 	exposeCmd.Stderr = os.Stderr
 	if err := exposeCmd.Start(); err != nil {
-		return err
+		return exposeCmd, err
 	}
 	forwardCmds[deployment] = exposeCmd
-	return nil
+	return exposeCmd, nil
 }
 
 
