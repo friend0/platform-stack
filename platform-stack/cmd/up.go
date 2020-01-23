@@ -166,5 +166,5 @@ func generateEnvs(requiredVariables []string, getEnv func(string) string) (envs 
 
 func init() {
 	rootCmd.AddCommand(upCmd)
-	upCmd.Flags().StringVar(&env, "environment", "local", "Select deployment environment")
+	upCmd.Flags().StringVarP(&env, "environment", "e", "local", "Select deployment environment")
 }
