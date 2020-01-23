@@ -34,7 +34,7 @@ var config Config
 
 // exposeCmd represents the expose command
 var exposeCmd = &cobra.Command{
-	Use:   "expose",
+	Use:   "expose <component> <local port> <remote port>",
 	Short: "Exposes a kubernetes deployment to your local machine.",
 	Long: `Exposes a kubernetes deployment to your local machine.`,
 	Args: func(cmd *cobra.Command, args []string) error {
