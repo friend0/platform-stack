@@ -2,11 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	v1 "k8s.io/api/core/v1"
-
 	"github.com/spf13/cobra"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
+	v12 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
 // podsCmd represents the pods command
@@ -14,30 +13,37 @@ var podsCmd = &cobra.Command{
 	Use:   "pods",
 	Short: "List running pods.",
 	Long: `List running pods.`,
-	RunE: listPods,
+	RunE: pods,
 }
 
-func listPods(cmd *cobra.Command, args []string) (err error){
+func pods(cmd *cobra.Command, args []string) (err error){
 
 	ns, _ := cmd.Flags().GetString("ns")
 	label, _ := cmd.Flags().GetString("label")
 	field, _ := cmd.Flags().GetString("field")
 
 	api := clientset.CoreV1()
-	// setup list options
+
+	podList, err := getPodsList(api, ns, label, field)
+	printPods(podList)
+	return nil
+}
+
+
+func getPodsList(api v12.CoreV1Interface, ns, label, field string) (list *v1.PodList, err error) {
+
 	listOptions := metav1.ListOptions{
-		LabelSelector: label,
-		FieldSelector: field,
+	LabelSelector: label,
+	FieldSelector: field,
 	}
 
 	pods, err := api.Pods(ns).List(listOptions)
 	if err != nil {
-		return err
+		return pods, err
 	}
-
-	printPods(pods)
-	return nil
+	return pods, nil
 }
+
 
 // printPods prints metadata about the pods in the provided list. It also returns this result as a byte array.
 func printPods(pods *v1.PodList) (result []byte) {
