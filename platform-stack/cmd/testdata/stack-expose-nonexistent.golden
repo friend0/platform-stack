@@ -1,6 +1,6 @@
 Error: component not found
 Usage:
-  stack expose [flags]
+  stack expose <component> <local port> <remote port> [flags]
 
 Flags:
   -h, --help   help for expose
