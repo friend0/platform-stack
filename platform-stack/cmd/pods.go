@@ -14,10 +14,10 @@ var podsCmd = &cobra.Command{
 	Use:   "pods",
 	Short: "List running pods.",
 	Long: `List running pods.`,
-	RunE: pods,
+	RunE: listPods,
 }
 
-func pods(cmd *cobra.Command, args []string) (err error){
+func listPods(cmd *cobra.Command, args []string) (err error){
 
 	ns, _ := cmd.Flags().GetString("ns")
 	label, _ := cmd.Flags().GetString("label")
@@ -39,10 +39,11 @@ func pods(cmd *cobra.Command, args []string) (err error){
 	return nil
 }
 
-
-func printPods(pods *v1.PodList) {
+// printPods prints metadata about the pods in the provided list. It also returns this result as a byte array.
+func printPods(pods *v1.PodList) (result []byte) {
 	template := "%-50s%-8v%-8v\n"
 	fmt.Printf(template, "NAME", "READY", "STATUS")
+	result = append(result, fmt.Sprintf(template, "NAME", "READY", "STATUS")...)
 	for _, pod := range pods.Items {
 		numContainersReady := 0
 		for _, container := range pod.Status.ContainerStatuses {
@@ -54,9 +55,12 @@ func printPods(pods *v1.PodList) {
 			pod.Name,
 			fmt.Sprintf("%v/%v", numContainersReady, len(pod.Spec.Containers)),
 			pod.Status.Phase)
-
+		result = append(result, []byte(fmt.Sprintf(template,
+			pod.Name,
+			fmt.Sprintf("%v/%v", numContainersReady, len(pod.Spec.Containers)),
+			pod.Status.Phase))...)
 	}
-
+	return result
 }
 
 func init() {
