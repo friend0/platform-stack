@@ -12,11 +12,11 @@ import (
 var podsCmd = &cobra.Command{
 	Use:   "pods",
 	Short: "List running pods.",
-	Long: `List running pods.`,
-	RunE: pods,
+	Long:  `List running pods.`,
+	RunE:  pods,
 }
 
-func pods(cmd *cobra.Command, args []string) (err error){
+func pods(cmd *cobra.Command, args []string) (err error) {
 
 	ns, _ := cmd.Flags().GetString("ns")
 	label, _ := cmd.Flags().GetString("label")
@@ -29,12 +29,11 @@ func pods(cmd *cobra.Command, args []string) (err error){
 	return nil
 }
 
-
 func getPodsList(api v12.CoreV1Interface, ns, label, field string) (list *v1.PodList, err error) {
 
 	listOptions := metav1.ListOptions{
-	LabelSelector: label,
-	FieldSelector: field,
+		LabelSelector: label,
+		FieldSelector: field,
 	}
 
 	pods, err := api.Pods(ns).List(listOptions)
@@ -43,7 +42,6 @@ func getPodsList(api v12.CoreV1Interface, ns, label, field string) (list *v1.Pod
 	}
 	return pods, nil
 }
-
 
 // printPods prints metadata about the pods in the provided list. It also returns this result as a byte array.
 func printPods(pods *v1.PodList) (result []byte) {

@@ -14,7 +14,6 @@ import (
 	"testing"
 )
 
-
 func TestGetPodList(t *testing.T) {
 
 	api := fake.NewSimpleClientset(&v1.Pod{
