@@ -38,7 +38,7 @@ var exposeCmd = &cobra.Command{
 	Args: func(cmd *cobra.Command, args []string) error {
 
 		if len(args) != 3 {
-			return fmt.Errorf("expecting exactly three args")
+			return fmt.Errorf("expecting exactly three arguments: see `stack expose help`")
 		}
 
 		err := viper.Unmarshal(&config)
