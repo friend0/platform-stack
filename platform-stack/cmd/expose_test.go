@@ -10,10 +10,10 @@ import (
 
 func TestExposeCLI(t *testing.T) {
 	tests := []struct {
-		name    string
-		args    []string
+		name      string
+		args      []string
 		setupArgs string
-		fixture string
+		fixture   string
 	}{
 		//{"expose", []string{"-r=../../examples", "expose", "missingComponent", "80", "80"}, "","stack-expose-nonexistent.golden"},
 	}

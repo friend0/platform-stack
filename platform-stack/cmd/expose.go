@@ -14,17 +14,15 @@ const kubectlExposeTemplate = `kubectl port-forward deployments/{{ .Deployment}}
 
 type KubectlExposeRequest struct {
 	Deployment string
-	LocalPort string
+	LocalPort  string
 	RemotePort string
 }
 
-
-var forwardCmds = map[string]*exec.Cmd {
-	"frontend": nil,
+var forwardCmds = map[string]*exec.Cmd{
+	"frontend":   nil,
 	"logflights": nil,
-	"redis": nil,
+	"redis":      nil,
 }
-
 
 type Config struct {
 	Components []ComponentDescription
@@ -36,7 +34,7 @@ var config Config
 var exposeCmd = &cobra.Command{
 	Use:   "expose <component> <local port> <remote port>",
 	Short: "Exposes a kubernetes deployment to your local machine.",
-	Long: `Exposes a kubernetes deployment to your local machine.`,
+	Long:  `Exposes a kubernetes deployment to your local machine.`,
 	Args: func(cmd *cobra.Command, args []string) error {
 
 		if len(args) != 3 {
@@ -59,7 +57,7 @@ var exposeCmd = &cobra.Command{
 				}
 				break
 			}
-			if idx >= len(config.Components) - 1 {
+			if idx >= len(config.Components)-1 {
 				return fmt.Errorf("component not found")
 			}
 		}
@@ -86,17 +84,16 @@ func runExpose(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-
 func exposeDeployment(deployment, localPort, remotePort string) (cmd *exec.Cmd, err error) {
 
 	exposeCmd, err := GenerateCommand(kubectlExposeTemplate, KubectlExposeRequest{
 		Deployment: deployment,
-		LocalPort: localPort,
+		LocalPort:  localPort,
 		RemotePort: remotePort,
 	})
 
 	if err != nil {
-		return exposeCmd,err
+		return exposeCmd, err
 	}
 
 	exposeCmd.Stdout = os.Stdout
@@ -107,7 +104,6 @@ func exposeDeployment(deployment, localPort, remotePort string) (cmd *exec.Cmd, 
 	forwardCmds[deployment] = exposeCmd
 	return exposeCmd, nil
 }
-
 
 func init() {
 	rootCmd.AddCommand(exposeCmd)

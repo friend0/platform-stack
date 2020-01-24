@@ -143,7 +143,6 @@ func homeDir() string {
 	return os.Getenv("USERPROFILE") // windows
 }
 
-
 func containsString(slice []string, element string) bool {
 	for _, elem := range slice {
 		if elem == element {
@@ -154,7 +153,6 @@ func containsString(slice []string, element string) bool {
 }
 
 func initK8s() {
-
 
 	home := homeDir()
 

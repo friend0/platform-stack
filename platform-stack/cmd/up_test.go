@@ -43,7 +43,7 @@ func TestParseComponentArgs(t *testing.T) {
 	componentArgs := []string{"app", "db"}
 	parsedComponentArgs, _ := parseComponentArgs(componentArgs)
 	assert.Equal(t, []ComponentDescription{
-		{Name:"app"}, {Name:"db"},
+		{Name: "app"}, {Name: "db"},
 	}, parsedComponentArgs)
 }
 

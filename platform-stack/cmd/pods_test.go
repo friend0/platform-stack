@@ -5,11 +5,6 @@ import (
 	"gotest.tools/v3/golden"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	//"gotest.tools/v3/golden"
-	//"gotest.tools/v3/icmd"
-	//"os/exec"
-	//"path"
 	"k8s.io/client-go/kubernetes/fake"
 	"testing"
 )
