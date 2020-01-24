@@ -117,6 +117,7 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (er
 func parseComponentArgs(args []string) (components []ComponentDescription, err error) {
 
 	if len(args) >= 1 {
+		// todo: check if component has been configured
 		for _, arg := range args {
 			components = append(components, ComponentDescription{Name: arg})
 		}
