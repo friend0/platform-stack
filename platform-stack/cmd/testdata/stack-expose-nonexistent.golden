@@ -1,0 +1,11 @@
+Error: component not found
+Usage:
+  stack expose <component> <local port> <remote port> [flags]
+
+Flags:
+  -h, --help   help for expose
+
+Global Flags:
+      --config string              config file (default is $HOME/.{{name of project}}.yaml)
+  -r, --project_directory string   set the project directory for stack command (default ".")
+
