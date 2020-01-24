@@ -26,6 +26,7 @@ If no arguments are provided, all configured objects will be taken down.`,
 
 func downAllComponents(cmd *cobra.Command, args []string) (err error) {
 
+	// parses ComponentDescriptions from input args, uses all configured components if none are provided
 	components, err := parseComponentArgs(args)
 	if err != nil {
 		return err

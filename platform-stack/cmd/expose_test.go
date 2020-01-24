@@ -8,15 +8,14 @@ import (
 	"testing"
 )
 
-func TestDownCLI(t *testing.T) {
+func TestExposeCLI(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    []string
 		setupArgs string
 		fixture string
 	}{
-		{"down", []string{"-r=../../examples", "down"}, "","stack-down-no-args-none-running.golden"},
-		{"down with running", []string{"-r=../../examples", "down"}, "stack -r=../../examples up", "stack-down-no-args-with-running.golden"},
+		{"expose", []string{"-r=../../examples", "expose", "missingComponent", "80", "80"}, "","stack-expose-nonexistent.golden"},
 	}
 
 	for _, tt := range tests {
@@ -24,18 +23,18 @@ func TestDownCLI(t *testing.T) {
 
 			if len(tt.setupArgs) > 1 {
 				cmd := exec.Command("sh", "-c", tt.setupArgs)
-				_, err := cmd.CombinedOutput()
-				if err != nil {
-					t.Error(err)
-				}
+				_, _ = cmd.CombinedOutput()
+				//if err != nil {
+				//	t.Error(err)
+				//}
 			}
 
 			if tt.fixture != "" {
 				cmd := exec.Command(path.Join(".", "stack"), tt.args...)
-				result, err := cmd.CombinedOutput()
-				if err != nil {
-					t.Error(err)
-				}
+				result, _ := cmd.CombinedOutput()
+				//if err != nil {
+				//	t.Error(err)
+				//}
 				golden.AssertBytes(t, result, tt.fixture)
 			} else {
 				result := icmd.RunCmd(icmd.Command(path.Join(".", "stack"), tt.args...))
