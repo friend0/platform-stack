@@ -27,7 +27,7 @@ spec:
         app: app
     spec:
       containers:
-        - name: dataplane
+        - name: app
           image: $APP_IMAGE:$APP_TAG
           imagePullPolicy: $APP_IMAGE_PULL_POLICY
           ports:
