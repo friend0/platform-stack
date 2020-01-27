@@ -13,7 +13,8 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.4.0
 	gotest.tools/v3 v3.0.0
-	k8s.io/api v0.17.1 // indirect
+	k8s.io/api v0.17.1
+	k8s.io/apimachinery v0.17.1
 	k8s.io/client-go v0.17.0
 	k8s.io/utils v0.0.0-20200117235808-5f6fbceb4c31 // indirect
 )

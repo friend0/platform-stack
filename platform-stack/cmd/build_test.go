@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestCliArgs(t *testing.T) {
+func TestBuildCLI(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    []string
@@ -17,7 +17,6 @@ func TestCliArgs(t *testing.T) {
 		{"no arguments", []string{}, "stack-no-args.golden"},
 		{"build command", []string{"build"}, "stack-build-no-args.golden"},
 		{"build command with component", []string{"-r=../../examples", "build", "app"}, ""},
-
 	}
 
 	for _, tt := range tests {
@@ -30,7 +29,7 @@ func TestCliArgs(t *testing.T) {
 				}
 				golden.AssertBytes(t, result, tt.fixture)
 			} else {
-				result := icmd.RunCmd(icmd.Command(path.Join(".", "stack"), tt.args...))
+				result := icmd.RunCmd(icmd.Command(path.Join("stack"), tt.args...))
 				result.Assert(t, icmd.Success)
 			}
 		})

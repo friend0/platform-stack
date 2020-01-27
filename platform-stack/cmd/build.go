@@ -23,7 +23,7 @@ type DockerBuildRequest struct {
 // buildCmd represents the build command
 var buildCmd = &cobra.Command{
 	Use:   "build <component> [tag]",
-	Args: cobra.RangeArgs(1, 2),
+	Args:  cobra.RangeArgs(1, 2),
 	Short: "Builds an image for the given component using the Dockerfile at the configured build directory.",
 	Long: `Builds an image for the given component using the Dockerfile at the configured build directory.
 An optional tag can be provided after the component name, or as an option.
@@ -95,7 +95,6 @@ func init() {
 
 	buildCmd.Flags().StringP("context", "c", "", "Select Docker build context")
 
-	buildCmd.Flags().StringP("dockerfile", "d", "Dockerfile","Select Dockerfile")
-
+	buildCmd.Flags().StringP("dockerfile", "d", "Dockerfile", "Select Dockerfile")
 
 }

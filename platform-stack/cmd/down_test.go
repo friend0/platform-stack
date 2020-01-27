@@ -10,12 +10,12 @@ import (
 
 func TestDownCLI(t *testing.T) {
 	tests := []struct {
-		name    string
-		args    []string
+		name      string
+		args      []string
 		setupArgs string
-		fixture string
+		fixture   string
 	}{
-		{"down", []string{"-r=../../examples", "down"}, "","stack-down-no-args-none-running.golden"},
+		{"down", []string{"-r=../../examples", "down"}, "", "stack-down-no-args-none-running.golden"},
 		{"down with running", []string{"-r=../../examples", "down"}, "stack -r=../../examples up", "stack-down-no-args-with-running.golden"},
 	}
 

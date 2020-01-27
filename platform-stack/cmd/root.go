@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -144,7 +143,6 @@ func homeDir() string {
 	return os.Getenv("USERPROFILE") // windows
 }
 
-
 func containsString(slice []string, element string) bool {
 	for _, elem := range slice {
 		if elem == element {
@@ -156,17 +154,10 @@ func containsString(slice []string, element string) bool {
 
 func initK8s() {
 
-
-	var kubeconfig *string
-	if home := homeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	}
-	flag.Parse()
+	home := homeDir()
 
 	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(home, ".kube", "config"))
 	if err != nil {
 		panic(err.Error())
 	}

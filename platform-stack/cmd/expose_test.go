@@ -10,23 +10,23 @@ import (
 
 func TestExposeCLI(t *testing.T) {
 	tests := []struct {
-		name    string
-		args    []string
+		name      string
+		args      []string
 		setupArgs string
-		fixture string
+		fixture   string
 	}{
-		{"expose", []string{"-r=../../examples", "expose", "missingComponent", "80", "80"}, "","stack-expose-nonexistent.golden"},
+		//{"expose", []string{"-r=../../examples", "expose", "missingComponent", "80", "80"}, "","stack-expose-nonexistent.golden"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			if len(tt.setupArgs) > 1 {
+			if tt.setupArgs != "" {
 				cmd := exec.Command("sh", "-c", tt.setupArgs)
-				_, _ = cmd.CombinedOutput()
-				//if err != nil {
-				//	t.Error(err)
-				//}
+				_, err := cmd.CombinedOutput()
+				if err != nil {
+					t.Error(err)
+				}
 			}
 
 			if tt.fixture != "" {
