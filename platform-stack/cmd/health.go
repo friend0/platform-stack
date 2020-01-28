@@ -25,23 +25,22 @@ func health(cmd *cobra.Command, args []string) (err error) {
 	api := clientset.CoreV1()
 
 	podList, err := getPodsList(api, ns, label, field)
-	podHealth(podList)
+	fmt.Println(podHealth(podList))
 	return nil
 }
 
-func podHealth(pods *v1.PodList) {
+func podHealth(pods *v1.PodList) (output string) {
 
 	for _, pod := range pods.Items {
 		healthy := true
-		detail := ""
 		numContainersReady := 0
 
 		podDetailHeader := fmt.Sprintf("\n\tPod Details `%v`\n", pod.Name)
-		detail += podDetailHeader
-		detail += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(podDetailHeader)))
+		output += podDetailHeader
+		output += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(podDetailHeader)))
 
 		for _, condition := range pod.Status.Conditions {
-			detail += fmt.Sprintf("\t%v: %v\n", condition.Type, condition.Status)
+			output += fmt.Sprintf("\t%v: %v\n", condition.Type, condition.Status)
 		}
 
 		// check container numbers
@@ -52,15 +51,15 @@ func podHealth(pods *v1.PodList) {
 
 			if container.State.Waiting != nil || container.State.Terminated != nil {
 				containerDetailHeader := fmt.Sprintf("\n\tContainer Details `%v`\n", container.Name)
-				detail += containerDetailHeader
-				detail += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
+				output += containerDetailHeader
+				output += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
 			}
 			if container.State.Waiting != nil {
-				detail += fmt.Sprintf("\tContainer %v Waiting: %v\n", container.Name, container.State.Waiting.Message)
+				output += fmt.Sprintf("\tContainer %v Waiting: %v\n", container.Name, container.State.Waiting.Message)
 				healthy = false
 			}
 			if container.State.Terminated != nil{
-				detail += fmt.Sprintf("\tContainer %v Terminated: %v\n", container.Name, container.State.Terminated.Message)
+				output += fmt.Sprintf("\tContainer %v Terminated: %v\n", container.Name, container.State.Terminated.Message)
 				healthy = false
 			}
 		}
@@ -71,14 +70,12 @@ func podHealth(pods *v1.PodList) {
 
 
 		if healthy {
-			fmt.Printf("✔️  %v is healthy\n", pod.Name)
+			output = fmt.Sprintf("✔️  %v is healthy\n", pod.Name)
 		} else {
-			fmt.Printf("✖️  %v is not healthy", pod.Name)
-			// check pod conditions'
-
-			fmt.Println(detail)
+			output = fmt.Sprintf("✖️  %v is not healthy\n", pod.Name) + output
 		}
 	}
+	return output
 }
 
 func init() {
