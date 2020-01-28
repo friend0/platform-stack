@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	v1 "k8s.io/api/core/v1"
+	"strings"
+	"unicode/utf8"
 )
 
 // podsCmd represents the pods command
 var healthCmd = &cobra.Command{
-	Use:   "pods",
+	Use:   "health",
 	Short: "Get the health of the stack.",
 	Long:  `List running pods.`,
 	RunE:  health,
@@ -28,25 +30,54 @@ func health(cmd *cobra.Command, args []string) (err error) {
 }
 
 func podHealth(pods *v1.PodList) {
-	template := "%-50s%-8v%-8v\n"
-	fmt.Printf(template, "NAME", "READY", "STATUS")
-	//result = append(result, fmt.Sprintf(template, "NAME", "READY", "STATUS")...)
+
 	for _, pod := range pods.Items {
+		healthy := true
+		detail := ""
 		numContainersReady := 0
+
+		podDetailHeader := fmt.Sprintf("\n\tPod Details `%v`\n", pod.Name)
+		detail += podDetailHeader
+		detail += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(podDetailHeader)))
+
+		for _, condition := range pod.Status.Conditions {
+			detail += fmt.Sprintf("\t%v: %v\n", condition.Type, condition.Status)
+		}
+
+		// check container numbers
 		for _, container := range pod.Status.ContainerStatuses {
 			if container.Ready {
 				numContainersReady++
 			}
+
+			if container.State.Waiting != nil || container.State.Terminated != nil {
+				containerDetailHeader := fmt.Sprintf("\n\tContainer Details `%v`\n", container.Name)
+				detail += containerDetailHeader
+				detail += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
+			}
+			if container.State.Waiting != nil {
+				detail += fmt.Sprintf("\tContainer %v Waiting: %v\n", container.Name, container.State.Waiting.Message)
+				healthy = false
+			}
+			if container.State.Terminated != nil{
+				detail += fmt.Sprintf("\tContainer %v Terminated: %v\n", container.Name, container.State.Terminated.Message)
+				healthy = false
+			}
 		}
-		fmt.Println("POD CONDITIONS: ", pod.Status.Conditions)
-		fmt.Printf(template,
-			pod.Name,
-			fmt.Sprintf("%v/%v", numContainersReady, len(pod.Spec.Containers)),
-			pod.Status.Phase)
-		//result = append(result, []byte(fmt.Sprintf(template,
-		//	pod.Name,
-		//	fmt.Sprintf("%v/%v", numContainersReady, len(pod.Spec.Containers)),
-		//	pod.Status.Phase))...)
+
+		if numContainersReady != len(pod.Spec.Containers) {
+			healthy = false
+		}
+
+
+		if healthy {
+			fmt.Printf("✔️  %v is healthy\n", pod.Name)
+		} else {
+			fmt.Printf("✖️  %v is not healthy", pod.Name)
+			// check pod conditions'
+
+			fmt.Println(detail)
+		}
 	}
 }
 
