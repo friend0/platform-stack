@@ -10,7 +10,7 @@ import (
 	"syscall"
 )
 
-const kubectlLogsTemplate = `kubectl logs --all-containers=true deployment/{{ .Deployment}}`
+const kubectlLogsTemplate = `kubectl logs --all-containers=true deployments/{{ .Deployment}}`
 
 type KubectlLogsRequest struct {
 	Deployment string
