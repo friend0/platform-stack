@@ -3,64 +3,40 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"os"
 	"os/exec"
 	"os/signal"
 	"syscall"
 )
 
-const kubectlLogsTemplate = `kubectl logs --all-containers=true deployments/{{ .Deployment}}`
+// TODO: set namespace? (`kubectl -n FOO`)
+const kubectlLogsTemplate = `kubectl logs {{if .Stream}} -f {{end}} --all-containers=true deployments/{{ .Deployment}}`
 
 type KubectlLogsRequest struct {
 	Deployment string
+	Stream bool
 }
 
-// pod, container, namespace?
+var (
+	streamLogs bool
+)
 
 // logsCmd represents the logs command
 var logsCmd = &cobra.Command{
 	Use:   "logs <component>",
 	Short: "Show logs for a given running pod by short name",
 	Long: `Show logs for a given running pod by short name.`,
-	Args: func(cmd *cobra.Command, args []string) error {
-
-		if len(args) != 1 {
-			return fmt.Errorf("expecting argument <component>: see `stack logs help`")
-		}
-
-		err := viper.Unmarshal(&config)
-		if err != nil {
-			return err
-		}
-
-		if len(config.Components) < 1 {
-			return fmt.Errorf("no configured components")
-		}
-
-		for idx, component := range config.Components {
-			if component.Name == args[0] {
-				if !component.Exposable {
-					return fmt.Errorf("component not exposable")
-				}
-				break
-			}
-			if idx >= len(config.Components)-1 {
-				return fmt.Errorf("component not found")
-			}
-		}
-		return nil
-	},
+	Args: cobra.MinimumNArgs(1),
 	RunE: runShowLogs,
 }
 
 func runShowLogs(cmd *cobra.Command, args []string) (err error) {
-	fmt.Printf("Showing logs for %v", args[0])
+	fmt.Printf("Showing logs for %v\n", args[0])
 
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
-	forwardCmd, err := showLogs(args[0])
+	forwardCmd, err := showLogs(args[0], streamLogs)
 	if err != nil {
 		return err
 	}
@@ -72,10 +48,11 @@ func runShowLogs(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func showLogs(deployment string) (cmd *exec.Cmd, err error) {
+func showLogs(deployment string, streamLogs bool) (cmd *exec.Cmd, err error) {
 
 	fetchLogsCmd, err := GenerateCommand(kubectlLogsTemplate, KubectlLogsRequest{
 		Deployment: deployment,
+		Stream: streamLogs,
 	})
 
 	if err != nil {
@@ -94,6 +71,7 @@ func showLogs(deployment string) (cmd *exec.Cmd, err error) {
 
 
 func init() {
+	logsCmd.Flags().BoolVarP(&streamLogs, "follow", "f", false, "follow (stream) logs as they happen")
 	rootCmd.AddCommand(logsCmd)
 
 	// Here you will define your flags and configuration settings.
