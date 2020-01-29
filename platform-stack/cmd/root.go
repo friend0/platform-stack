@@ -64,6 +64,7 @@ func initConfig() {
 		viper.SetConfigName(".stack")
 	}
 
+	// todo: allow configurable env prefix
 	viper.SetEnvPrefix(viper.GetString("env_prefix"))
 	viper.AutomaticEnv() // read in environment variables that match
 
