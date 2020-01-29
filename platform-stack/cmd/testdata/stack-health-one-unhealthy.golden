@@ -1,0 +1,12 @@
+✖️  tls-app-579f7cd745-t6fdg is not healthy
+
+	Pod Details `tls-app-579f7cd745-t6fdg`
+	=========================================
+	Initialized: True
+	Ready: False
+	ContainerReady: False
+	PodScheduled: True
+
+	Container Details ``
+	=======================
+	Container  Waiting: Back-off 5m0s restarting failed container=foo/bar pod=tls-app-579f7cd745-t6fdg_default(81cf37f3-3dff-11ea-b7c5-025000000001)
