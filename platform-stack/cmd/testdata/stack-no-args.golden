@@ -7,6 +7,7 @@ Available Commands:
   build       Builds an image for the given component using the Dockerfile at the configured build directory.
   down        Tears down the stack.
   expose      Exposes a kubernetes deployment to your local machine.
+  health      Get the health of the stack.
   help        Help about any command
   pods        List running pods.
   up          Brings up components of the stack.

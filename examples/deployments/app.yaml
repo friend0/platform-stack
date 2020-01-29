@@ -26,7 +26,6 @@ spec:
       labels:
         app: app
     spec:
-      restartPolicy: Never
       containers:
         - name: app
           image: $APP_IMAGE:$APP_TAG
