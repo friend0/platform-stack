@@ -19,14 +19,13 @@ var healthCmd = &cobra.Command{
 
 func health(cmd *cobra.Command, args []string) (err error) {
 
-	ns, _ := cmd.Flags().GetString("ns")
-	label, _ := cmd.Flags().GetStringSlice("label")
-	field, _ := cmd.Flags().GetString("field")
-
 	api := clientset.CoreV1()
 
-	defaultLabel := viper.GetString("stack")
+	ns, _ := cmd.Flags().GetString("ns")
+	label, _ := cmd.Flags().GetStringSlice("label")
+	field, _ := cmd.Flags().GetStringSlice("field")
 
+	defaultLabel := viper.GetString("stack")
 	labelSelect := ""
 	if defaultLabel != "" {
 		labelSelect = fmt.Sprintf("stack=%v", defaultLabel)
@@ -34,8 +33,13 @@ func health(cmd *cobra.Command, args []string) (err error) {
 	for _, elem := range label {
 		labelSelect += elem
 	}
-	
-	podList, err := getPodsList(api, ns, labelSelect, field)
+
+	fieldSelect := ""
+	for _, elem := range field {
+		fieldSelect += elem
+	}
+
+	podList, err := getPodsList(api, ns, labelSelect, fieldSelect)
 	fmt.Println(podHealth(podList))
 	return nil
 }
@@ -97,6 +101,6 @@ func init() {
 	initK8s()
 
 	healthCmd.Flags().StringP("namespace", "n", "default", "Namespace")
-	healthCmd.Flags().StringSliceP("label", "l", []string{}, "Label selector")
-	healthCmd.Flags().StringP("field", "f", "", "Field selector")
+	healthCmd.Flags().StringSliceP("label", "l", []string{}, "Label selectors")
+	healthCmd.Flags().StringSliceP("field", "f", []string{}, "Field selectors")
 }
