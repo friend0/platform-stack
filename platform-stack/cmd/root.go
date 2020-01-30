@@ -45,22 +45,10 @@ func init() {
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-
 		configDirectory := viper.GetString("project_directory")
-		if configDirectory != "." {
-			viper.AddConfigPath(configDirectory)
-		} else {
-			dir, err := os.Getwd()
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-
-			}
-			viper.AddConfigPath(dir)
-		}
+		viper.AddConfigPath(configDirectory)
 		viper.SetConfigName(".stack")
 	}
 
