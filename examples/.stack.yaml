@@ -1,7 +1,7 @@
 context: ./containers
 build_directory: ./containers
 deployment_directory: ./deployments
-stack: exampleservice
+stack: app
 components:
   - name: config
     requiredVariables:
