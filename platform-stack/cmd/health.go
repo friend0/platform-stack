@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	v1 "k8s.io/api/core/v1"
 	"strings"
 	"unicode/utf8"
@@ -19,17 +20,29 @@ var healthCmd = &cobra.Command{
 func health(cmd *cobra.Command, args []string) (err error) {
 
 	ns, _ := cmd.Flags().GetString("ns")
-	label, _ := cmd.Flags().GetString("label")
+	label, _ := cmd.Flags().GetStringSlice("label")
 	field, _ := cmd.Flags().GetString("field")
 
 	api := clientset.CoreV1()
 
-	podList, err := getPodsList(api, ns, label, field)
+	defaultLabel := viper.GetString("stack")
+
+	labelSelect := ""
+	if defaultLabel != "" {
+		labelSelect = fmt.Sprintf("stack=%v", defaultLabel)
+	}
+	for _, elem := range label {
+		labelSelect += elem
+	}
+	
+	podList, err := getPodsList(api, ns, labelSelect, field)
 	fmt.Println(podHealth(podList))
 	return nil
 }
 
+// podHealth generates a report string given an input PodList
 func podHealth(pods *v1.PodList) (output string) {
+
 
 	for _, pod := range pods.Items {
 		healthy := true
@@ -84,7 +97,6 @@ func init() {
 	initK8s()
 
 	healthCmd.Flags().StringP("namespace", "n", "default", "Namespace")
-	healthCmd.Flags().StringP("label", "l", "", "Label selector")
+	healthCmd.Flags().StringSliceP("label", "l", []string{}, "Label selector")
 	healthCmd.Flags().StringP("field", "f", "", "Field selector")
-
 }
