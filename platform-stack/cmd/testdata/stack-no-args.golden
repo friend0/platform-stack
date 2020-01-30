@@ -9,6 +9,7 @@ Available Commands:
   expose      Exposes a kubernetes deployment to your local machine.
   health      Get the health of the stack.
   help        Help about any command
+  logs        Show logs for a given running pod / deployment by short name
   pods        List running pods.
   up          Brings up components of the stack.
 

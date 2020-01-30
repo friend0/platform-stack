@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
-	"os/exec"
-	"os/signal"
-	"syscall"
 )
 
 // TODO: set namespace? (`kubectl -n FOO`)
@@ -24,48 +21,30 @@ var (
 // logsCmd represents the logs command
 var logsCmd = &cobra.Command{
 	Use:   "logs <component>",
-	Short: "Show logs for a given running pod by short name",
-	Long: `Show logs for a given running pod by short name.`,
+	Short: "Show logs for a given running pod / deployment by short name",
+	Long: `Show logs for a given running pod / deployment by short name.`,
 	Args: cobra.MinimumNArgs(1),
-	RunE: runShowLogs,
+	RunE: showLogs,
 }
 
-func runShowLogs(cmd *cobra.Command, args []string) (err error) {
+func showLogs(cmd *cobra.Command, args []string) (err error) {
 	fmt.Printf("Showing logs for %v\n", args[0])
 
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-
-	forwardCmd, err := showLogs(args[0], streamLogs)
-	if err != nil {
-		return err
-	}
-
-	<-c
-	if forwardCmd != nil {
-		return forwardCmd.Process.Kill()
-	}
-	return nil
-}
-
-func showLogs(deployment string, streamLogs bool) (cmd *exec.Cmd, err error) {
-
 	fetchLogsCmd, err := GenerateCommand(kubectlLogsTemplate, KubectlLogsRequest{
-		Deployment: deployment,
+		Deployment: args[0],
 		Stream: streamLogs,
 	})
 
 	if err != nil {
-		return fetchLogsCmd, err
+		return err
 	}
 
 	fetchLogsCmd.Stdout = os.Stdout
 	fetchLogsCmd.Stderr = os.Stderr
-	if err := fetchLogsCmd.Start(); err != nil {
-		return fetchLogsCmd, err
+	if err := fetchLogsCmd.Run(); err != nil {
+		return err
 	}
-	forwardCmds[deployment] = fetchLogsCmd
-	return fetchLogsCmd, nil
+	return nil
 }
 
 
