@@ -2,6 +2,4 @@ Tearing down components at config...
 configmap "logflights-env" deleted
 
 Tearing down components at app...
-service "app" deleted
-deployment.apps "app" deleted
-
+`app` component failed teardown. You may need to delete it manually.
