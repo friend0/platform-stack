@@ -5,7 +5,7 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   labels:
-    app: logflights-env
+    stack: logflights-env
   name: logflights-env
 kubetpl/data-from-env-file:
   - config-$ENV.env
