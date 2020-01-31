@@ -5,7 +5,7 @@ apiVersion: v1
 metadata:
   name: app
   labels:
-    app: app
+    stack: app
 spec:
   ports:
     - name: app
@@ -20,11 +20,11 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: app
+      stack: app
   template:
     metadata:
       labels:
-        app: app
+        stack: app
     spec:
       containers:
         - name: app

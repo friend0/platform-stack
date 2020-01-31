@@ -18,11 +18,7 @@ type KubectlExposeRequest struct {
 	RemotePort string
 }
 
-var forwardCmds = map[string]*exec.Cmd{
-	"frontend":   nil,
-	"logflights": nil,
-	"redis":      nil,
-}
+var forwardCmds = map[string]*exec.Cmd{}
 
 type Config struct {
 	Components []ComponentDescription
