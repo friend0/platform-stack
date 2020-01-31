@@ -21,7 +21,7 @@ func health(cmd *cobra.Command, args []string) (err error) {
 
 	api := clientset.CoreV1()
 
-	ns, _ := cmd.Flags().GetString("ns")
+	ns, _ := cmd.Flags().GetString("namespace")
 	label, _ := cmd.Flags().GetStringSlice("label")
 	field, _ := cmd.Flags().GetStringSlice("field")
 
@@ -50,7 +50,7 @@ func podHealth(pods *v1.PodList) (output string) {
 
 	for _, pod := range pods.Items {
 		healthy := true
-		numContainersReady := 0
+		numContainersHealthy := 0
 
 		podDetailHeader := fmt.Sprintf("\n\tPod Details `%v`\n", pod.Name)
 		output += podDetailHeader
@@ -63,7 +63,7 @@ func podHealth(pods *v1.PodList) (output string) {
 		// check container numbers
 		for _, container := range pod.Status.ContainerStatuses {
 			if container.Ready {
-				numContainersReady++
+				numContainersHealthy++
 			}
 
 			if container.State.Waiting != nil || container.State.Terminated != nil {
@@ -72,16 +72,20 @@ func podHealth(pods *v1.PodList) (output string) {
 				output += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
 			}
 			if container.State.Waiting != nil {
-				output += fmt.Sprintf("\tContainer %v Waiting: %v\n", container.Name, container.State.Waiting.Message)
+				output += fmt.Sprintf("\tContainer Waiting: %v\n", container.State.Waiting.Message)
 				healthy = false
 			}
-			if container.State.Terminated != nil{
-				output += fmt.Sprintf("\tContainer %v Terminated: %v\n", container.Name, container.State.Terminated.Message)
-				healthy = false
+			if container.State.Terminated != nil {
+				if container.State.Terminated.ExitCode == 0 {
+					numContainersHealthy++
+				} else {
+					output += fmt.Sprintf("\tContainer Terminated with non-zero ExitCode: %v: %v\n", container.State.Terminated.ExitCode, container.State.Terminated.Message)
+					healthy = false
+				}
 			}
 		}
 
-		if numContainersReady != len(pod.Spec.Containers) {
+		if numContainersHealthy != len(pod.Spec.Containers) {
 			healthy = false
 		}
 
@@ -100,7 +104,7 @@ func init() {
 
 	initK8s()
 
-	healthCmd.Flags().StringP("namespace", "n", "default", "Namespace")
+	healthCmd.Flags().StringP("namespace", "n", "", "Namespace")
 	healthCmd.Flags().StringSliceP("label", "l", []string{}, "Label selectors")
 	healthCmd.Flags().StringSliceP("field", "f", []string{}, "Field selectors")
 }

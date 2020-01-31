@@ -123,6 +123,7 @@ func TestPodHealthWithUnhealthy(t *testing.T) {
 		Spec: v1.PodSpec{
 			Containers: []v1.Container{
 				{
+					Name: 			"tls-app",
 					Image:           "foo/bar",
 					ImagePullPolicy: v1.PullIfNotPresent,
 				},

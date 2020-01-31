@@ -18,7 +18,7 @@ var podsCmd = &cobra.Command{
 
 func pods(cmd *cobra.Command, args []string) (err error) {
 
-	ns, _ := cmd.Flags().GetString("ns")
+	ns, _ := cmd.Flags().GetString("namespace")
 	label, _ := cmd.Flags().GetString("label")
 	field, _ := cmd.Flags().GetString("field")
 
@@ -54,6 +54,10 @@ func printPods(pods *v1.PodList) (result []byte) {
 			if container.Ready {
 				numContainersReady++
 			}
+
+			if container.State.Terminated != nil && container.State.Terminated.ExitCode == 0 {
+				numContainersReady++
+			}
 		}
 		fmt.Printf(template,
 			pod.Name,
@@ -72,7 +76,7 @@ func init() {
 
 	initK8s()
 
-	podsCmd.Flags().StringP("namespace", "n", "default", "Namespace")
+	podsCmd.Flags().StringP("namespace", "n", "", "Namespace")
 	podsCmd.Flags().StringP("label", "l", "", "Label selector")
 	podsCmd.Flags().StringP("field", "f", "", "Field selector")
 
