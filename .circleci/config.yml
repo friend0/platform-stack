@@ -23,14 +23,27 @@ jobs:
           command: |
             sudo rm -rf /usr/local/go
       - go/install
-      - kubernetes/install-kubectl
       - run:
-          name: Install kubetpl
+          name: Build executable
           command: |
-            printf "Installing kubetpl ...\n"
-            curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-"$(
-            bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux'
-            )"-amd64 -o kubetpl && chmod a+x kubetpl && sudo mv kubetpl /usr/local/bin/
+            go build -o stack -v ./platform-stack/main.go
+      - run:
+          name: Copy executable onto path
+          command: |
+            sudo cp ./stack /usr/local/bin
+      - run:
+          name: Install stack dependencies
+          command: |
+            stack install
+
+#      - kubernetes/install-kubectl
+#      - run:
+#          name: Install kubetpl
+#          command: |
+#            printf "Installing kubetpl ...\n"
+#            curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-"$(
+#            bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux'
+#            )"-amd64 -o kubetpl && chmod a+x kubetpl && sudo mv kubetpl /usr/local/bin/
 
       - run:
           name: Install minikube
@@ -51,15 +64,9 @@ jobs:
               sleep 1;
             done
 
-      - run:
-          name: Build executable
-          command: |
-            go build -o stack -v ./platform-stack/main.go
 
-      - run:
-          name: Copy executable onto path
-          command: |
-            sudo cp ./stack /usr/local/bin
+
+
 
       - run:
           name: Check source formatting
