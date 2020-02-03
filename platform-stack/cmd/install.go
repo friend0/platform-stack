@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"syscall"
 
 	"github.com/spf13/cobra"
@@ -19,21 +20,61 @@ var installCmd = &cobra.Command{
 
 func runInstall(cmd *cobra.Command, args []string) (err error) {
 	fmt.Println("Installing development dependencies...")
-	deps := map[string]string{
-		"xcode-select -v": "xcode-select --install",
-		"brew --version": `usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`,
-		"kubectl": `brew install kubectl`,
-		"kubetpl": `curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-"$(bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux')"-amd64 -o kubetpl && chmod a+x kubetpl && sudo mv kubetpl /usr/local/bin/`,
+
+	// todo:
+	deps := map[string]struct{
+		os []string
+		test      string
+		install map[string][]string
+	} {
+		"xcode": {
+			os: []string{"darwin"},
+			test: "xcode-select -v",
+			install: map[string][]string{
+				"darwin": []string{"xcode-select --install"},
+			},
+		},
+		"kubectl": {
+			os: []string{"darwin", "linux"},
+			test: "kubectl",
+			install: map[string][]string{
+				"darwin":[]string{
+					"curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/darwin/amd64/kubectl",
+					"chmod +x ./kubectl",
+					"sudo mv ./kubectl /usr/local/bin/kubectl"},
+			},
+		},
+		"kubetpl": {
+			os: []string{"darwin", "linux"},
+			test: "kubetpl",
+			install: map[string][]string{
+				"darwin":[]string{
+					`curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-darwin-amd64 -o kubetpl`,
+					"chmod a+x kubetpl",
+					"sudo mv kubetpl /usr/local/bin/",
+				},
+				"linux":[]string{
+					`curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-linux-amd64 -o kubetpl`,
+					"chmod a+x kubetpl",
+					"sudo mv kubetpl /usr/local/bin/",
+				},
+			},
+		},
 	}
 
 	var installed []string
-	for dep, installCmd := range deps {
-		if !dependencyExists(dep) {
-			err = installDependency(installCmd)
-			if err != nil {
-				return err
+	goos := runtime.GOOS
+	for dep, install := range deps {
+		for _, os := range install.os {
+			if os == goos {
+				if !dependencyExists(install.test) {
+					err = installDependency(install.install[os])
+					if err != nil {
+						return err
+					}
+					installed = append(installed, dep)
+				}
 			}
-			installed = append(installed, dep)
 		}
 	}
 
@@ -56,14 +97,17 @@ func dependencyExists(arg string) bool {
 	return true
 }
 
-func installDependency(arg string) (err error) {
-	cmd := exec.Command("sh", "-c", arg)
+func installDependency(args []string) (err error) {
+	for _, arg := range args {
+		cmd := exec.Command("sh", "-c", arg)
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 
-	err = cmd.Run()
-	return err
+		err = cmd.Run()
+		return err
+	}
+	return nil
 }
 
 func init() {
