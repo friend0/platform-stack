@@ -141,21 +141,43 @@ func containsString(slice []string, element string) bool {
 	return false
 }
 
-func initK8s() {
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
+
+func directoryExists(dirname string) bool {
+	info, err := os.Stat(dirname)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return info.IsDir()
+}
+
+func initK8s() (err error) {
 
 	home := homeDir()
+
+	kubeconfigPath := filepath.Join(home, ".kube", "config")
+
+	if !fileExists(kubeconfigPath) {
+		return fmt.Errorf("kube config not found")
+	}
 
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(home, ".kube", "config"))
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	// create the clientset
 	clientset, err = kubernetes.NewForConfig(config)
 
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	for {
@@ -163,5 +185,5 @@ func initK8s() {
 			break
 		}
 	}
-
+	return nil
 }

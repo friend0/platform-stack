@@ -126,6 +126,7 @@ func TestPodHealthWithUnhealthy(t *testing.T) {
 					Name:            "tls-app",
 					Image:           "foo/bar",
 					ImagePullPolicy: v1.PullIfNotPresent,
+					Command: []string{"echo hello"},
 				},
 			},
 			RestartPolicy: v1.RestartPolicyAlways,
