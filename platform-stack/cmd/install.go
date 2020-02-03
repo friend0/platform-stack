@@ -18,7 +18,26 @@ var installCmd = &cobra.Command{
 }
 
 func runInstall(cmd *cobra.Command, args []string) (err error) {
-	fmt.Println("install called")
+	fmt.Println("Installing development dependencies...")
+	deps := map[string]string{
+		"xcode-select -v": "xcode-select --install",
+		"brew --version": `usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`,
+		"kubectl": `brew install kubectl`,
+		"kubetpl": `curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-"$(bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux')"-amd64 -o kubetpl && chmod a+x kubetpl && sudo mv kubetpl /usr/local/bin/`,
+	}
+
+	var installed []string
+	for dep, installCmd := range deps {
+		if !dependencyExists(dep) {
+			err = installDependency(installCmd)
+			if err != nil {
+				return err
+			}
+			installed = append(installed, dep)
+		}
+	}
+
+	fmt.Printf("Installed %v dependencies\n", len(installed))
 	return nil
 }
 
