@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"gotest.tools/v3/golden"
 	v1 "k8s.io/api/core/v1"
@@ -34,7 +33,6 @@ func TestGetPodList(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	fmt.Println(podList)
 	podListString := podList.String()
 	golden.AssertBytes(t, []byte(podListString), "stack-get-pods-list.golden")
 
@@ -62,4 +60,7 @@ func TestPrintPods(t *testing.T) {
 
 	pods, _ := api.CoreV1().Pods("default").List(metav1.ListOptions{})
 	assert.True(t, len(pods.Items) == 1)
+
+	printBytes := printPods(pods)
+	golden.AssertBytes(t, printBytes, "stack-print-pods-list.golden")
 }

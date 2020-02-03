@@ -153,6 +153,7 @@ func initK8s() {
 
 	// create the clientset
 	clientset, err = kubernetes.NewForConfig(config)
+
 	if err != nil {
 		panic(err.Error())
 	}
@@ -162,4 +163,5 @@ func initK8s() {
 			break
 		}
 	}
+
 }

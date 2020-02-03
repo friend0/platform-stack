@@ -100,7 +100,7 @@ jobs:
       - run:
           name: cross compile
           command: |
-            gox -os="linux darwin" -arch="amd64" -output="dist/stack_{{.OS}}_{{.Arch}}"
+            gox -os="linux darwin" -arch="amd64" -output="dist/stack_{{.OS}}_{{.Arch}}" ./platform-stack/
             cd dist/ && gzip *
       - run:
           name: create release
