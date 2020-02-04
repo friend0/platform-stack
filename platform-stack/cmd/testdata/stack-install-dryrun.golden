@@ -1,5 +1,0 @@
-[dry run] Installing development dependencies...
-Install summary:
-will not install kubectl,
-will not install kubetpl,
-will not install xcode

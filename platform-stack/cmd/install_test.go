@@ -73,7 +73,6 @@ func TestInstallCLI(t *testing.T) {
 		fixture   string
 	}{
 		{"install help", []string{"help", "install"}, "", "stack-install-help.golden"},
-		{"install dry run", []string{"-r=../../examples", "install", "-d=true"}, "", "stack-install-dryrun.golden"},
 	}
 
 	for _, tt := range tests {
