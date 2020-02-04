@@ -36,15 +36,6 @@ jobs:
           command: |
             stack install
 
-#      - kubernetes/install-kubectl
-#      - run:
-#          name: Install kubetpl
-#          command: |
-#            printf "Installing kubetpl ...\n"
-#            curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-"$(
-#            bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux'
-#            )"-amd64 -o kubetpl && chmod a+x kubetpl && sudo mv kubetpl /usr/local/bin/
-
       - run:
           name: Install minikube
           command: |
@@ -63,10 +54,6 @@ jobs:
             until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do
               sleep 1;
             done
-
-
-
-
 
       - run:
           name: Check source formatting
