@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"syscall"
 	"text/template"
 
@@ -71,15 +72,18 @@ var StackCLIDependencies = map[string]InstallDescription{
 }
 
 func runInstall(cmd *cobra.Command, args []string) (err error) {
-	fmt.Println("Installing development dependencies...")
-
 	dryRun, _ := cmd.Flags().GetBool("dryrun")
+	if !dryRun {
+		fmt.Println("Installing development dependencies...")
+	} else {
+		fmt.Println("[dry run] Installing development dependencies...")
+	}
 
 	installed, err := installDependencies(StackCLIDependencies, dryRun)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Installed dependencies: %v\n", installed)
+	fmt.Printf("Install summary:\n%v", strings.Join(installed, ",\n"))
 	return nil
 }
 
@@ -90,7 +94,12 @@ func installDependencies(dependencies map[string]InstallDescription, dryRun bool
 	for dep, install := range dependencies {
 		for _, osName := range install.os {
 			if osName == goos {
-				exists := !dependencyExists(install.test)
+				exists := dependencyExists(install.test)
+				if exists {
+					installed = append(installed, fmt.Sprintf("will not install %v", dep))
+				} else {
+					installed = append(installed, fmt.Sprintf("will install %v", dep))
+				}
 				if !dryRun {
 					if !exists {
 						// todo:
@@ -99,17 +108,11 @@ func installDependencies(dependencies map[string]InstallDescription, dryRun bool
 						if ok {
 							err = installDependency(installCmds, install.version)
 							if err != nil {
-								installed = append(installed, "failed installing %v\n")
+								installed = append(installed, "failed installing %v")
 								return installed, err
 							}
-							installed = append(installed, "installed %v\n")
+							installed = append(installed, "installed %v")
 						}
-					}
-				} else {
-					if exists {
-						installed = append(installed, fmt.Sprintf("will not install %v\n", dep))
-					} else {
-						installed = append(installed, fmt.Sprintf("will install %v\n", dep))
 					}
 				}
 			}

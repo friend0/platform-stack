@@ -1,0 +1,12 @@
+Installs dependencies needed to run stack commands.
+
+Usage:
+  stack install [flags]
+
+Flags:
+  -d, --dryrun   Select deployment environment
+  -h, --help     help for install
+
+Global Flags:
+      --config string              config file (default is $HOME/.{{name of project}}.yaml)
+  -r, --project_directory string   set the project directory for stack command (default ".")
