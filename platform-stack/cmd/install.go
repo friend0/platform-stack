@@ -18,54 +18,56 @@ var installCmd = &cobra.Command{
 	RunE:  runInstall,
 }
 
+type InstallDescription struct {
+	os      []string
+	test    string
+	install map[string][]string
+}
+
+var StackCLIDependencies = map[string]InstallDescription{
+	"xcode": {
+		os:   []string{"darwin"},
+		test: "xcode-select -v",
+		install: map[string][]string{
+			"darwin": []string{"xcode-select --install"},
+		},
+	},
+	"kubectl": {
+		os:   []string{"darwin", "linux"},
+		test: "kubectl",
+		install: map[string][]string{
+			"darwin": []string{
+				"curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/darwin/amd64/kubectl",
+				"chmod +x ./kubectl",
+				"sudo mv ./kubectl /usr/local/bin/kubectl"},
+			"linux": []string{
+				"curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/linux/amd64/kubectl && chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/kubectl",
+			},
+		},
+	},
+	"kubetpl": {
+		os:   []string{"darwin", "linux"},
+		test: "kubetpl",
+		install: map[string][]string{
+			"darwin": []string{
+				`curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-darwin-amd64 -o kubetpl`,
+				"chmod a+x kubetpl",
+				"sudo mv kubetpl /usr/local/bin/",
+			},
+			"linux": []string{
+				`curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-$(bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux')-amd64 -o kubetpl && chmod a+x kubetpl && sudo mv kubetpl /usr/local/bin/`,
+			},
+		},
+	},
+}
+
+
 func runInstall(cmd *cobra.Command, args []string) (err error) {
 	fmt.Println("Installing development dependencies...")
 
-	// todo:
-	deps := map[string]struct {
-		os      []string
-		test    string
-		install map[string][]string
-	}{
-		"xcode": {
-			os:   []string{"darwin"},
-			test: "xcode-select -v",
-			install: map[string][]string{
-				"darwin": []string{"xcode-select --install"},
-			},
-		},
-		"kubectl": {
-			os:   []string{"darwin", "linux"},
-			test: "kubectl",
-			install: map[string][]string{
-				"darwin": []string{
-					"curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/darwin/amd64/kubectl",
-					"chmod +x ./kubectl",
-					"sudo mv ./kubectl /usr/local/bin/kubectl"},
-				"linux": []string{
-					"curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/linux/amd64/kubectl && chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/kubectl",
-				},
-			},
-		},
-		"kubetpl": {
-			os:   []string{"darwin", "linux"},
-			test: "kubetpl",
-			install: map[string][]string{
-				"darwin": []string{
-					`curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-darwin-amd64 -o kubetpl`,
-					"chmod a+x kubetpl",
-					"sudo mv kubetpl /usr/local/bin/",
-				},
-				"linux": []string{
-					`curl -sSL https://github.com/shyiko/kubetpl/releases/download/0.9.0/kubetpl-0.9.0-$(bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux')-amd64 -o kubetpl && chmod a+x kubetpl && sudo mv kubetpl /usr/local/bin/`,
-				},
-			},
-		},
-	}
-
 	var installed []string
 	goos := runtime.GOOS
-	for dep, install := range deps {
+	for dep, install := range StackCLIDependencies {
 		for _, os := range install.os {
 			if os == goos {
 				if !dependencyExists(install.test) {
@@ -84,22 +86,17 @@ func runInstall(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
-	fmt.Printf("Installed %v dependencies\n", len(installed))
+	fmt.Printf("Installed dependencies: %v\n", installed)
 	return nil
 }
 
 func dependencyExists(arg string) bool {
 	err := exec.Command("sh", "-c", arg).Run()
-
 	if exiterr, ok := err.(*exec.ExitError); ok {
-		// The program has exited with an exit code != 0
 		if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
-			//return false
-			fmt.Println(status.ExitStatus())
 			return status.ExitStatus() == 0
 		}
 	}
-
 	return true
 }
 
@@ -111,6 +108,11 @@ func installDependency(args []string) (err error) {
 		cmd.Stderr = os.Stderr
 
 		err = cmd.Run()
+		if exiterr, ok := err.(*exec.ExitError); ok {
+			if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
+				return fmt.Errorf("install exited with code %v", status.ExitStatus())
+			}
+		}
 		return err
 	}
 	return nil
