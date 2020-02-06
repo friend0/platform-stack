@@ -75,7 +75,7 @@ func printPods(pods *v1.PodList) (result []byte) {
 
 func init() {
 	rootCmd.AddCommand(podsCmd)
-
+	
 	initK8s()
 
 	podsCmd.Flags().StringP("namespace", "n", "", "Namespace")

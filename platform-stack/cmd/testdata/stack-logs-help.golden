@@ -1,0 +1,12 @@
+Show logs for a given running pod / deployment by short name.
+
+Usage:
+  stack logs <component> [flags]
+
+Flags:
+  -f, --follow   follow (stream) logs as they happen
+  -h, --help     help for logs
+
+Global Flags:
+  -r, --project_directory string     set the project directory of the stack (default ".")
+      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
