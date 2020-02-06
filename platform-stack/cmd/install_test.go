@@ -12,7 +12,9 @@ import (
 )
 
 func TestParseDependencyVersionOverrides(t *testing.T) {
-
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	tests := []struct {
 		input          []string
 		expectedOutput map[string]string
