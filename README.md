@@ -49,3 +49,4 @@ Development
 Stack also provides tools useful for development, and debugging.
 
 - `expose` will port forward between a running pod and the local machine
+- `logs` will display the logging output of a running pod

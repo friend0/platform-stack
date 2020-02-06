@@ -6,7 +6,6 @@ import (
 	"os"
 )
 
-// TODO: set namespace? (`kubectl -n FOO`)
 const kubectlLogsTemplate = `kubectl logs {{if .Stream}} -f {{end}} --all-containers=true deployments/{{ .Deployment}}`
 
 type KubectlLogsRequest struct {
@@ -53,13 +52,4 @@ func init() {
 	logsCmd.Flags().BoolVarP(&streamLogs, "follow", "f", false, "follow (stream) logs as they happen")
 	rootCmd.AddCommand(logsCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// logsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// logsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
