@@ -10,6 +10,7 @@ Available Commands:
   health      Get the health of the stack.
   help        Help about any command
   install     Installs dependencies needed to run stack commands.
+  logs        Show logs for a given running pod / deployment by short name
   pods        List running pods.
   up          Brings up components of the stack.
 
