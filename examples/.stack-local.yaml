@@ -1,0 +1,15 @@
+context: ./containers
+build_directory: ./containers
+deployment_directory: ./deployments
+stack: app
+components:
+  - name: config
+    requiredVariables:
+      - ENV
+  - name: app
+    requiredVariables:
+      - PWD
+      - HOME
+    exposable: true
+postgres_deployment: postgres
+env_prefix: examples

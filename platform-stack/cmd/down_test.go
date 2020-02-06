@@ -8,7 +8,10 @@ import (
 	"testing"
 )
 
-func TestDownCLI(t *testing.T) {
+func TestDownIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	tests := []struct {
 		name      string
 		args      []string

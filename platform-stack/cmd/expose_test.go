@@ -8,7 +8,10 @@ import (
 	"testing"
 )
 
-func TestExposeCLI(t *testing.T) {
+func TestExposeIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	tests := []struct {
 		name      string
 		args      []string

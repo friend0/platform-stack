@@ -1,0 +1,15 @@
+List running pods.
+
+Usage:
+  stack health [flags]
+
+Flags:
+  -d, --dependency_versions dependency_name=version   Comma separated list of dependency version assignments as dependency_name=version
+  -f, --field strings                                 Field selectors
+  -h, --help                                          help for health
+  -l, --label strings                                 Label selectors
+  -n, --namespace string                              Namespace
+
+Global Flags:
+  -r, --project_directory string     set the project directory of the stack (default ".")
+      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")

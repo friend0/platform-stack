@@ -14,6 +14,9 @@ var healthCmd = &cobra.Command{
 	Use:   "health",
 	Short: "Get the health of the stack.",
 	Long:  `List running pods.`,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		initK8s()
+	},
 	RunE:  health,
 }
 
@@ -100,7 +103,6 @@ func podHealth(pods *v1.PodList) (output string) {
 func init() {
 	rootCmd.AddCommand(healthCmd)
 
-	initK8s()
 
 	healthCmd.Flags().StringP("namespace", "n", "", "Namespace")
 	healthCmd.Flags().StringSliceP("label", "l", []string{}, "Label selectors")
