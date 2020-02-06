@@ -67,9 +67,6 @@ var StackCLIDependencies = map[string]DependencyDescription{
 
 func parseDependencyVersionOverrides(dependencyVersions []string) (map[string]string, error) {
 	dependencyVersionMap = make(map[string]string)
-	if len(dependencyVersions) == 0 {
-		return dependencyVersionMap, fmt.Errorf("no dependency version assignments provided")
-	}
 	for _, dependencyVersion := range dependencyVersions {
 		split := strings.Split(dependencyVersion, "=")
 		if len(split) != 2 || split[1] == "" {
@@ -127,7 +124,7 @@ func installDependencies(dependencies map[string]DependencyDescription, dryRun b
 			if osName == goos {
 				exists := dependencyExists(install.test)
 				if exists {
-					installed = append(installed, fmt.Sprintf("will not install %v", dep))
+					installed = append(installed, fmt.Sprintf("`%v` already exists - skipping install", dep))
 				} else {
 					installed = append(installed, fmt.Sprintf("will install %v", dep))
 				}

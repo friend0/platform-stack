@@ -19,6 +19,7 @@ func TestParseDependencyVersionOverrides(t *testing.T) {
 		input          []string
 		expectedOutput map[string]string
 	}{
+		{[]string{""}, map[string]string{}},
 		{[]string{"k=v1.17.1"}, map[string]string{"k": "v1.17.1"}},
 		{[]string{"a=v1.0.1", "b=1.0"}, map[string]string{"a": "v1.0.1", "b": "1.0"}},
 	}
@@ -35,7 +36,6 @@ func TestParseDependencyVersionOverrides(t *testing.T) {
 	errTests := []struct {
 		input []string
 	}{
-		{[]string{""}},
 		{[]string{"a="}},
 		{[]string{"a=", "b=1.0"}},
 	}
