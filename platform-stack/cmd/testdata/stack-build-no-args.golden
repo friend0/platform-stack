@@ -10,6 +10,6 @@ Flags:
   -t, --tag string          Image tag. Tag parameter will override this. (default "latest")
 
 Global Flags:
-      --config string              config file (default is $HOME/.{{name of project}}.yaml)
-  -r, --project_directory string   set the project directory for stack command (default ".")
+  -r, --project_directory string     set the project directory of the stack (default ".")
+      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
 
