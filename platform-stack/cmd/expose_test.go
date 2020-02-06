@@ -8,14 +8,17 @@ import (
 	"testing"
 )
 
-func TestExposeCLI(t *testing.T) {
+func TestExposeIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	tests := []struct {
 		name      string
 		args      []string
 		setupArgs string
 		fixture   string
 	}{
-		{"expose", []string{"-r=../../examples", "expose", "missingComponent", "80", "80"}, "","stack-expose-nonexistent.golden"},
+		{"expose", []string{"-r=../../examples", "expose", "missingComponent", "80", "80"}, "", "stack-expose-nonexistent.golden"},
 	}
 
 	for _, tt := range tests {

@@ -45,9 +45,9 @@ func getPodsList(api v12.CoreV1Interface, ns, label, field string) (list *v1.Pod
 
 // printPods prints metadata about the pods in the provided list. It also returns this result as a byte array.
 func printPods(pods *v1.PodList) (result []byte) {
-	template := "%-50s%-8v%-8v\n"
-	fmt.Printf(template, "NAME", "READY", "STATUS")
-	result = append(result, fmt.Sprintf(template, "NAME", "READY", "STATUS")...)
+	template := "%-50s%-8v%-24v%-8v\n"
+	fmt.Printf(template, "NAME", "READY", "NAMESPACE", "STATUS")
+	result = append(result, fmt.Sprintf(template, "NAME", "READY", "NAMESPACE", "STATUS")...)
 	for _, pod := range pods.Items {
 		numContainersReady := 0
 		for _, container := range pod.Status.ContainerStatuses {
@@ -62,10 +62,12 @@ func printPods(pods *v1.PodList) (result []byte) {
 		fmt.Printf(template,
 			pod.Name,
 			fmt.Sprintf("%v/%v", numContainersReady, len(pod.Spec.Containers)),
+			pod.Namespace,
 			pod.Status.Phase)
 		result = append(result, []byte(fmt.Sprintf(template,
 			pod.Name,
 			fmt.Sprintf("%v/%v", numContainersReady, len(pod.Spec.Containers)),
+			pod.Namespace,
 			pod.Status.Phase))...)
 	}
 	return result

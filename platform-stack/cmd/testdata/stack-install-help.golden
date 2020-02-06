@@ -1,0 +1,12 @@
+Installs dependencies needed to run stack commands.
+
+Usage:
+  stack install [flags]
+
+Flags:
+  -d, --dryrun   Select deployment environment
+  -h, --help     help for install
+
+Global Flags:
+  -r, --project_directory string     set the project directory of the stack (default ".")
+      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")

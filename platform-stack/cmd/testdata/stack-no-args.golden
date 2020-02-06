@@ -9,12 +9,13 @@ Available Commands:
   expose      Exposes a kubernetes deployment to your local machine.
   health      Get the health of the stack.
   help        Help about any command
+  install     Installs dependencies needed to run stack commands.
   pods        List running pods.
   up          Brings up components of the stack.
 
 Flags:
-      --config string              config file (default is $HOME/.{{name of project}}.yaml)
-  -h, --help                       help for stack
-  -r, --project_directory string   set the project directory for stack command (default ".")
+  -h, --help                         help for stack
+  -r, --project_directory string     set the project directory of the stack (default ".")
+      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
 
 Use "stack [command] --help" for more information about a command.

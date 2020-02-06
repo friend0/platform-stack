@@ -1,5 +1,5 @@
 Tearing down components at config...
-configmap "logflights-env" deleted
+configmap "stack-env" deleted
 
 Tearing down components at app...
 service "app" deleted

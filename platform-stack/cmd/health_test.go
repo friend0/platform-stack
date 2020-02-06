@@ -2,47 +2,52 @@ package cmd
 
 import (
 	"gotest.tools/v3/golden"
+	"gotest.tools/v3/icmd"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
+	"path"
 	"testing"
+	"os/exec"
 )
 
-//func TestHealthCLI(t *testing.T) {
-//	tests := []struct {
-//		name      string
-//		args      []string
-//		setupArgs string
-//		fixture   string
-//	}{
-//	}
-//
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//
-//			if tt.setupArgs != "" {
-//				cmd := exec.Command("sh", "-c", tt.setupArgs)
-//				_, err := cmd.CombinedOutput()
-//				if err != nil {
-//					t.Error(err)
-//				}
-//			}
-//
-//			if tt.fixture != "" {
-//				cmd := exec.Command(path.Join(".", "stack"), tt.args...)
-//				result, _ := cmd.CombinedOutput()
-//				//if err != nil {
-//				//	t.Error(err)
-//				//}
-//				golden.AssertBytes(t, result, tt.fixture)
-//			} else {
-//				result := icmd.RunCmd(icmd.Command(path.Join(".", "stack"), tt.args...))
-//				result.Assert(t, icmd.Success)
-//			}
-//
-//		})
-//	}
-//}
+func TestHealthIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+	tests := []struct {
+		name      string
+		args      []string
+		setupArgs string
+		fixture   string
+	}{
+		{"expose", []string{"help", "health"}, "", "stack-health-help.golden"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			if tt.setupArgs != "" {
+				cmd := exec.Command("sh", "-c", tt.setupArgs)
+				_, err := cmd.CombinedOutput()
+				if err != nil {
+					t.Error(err)
+				}
+			}
+
+			if tt.fixture != "" {
+				cmd := exec.Command(path.Join(".", "stack"), tt.args...)
+				result, _ := cmd.CombinedOutput()
+				golden.AssertBytes(t, result, tt.fixture)
+			} else {
+				result := icmd.RunCmd(icmd.Command(path.Join(".", "stack"), tt.args...))
+				result.Assert(t, icmd.Success)
+			}
+
+		})
+	}
+}
+
 
 func TestPodHealth(t *testing.T) {
 
@@ -123,9 +128,10 @@ func TestPodHealthWithUnhealthy(t *testing.T) {
 		Spec: v1.PodSpec{
 			Containers: []v1.Container{
 				{
-					Name: 			"tls-app",
+					Name:            "tls-app",
 					Image:           "foo/bar",
 					ImagePullPolicy: v1.PullIfNotPresent,
+					Command:         []string{"echo hello"},
 				},
 			},
 			RestartPolicy: v1.RestartPolicyAlways,

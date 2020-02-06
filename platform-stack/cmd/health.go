@@ -14,6 +14,9 @@ var healthCmd = &cobra.Command{
 	Use:   "health",
 	Short: "Get the health of the stack.",
 	Long:  `List running pods.`,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		initK8s()
+	},
 	RunE:  health,
 }
 
@@ -47,17 +50,16 @@ func health(cmd *cobra.Command, args []string) (err error) {
 // podHealth generates a report string given an input PodList
 func podHealth(pods *v1.PodList) (output string) {
 
-
 	for _, pod := range pods.Items {
 		healthy := true
 		numContainersHealthy := 0
 
 		podDetailHeader := fmt.Sprintf("\n\tPod Details `%v`\n", pod.Name)
-		output += podDetailHeader
-		output += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(podDetailHeader)))
+		podDetailOutput := podDetailHeader
+		podDetailOutput += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(podDetailHeader)))
 
 		for _, condition := range pod.Status.Conditions {
-			output += fmt.Sprintf("\t%v: %v\n", condition.Type, condition.Status)
+			podDetailOutput += fmt.Sprintf("\t%v: %v\n", condition.Type, condition.Status)
 		}
 
 		// check container numbers
@@ -68,18 +70,18 @@ func podHealth(pods *v1.PodList) (output string) {
 
 			if container.State.Waiting != nil || container.State.Terminated != nil {
 				containerDetailHeader := fmt.Sprintf("\n\tContainer Details `%v`\n", container.Name)
-				output += containerDetailHeader
-				output += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
+				podDetailOutput += containerDetailHeader
+				podDetailOutput += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
 			}
 			if container.State.Waiting != nil {
-				output += fmt.Sprintf("\tContainer Waiting: %v\n", container.State.Waiting.Message)
+				podDetailOutput += fmt.Sprintf("\tContainer Waiting: %v\n", container.State.Waiting.Message)
 				healthy = false
 			}
 			if container.State.Terminated != nil {
 				if container.State.Terminated.ExitCode == 0 {
 					numContainersHealthy++
 				} else {
-					output += fmt.Sprintf("\tContainer Terminated with non-zero ExitCode: %v: %v\n", container.State.Terminated.ExitCode, container.State.Terminated.Message)
+					podDetailOutput += fmt.Sprintf("\tContainer Terminated with non-zero ExitCode: %v: %v\n", container.State.Terminated.ExitCode, container.State.Terminated.Message)
 					healthy = false
 				}
 			}
@@ -89,11 +91,10 @@ func podHealth(pods *v1.PodList) (output string) {
 			healthy = false
 		}
 
-
 		if healthy {
-			output = fmt.Sprintf("✔️  %v is healthy\n", pod.Name)
+			output += fmt.Sprintf("✔️  %v in namespace `%v` is healthy\n", pod.Name, pod.Namespace)
 		} else {
-			output = fmt.Sprintf("✖️  %v is not healthy\n", pod.Name) + output
+			output += fmt.Sprintf("✖️  %v in namespace `%v` is not healthy\n", pod.Name, pod.Namespace) + podDetailOutput
 		}
 	}
 	return output
@@ -102,7 +103,6 @@ func podHealth(pods *v1.PodList) (output string) {
 func init() {
 	rootCmd.AddCommand(healthCmd)
 
-	initK8s()
 
 	healthCmd.Flags().StringP("namespace", "n", "", "Namespace")
 	healthCmd.Flags().StringSliceP("label", "l", []string{}, "Label selectors")

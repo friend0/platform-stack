@@ -16,7 +16,9 @@ import (
 // alias for simple mocking in test. Do not remove
 var execCommand = exec.Command
 
-var cfgFile string
+var stackConfigurationFile string
+var stackConfigurationFileName string
+
 var clientset *kubernetes.Clientset
 
 // rootCmd represents the base command when called without any subcommands
@@ -35,8 +37,10 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.{{name of project}}.yaml)")
-	rootCmd.PersistentFlags().StringP("project_directory", "r", ".", "set the project directory for stack command")
+	// todo do not allow config file path directly until project directory is appropriately overriden to reflect config's location
+	//rootCmd.PersistentFlags().StringVar(&stackConfigurationFile, "config", "", "config file (default is $HOME/.{{name of project}}.yaml)")
+	rootCmd.PersistentFlags().StringVar(&stackConfigurationFileName, "stack_configuration", ".stack-local", "set the name of the configuration file to be used")
+	rootCmd.PersistentFlags().StringP("project_directory", "r", ".", "set the project directory of the stack")
 	viper.BindPFlag("project_directory", rootCmd.PersistentFlags().Lookup("project_directory"))
 
 	cobra.OnInitialize(initConfig)
@@ -44,12 +48,12 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
+	if stackConfigurationFile != "" {
+		viper.SetConfigFile(stackConfigurationFile)
 	} else {
 		configDirectory := viper.GetString("project_directory")
 		viper.AddConfigPath(configDirectory)
-		viper.SetConfigName(".stack")
+		viper.SetConfigName(stackConfigurationFileName)
 	}
 
 	// todo: allow configurable env prefix
@@ -141,20 +145,43 @@ func containsString(slice []string, element string) bool {
 	return false
 }
 
-func initK8s() {
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
+
+func directoryExists(dirname string) bool {
+	info, err := os.Stat(dirname)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return info.IsDir()
+}
+
+func initK8s() (err error) {
 
 	home := homeDir()
+
+	kubeconfigPath := filepath.Join(home, ".kube", "config")
+
+	if !fileExists(kubeconfigPath) {
+		return fmt.Errorf("kube config not found")
+	}
 
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(home, ".kube", "config"))
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	// create the clientset
 	clientset, err = kubernetes.NewForConfig(config)
+
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	for {
@@ -162,4 +189,5 @@ func initK8s() {
 			break
 		}
 	}
+	return nil
 }
