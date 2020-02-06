@@ -19,9 +19,15 @@ Over time, stack can become less opinionated about how your project is organized
 
 ### Install
 
-You can get started with stack right away by downloading the latest release from [github](https://github.com/altiscope/platform-stack/releases).
+You can get started with stack right away with this one-liner (export a github token with appropriate permissions as `GIT_TOKEN`):
+```.env
+curl -sSL -H "Accept: application/octet-stream"\
+          -H "Authorization: token $GIT_TOKEN"\
+          https://github.com/altiscope/platform-stack/releases/download/v0.8.0/stack_$(bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux')_amd64 -o stack \
+          && chmod a+x stack && sudo mv stack /usr/local/bin/
+```
 
-If you have `go` installed, you can also build stack from source and put in onto your path with `go build -o /usr/local/bin/stack -v ../platform-stack/main.go`.
+Verify the latest release at: [github](https://github.com/altiscope/platform-stack/releases).
 
 Once stack is available, system dependencies can be installed by running `stack install`.  
 
@@ -30,10 +36,6 @@ For this, you'll need to follow the install steps described [here](https://docs.
 
 
 ### Project Setup and Configuration
-
-
-
-
 
 Stack assumes that your project maintains a containers directory for container definitions, and a `deployments` 
 directory for kubernetes object definitions.
