@@ -13,26 +13,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// installCmd represents the install command
-var installCmd = &cobra.Command{
-	Use:   "install",
-	Short: "Installs dependencies needed to run stack commands.",
-	Long:  `Installs dependencies needed to run stack commands.`,
-	RunE:  runInstall,
-}
-
-type InstallData struct {
+type DependencyVersionData struct {
 	Version string
 }
 
-type InstallDescription struct {
+type DependencyDescription struct {
 	os      []string
 	version string
 	test    string
 	install map[string][]string
 }
 
-var StackCLIDependencies = map[string]InstallDescription{
+var dependencyVersionMap map[string]string
+
+var StackCLIDependencies = map[string]DependencyDescription{
 	"xcode": {
 		os:   []string{"darwin"},
 		test: "xcode-select -v",
@@ -71,7 +65,45 @@ var StackCLIDependencies = map[string]InstallDescription{
 	},
 }
 
+func parseDependencyVersionOverrides(dependencyVersions []string) (map[string]string, error) {
+	dependencyVersionMap = make(map[string]string)
+	if len(dependencyVersions) == 0 {
+		return dependencyVersionMap, fmt.Errorf("no dependency version assignments provided")
+	}
+	for _, dependencyVersion := range dependencyVersions {
+		split := strings.Split(dependencyVersion, "=")
+		if len(split) != 2 || split[1] == "" {
+			return dependencyVersionMap, fmt.Errorf("expecting dependency version as `dependency_name=dependency_version`: got `%v` instead", dependencyVersion)
+		}
+		dependencyVersionMap[split[0]] = split[1]
+	}
+	return dependencyVersionMap, nil
+}
+
+// installCmd represents the install command
+var installCmd = &cobra.Command{
+	Use:   "install",
+	Short: "Installs dependencies needed to run stack commands.",
+	Long:  `Installs dependencies needed to run stack commands.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		dependencyVersions, _ := cmd.Flags().GetStringSlice("dependency_versions")
+		dvm, err := parseDependencyVersionOverrides(dependencyVersions)
+		if err != nil {
+			return err
+		}
+		dependencyVersionMap = dvm
+		return nil
+	},
+	RunE: runInstall,
+}
+
 func runInstall(cmd *cobra.Command, args []string) (err error) {
+
+	dependencyVersions, _ := cmd.Flags().GetStringSlice("dependency_versions")
+	for _, dependencyVersion := range dependencyVersions {
+		strings.Split(dependencyVersion, "=")
+	}
+
 	dryRun, _ := cmd.Flags().GetBool("dryrun")
 	if !dryRun {
 		fmt.Println("Installing development dependencies...")
@@ -87,8 +119,7 @@ func runInstall(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-
-func installDependencies(dependencies map[string]InstallDescription, dryRun bool) (installed []string, err error) {
+func installDependencies(dependencies map[string]DependencyDescription, dryRun bool) (installed []string, err error) {
 
 	goos := runtime.GOOS
 	for dep, install := range dependencies {
@@ -102,11 +133,15 @@ func installDependencies(dependencies map[string]InstallDescription, dryRun bool
 				}
 				if !dryRun {
 					if !exists {
-						// todo:
 						fmt.Printf("Installing %v...\n", dep)
-						installCmds, ok := install.install[osName]
+						installDependencyCmds, ok := install.install[osName]
 						if ok {
-							err = installDependency(installCmds, install.version)
+							dependencyVersion := install.version
+							overrideVersion, dependencyVersionOverride := dependencyVersionMap[dep]
+							if dependencyVersionOverride {
+								dependencyVersion = overrideVersion
+							}
+							err = installDependency(installDependencyCmds, dependencyVersion)
 							if err != nil {
 								installed = append(installed, "failed installing %v")
 								return installed, err
@@ -143,7 +178,7 @@ func installDependency(args []string, version string) (err error) {
 		if err != nil {
 			return err
 		}
-		err = tmpl.Execute(&installString, InstallData{version})
+		err = tmpl.Execute(&installString, DependencyVersionData{version})
 		if err != nil {
 			return err
 		}
@@ -169,4 +204,5 @@ func installDependency(args []string, version string) (err error) {
 func init() {
 	rootCmd.AddCommand(installCmd)
 	installCmd.Flags().BoolP("dryrun", "d", false, "Select deployment environment")
+	healthCmd.Flags().StringSliceP("dependency_versions", "d", []string{}, "Comma separated list of dependency version assignments as `dependency_name=version`")
 }
