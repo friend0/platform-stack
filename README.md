@@ -19,12 +19,21 @@ Over time, stack can become less opinionated about how your project is organized
 
 ### Install
 
-You can get started with stack right away with this one-liner (export a github token with appropriate permissions as `GIT_TOKEN`):
+You can install the stack CLI with the following command. You will need to export a valid github personal access 
+token as GIT_TOKEN (see here)[https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line].
+You will also need to have `jq` installed to parse github's API reponse. (`brew install jq`)
+
 ```.env
-curl -sSL -H "Accept: application/octet-stream"\
-          -H "Authorization: token $GIT_TOKEN"\
-          https://github.com/altiscope/platform-stack/releases/download/v0.8.0/stack_$(bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux')_amd64 -o stack \
-          && chmod a+x stack && sudo mv stack /usr/local/bin/
+curl -sL \
+-H "Authorization: token $GIT_TOKEN" \
+-H 'Accept: application/octet-stream' \
+https://$GIT_TOKEN:@api.github.com/repos/altiscope/platform-stack/releases/assets/$(\
+  curl -sL \
+  -H "Authorization: token $GIT_TOKEN" \
+  -H "Accept: application/vnd.github.v3.raw" \
+  https://api.github.com/repos/altiscope/platform-stack/releases | \
+  jq ".[0].assets | map(select(.name == \"stack_darwin_amd64\"))[0].id") > stack && \
+chmod a+x stack && sudo mv stack /usr/local/bin/
 ```
 
 Verify the latest release at: [github](https://github.com/altiscope/platform-stack/releases).
