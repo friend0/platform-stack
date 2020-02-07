@@ -19,30 +19,15 @@ Over time, stack can become less opinionated about how your project is organized
 
 ### Install
 
-You can install the stack CLI with the following command. You will need to export a valid github personal access 
-token as GIT_TOKEN (see here)[https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line].
-You will also need to have `jq` installed to parse github's API reponse. (`brew install jq`)
-
-```.env
-curl -sL \
--H "Authorization: token $GIT_TOKEN" \
--H 'Accept: application/octet-stream' \
-https://$GIT_TOKEN:@api.github.com/repos/altiscope/platform-stack/releases/assets/$(\
-  curl -sL \
-  -H "Authorization: token $GIT_TOKEN" \
-  -H "Accept: application/vnd.github.v3.raw" \
-  https://api.github.com/repos/altiscope/platform-stack/releases | \
-  jq ".[0].assets | map(select(.name == \"stack_darwin_amd64\"))[0].id") > stack && \
-chmod a+x stack && sudo mv stack /usr/local/bin/
-```
-
-Verify the latest release at: [github](https://github.com/altiscope/platform-stack/releases).
+Option 1: Install `jq` with `brew install jq`, then run the install script `install.sh`
+Option 2: Navigate to https://github.com/altiscope/platform-stack/releases and take the latest.
+Next, put the appropriate binary onto your path renamed as `stack`
+Option 3: Build from source `go build -o /usr/local/bin/stack -v ../platform-stack/main.go`
 
 Once stack is available, system dependencies can be installed by running `stack install`.  
 
 To develop against a local kubernetes cluster, docker-desktop is the simplest path forward. 
 For this, you'll need to follow the install steps described [here](https://docs.docker.com/docker-for-mac/install/).
-
 
 ### Project Setup and Configuration
 
