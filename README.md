@@ -20,6 +20,8 @@ Over time, stack can become less opinionated about how your project is organized
 ### Install
 
 Option 1: Install `jq` with `brew install jq`, then run the install script `install.sh`
+You will need to export a github personal access token as GIT_TOKEN `export GIT_TOKEN=<GENERATED_TOKEN_HERE>` [see here](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
+
 Option 2: Navigate to https://github.com/altiscope/platform-stack/releases and take the latest.
 Next, put the appropriate binary onto your path renamed as `stack`
 Option 3: Build from source `go build -o /usr/local/bin/stack -v ../platform-stack/main.go`
