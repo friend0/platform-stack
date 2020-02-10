@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v12 "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -13,14 +14,17 @@ var podsCmd = &cobra.Command{
 	Use:   "pods",
 	Short: "List running pods.",
 	Long:  `List running pods.`,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		return initK8s()
+	},
 	RunE:  pods,
 }
 
 func pods(cmd *cobra.Command, args []string) (err error) {
 
 	ns, _ := cmd.Flags().GetString("namespace")
-	label, _ := cmd.Flags().GetString("label")
-	field, _ := cmd.Flags().GetString("field")
+	label, _ := cmd.Flags().GetStringSlice("label")
+	field, _ := cmd.Flags().GetStringSlice("field")
 
 	api := clientset.CoreV1()
 
@@ -29,11 +33,33 @@ func pods(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func getPodsList(api v12.CoreV1Interface, ns, label, field string) (list *v1.PodList, err error) {
+func processLabels() {
+
+}
+
+func getPodsList(api v12.CoreV1Interface, ns string, label, field []string) (list *v1.PodList, err error) {
+
+	defaultLabel := viper.GetString("stack")
+
+	labelSelect := ""
+	if defaultLabel != "" {
+		labelSelect = fmt.Sprintf("stack=%v", defaultLabel)
+	}
+	//if args[0] != "" {
+	//	labelSelect = fmt.Sprintf("app=%v", args[0])
+	//}
+	for _, elem := range label {
+		labelSelect += elem
+	}
+
+	fieldSelect := ""
+	for _, elem := range field {
+		fieldSelect += elem
+	}
 
 	listOptions := metav1.ListOptions{
-		LabelSelector: label,
-		FieldSelector: field,
+		LabelSelector: labelSelect,
+		FieldSelector: fieldSelect,
 	}
 
 	pods, err := api.Pods(ns).List(listOptions)
@@ -75,11 +101,9 @@ func printPods(pods *v1.PodList) (result []byte) {
 
 func init() {
 	rootCmd.AddCommand(podsCmd)
-	
-	initK8s()
 
 	podsCmd.Flags().StringP("namespace", "n", "", "Namespace")
-	podsCmd.Flags().StringP("label", "l", "", "Label selector")
-	podsCmd.Flags().StringP("field", "f", "", "Field selector")
+	podsCmd.Flags().StringSliceP("label", "l", []string{}, "Label selector")
+	podsCmd.Flags().StringSliceP("field", "f", []string{}, "Field selector")
 
 }

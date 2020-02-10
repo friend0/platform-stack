@@ -6,6 +6,7 @@ metadata:
   name: app
   labels:
     stack: app
+    app: app
 spec:
   ports:
     - name: app
@@ -25,6 +26,7 @@ spec:
     metadata:
       labels:
         stack: app
+        app: app
     spec:
       containers:
         - name: app

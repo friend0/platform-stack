@@ -29,20 +29,11 @@ func health(cmd *cobra.Command, args []string) (err error) {
 	field, _ := cmd.Flags().GetStringSlice("field")
 
 	defaultLabel := viper.GetString("stack")
-	labelSelect := ""
 	if defaultLabel != "" {
-		labelSelect = fmt.Sprintf("stack=%v", defaultLabel)
-	}
-	for _, elem := range label {
-		labelSelect += elem
+		label = append(label, fmt.Sprintf("stack=%v", defaultLabel))
 	}
 
-	fieldSelect := ""
-	for _, elem := range field {
-		fieldSelect += elem
-	}
-
-	podList, err := getPodsList(api, ns, labelSelect, fieldSelect)
+	podList, err := getPodsList(api, ns, label, field)
 	fmt.Println(podHealth(podList))
 	return nil
 }

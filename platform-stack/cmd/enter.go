@@ -33,40 +33,25 @@ var enterCmd = &cobra.Command{
 
 func enterPod(cmd *cobra.Command, args []string) (err error) {
 
-	// todo: wrap this common functionality into a helper in pods
+	api := clientset.CoreV1()
+
 	ns, _ := cmd.Flags().GetString("namespace")
 	label, _ := cmd.Flags().GetStringSlice("label")
 	field, _ := cmd.Flags().GetStringSlice("field")
 
-	api := clientset.CoreV1()
-
-	// todo: warn on missing default label
 	defaultLabel := viper.GetString("stack")
-
-	labelSelect := ""
 	if defaultLabel != "" {
-		labelSelect = fmt.Sprintf("stack=%v", defaultLabel)
-	}
-	if args[0] != "" {
-		labelSelect = fmt.Sprintf("app=%v", args[0])
-	}
-	for _, elem := range label {
-		labelSelect += elem
+		label = append(label, fmt.Sprintf("stack=%v", defaultLabel))
 	}
 
-	fieldSelect := ""
-	for _, elem := range field {
-		fieldSelect += elem
-	}
-
-	podList, err := getPodsList(api, ns, labelSelect, fieldSelect)
+	podList, err := getPodsList(api, ns, label, field)
 	if err != nil {
 		return err
 	}
 
 	// error if no pods, or multiple matching pods are found
 	if len(podList.Items) == 0 {
-		return fmt.Errorf("no pods matching labels %v", labelSelect)
+		return fmt.Errorf("no pods matching labels %v", label)
 	}
 	if len(podList.Items) > 1 {
 		var matchingPods []string

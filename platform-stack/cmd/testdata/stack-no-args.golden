@@ -6,6 +6,7 @@ Usage:
 Available Commands:
   build       Builds an image for the given component using the Dockerfile at the configured build directory.
   down        Tears down the stack.
+  enter       Initiates a terminal session for a pod in the given Deployment.
   expose      Exposes a kubernetes deployment to your local machine.
   health      Get the health of the stack.
   help        Help about any command

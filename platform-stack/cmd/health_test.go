@@ -69,7 +69,7 @@ func TestPodHealth(t *testing.T) {
 		},
 	})
 
-	podList, err := getPodsList(api.CoreV1(), "testns", "tag=testtag", "")
+	podList, err := getPodsList(api.CoreV1(), "testns", []string{"tag=testtag"}, []string{})
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -138,7 +138,7 @@ func TestPodHealthWithUnhealthy(t *testing.T) {
 		},
 	})
 
-	podList, err := getPodsList(api.CoreV1(), "testns", "stack=testapp", "")
+	podList, err := getPodsList(api.CoreV1(), "testns", []string{"stack=testapp"}, []string{})
 	if err != nil {
 		t.Error(err.Error())
 	}
