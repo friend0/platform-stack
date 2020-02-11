@@ -45,9 +45,6 @@ func getPodsList(api v12.CoreV1Interface, ns string, label, field []string) (lis
 	if defaultLabel != "" {
 		labelSelect = fmt.Sprintf("stack=%v", defaultLabel)
 	}
-	//if args[0] != "" {
-	//	labelSelect = fmt.Sprintf("app=%v", args[0])
-	//}
 	for _, elem := range label {
 		labelSelect += elem
 	}
@@ -71,9 +68,9 @@ func getPodsList(api v12.CoreV1Interface, ns string, label, field []string) (lis
 
 // printPods prints metadata about the pods in the provided list. It also returns this result as a byte array.
 func printPods(pods *v1.PodList) (result []byte) {
-	template := "%-50s%-8v%-24v%-8v\n"
-	fmt.Printf(template, "NAME", "READY", "NAMESPACE", "STATUS")
-	result = append(result, fmt.Sprintf(template, "NAME", "READY", "NAMESPACE", "STATUS")...)
+	template := "%-50s%-8v%-24v%-8v%v\n"
+	fmt.Printf(template, "NAME", "READY", "NAMESPACE", "STATUS", "IMAGES")
+	result = append(result, fmt.Sprintf(template, "NAME", "READY", "NAMESPACE", "STATUS", "IMAGES")...)
 	for _, pod := range pods.Items {
 		numContainersReady := 0
 		for _, container := range pod.Status.ContainerStatuses {
@@ -85,16 +82,22 @@ func printPods(pods *v1.PodList) (result []byte) {
 				numContainersReady++
 			}
 		}
+		images := make([]string, len(pod.Spec.Containers))
+		for i, container := range pod.Spec.Containers {
+			images[i] = container.Image
+		}
 		fmt.Printf(template,
 			pod.Name,
 			fmt.Sprintf("%v/%v", numContainersReady, len(pod.Spec.Containers)),
 			pod.Namespace,
-			pod.Status.Phase)
+			pod.Status.Phase,
+			images)
 		result = append(result, []byte(fmt.Sprintf(template,
 			pod.Name,
 			fmt.Sprintf("%v/%v", numContainersReady, len(pod.Spec.Containers)),
 			pod.Namespace,
-			pod.Status.Phase))...)
+			pod.Status.Phase,
+			images))...)
 	}
 	return result
 }

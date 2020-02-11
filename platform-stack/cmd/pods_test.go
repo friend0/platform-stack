@@ -56,6 +56,18 @@ func TestPrintPods(t *testing.T) {
 			Phase: v1.PodRunning,
 			PodIP: "172.1.0.3",
 		},
+		Spec: v1.PodSpec{
+			Containers: []v1.Container{
+				{
+					Name:            "tls-app",
+					Image:           "alpine:latest",
+					ImagePullPolicy: v1.PullIfNotPresent,
+					Command:         []string{"cat"},
+					Stdin:   true,
+				},
+			},
+			RestartPolicy: v1.RestartPolicyAlways,
+		},
 	})
 
 	pods, _ := api.CoreV1().Pods("default").List(metav1.ListOptions{})

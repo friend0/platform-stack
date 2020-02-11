@@ -179,7 +179,6 @@ func init() {
 	rootCmd.AddCommand(enterCmd)
 
 	enterCmd.Flags().StringP("shell", "s", "", "Provide a target shell.")
-	enterCmd.Flags().StringP("pod", "p", "", "Provide a specific pod to enter.")
 
 	enterCmd.Flags().StringP("namespace", "n", "", "Namespace")
 	enterCmd.Flags().StringSliceP("label", "l", []string{}, "Label selector")
