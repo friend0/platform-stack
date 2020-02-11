@@ -91,17 +91,12 @@ func enterContainerCommand(pod *v1.Pod, containerName, shell string) (cmd *exec.
 	containers := make(map[string]*v1.Container, len(pod.Spec.Containers))
 	containerList := make([]string, len(pod.Spec.Containers))
 	for i, container := range pod.Spec.Containers {
-		fmt.Println("CONTAINER:", container.Name)
 		if i == 0 {
 			targetContainer = &container
 		}
 		containerList[i] = container.Name
 		containers[container.Name] = &container
 	}
-	fmt.Println("POD CONTAINER SPEC")
-	fmt.Println(containerList, len(containerList))
-	fmt.Println("CONTAINERS")
-	fmt.Println(containers)
 
 	targetContainer = containers[containerName]
 
