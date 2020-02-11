@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 	v1 "k8s.io/api/core/v1"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -14,9 +15,9 @@ import (
 const kubectlExecTemplate = `kubectl exec -it {{ .PodName }}{{if .ContainerName}} --container {{ .ContainerName }}{{end}} {{ .Command}}`
 
 type KubectlExecRequest struct {
-	PodName string
+	PodName       string
 	ContainerName string
-	Command   string
+	Command       string
 }
 
 // enterCmd represents the enter command
@@ -28,10 +29,10 @@ var enterCmd = &cobra.Command{
 	PreRun: func(cmd *cobra.Command, args []string) {
 		initK8s()
 	},
-	RunE: enterPod,
+	RunE: enter,
 }
 
-func enterPod(cmd *cobra.Command, args []string) (err error) {
+func enter(cmd *cobra.Command, args []string) (err error) {
 
 	api := clientset.CoreV1()
 
@@ -44,100 +45,118 @@ func enterPod(cmd *cobra.Command, args []string) (err error) {
 		label = append(label, fmt.Sprintf("stack=%v", defaultLabel))
 	}
 
-	podList, err := getPodsList(api, ns, label, field)
+	pods, err := getPodsList(api, ns, label, field)
 	if err != nil {
 		return err
 	}
 
-	// error if no pods, or multiple matching pods are found
-	if len(podList.Items) == 0 {
-		return fmt.Errorf("no pods matching labels %v", label)
-	}
-	if len(podList.Items) > 1 {
-		var matchingPods []string
-		for _, pod := range podList.Items {
-			matchingPods = append(matchingPods, pod.Name)
+	// locate target pod
+	var targetPod *v1.Pod
+	if len(pods.Items) == 1 {
+		targetPod = &pods.Items[0]
+	} else {
+		if len(pods.Items) == 0 {
+			return fmt.Errorf("no pods matching labels %v", label)
+		}
+		matchingPods := make([]string, len(pods.Items))
+		for i, pod := range pods.Items {
+			matchingPods[i] = pod.Name
 		}
 		return fmt.Errorf("multiple pods matching given app label: %v", strings.Join(matchingPods, ", "))
 	}
 
-
-	targetPod := podList.Items[0]
-
-	var targetContainer v1.Container
-
-	// handle pod with many containers
-	containers := targetPod.Spec.Containers
-	if len(containers) > 1 {
-		var containerList []string
-		var containerPresent bool
-
-		for _, container := range containers {
-			containerList = append(containerList, container.Name)
-			if len(args) > 1 {
-				if args[1] == container.Name {
-					targetContainer = container
-					containerPresent = true
-				}
-			}
-		}
-
-		if len(args) <= 1 {
-			return fmt.Errorf("multiple containers for the given pod: %v: please provide a container name as an additional argument", strings.Join(containerList, ", "))
-		} else {
-			if !containerPresent {
-				return fmt.Errorf("provided container is not present in pod")
-			}
-
-		}
-	} else if len(containers) == 1 {
-		targetContainer = containers[0]
-	}
-
-
-	// determine target shell if one was not provided
+	var targetContainerName string
 	targetShell, _ := cmd.Flags().GetString("shell")
-	if targetShell == "" {
-		availableShells, err := getAvailableShells(&targetPod, &targetContainer)
-		if err !=  nil {
-			return err
-		}
-		if len(availableShells) < 1 {
-			return fmt.Errorf("could not locate any available shells")
-		}
-		targetShell = availableShells[0]
-		fmt.Printf("available shells: %v: using first available: %v\n", strings.Join(availableShells, ", "), targetShell)
+	if len(args) >= 2 {
+		targetContainerName = args[1]
 	}
 
-	generateExecCmd, err := GenerateCommand(kubectlExecTemplate, KubectlExecRequest{
-		PodName: targetPod.Name,
-		ContainerName: targetContainer.Name,
-		Command:   targetShell,
-	})
-
+	enterCmd, err := enterContainerCommand(targetPod, targetContainerName, targetShell)
 	if err != nil {
 		return err
+	}
+	if err := enterCmd.Start(); err != nil {
+		return err
+	}
+	return enterCmd.Wait()
+
+}
+
+// enterContainer will attempt to use the given shell session on the given container in the given pod
+func enterContainerCommand(pod *v1.Pod, containerName, shell string) (cmd *exec.Cmd, err error) {
+
+	var targetContainer *v1.Container
+
+	// locate target container
+	containers := make(map[string]*v1.Container, len(pod.Spec.Containers))
+	containerList := make([]string, len(pod.Spec.Containers))
+	for i, container := range pod.Spec.Containers {
+		fmt.Println("CONTAINER:", container.Name)
+		if i == 0 {
+			targetContainer = &container
+		}
+		containerList[i] = container.Name
+		containers[container.Name] = &container
+	}
+	fmt.Println("POD CONTAINER SPEC")
+	fmt.Println(containerList, len(containerList))
+	fmt.Println("CONTAINERS")
+	fmt.Println(containers)
+
+	targetContainer = containers[containerName]
+
+	if len(containers) != 1 {
+
+		if len(containers) == 0 {
+			return cmd, fmt.Errorf("no containers found in the given pod")
+		}
+
+		if containerName == "" {
+			fmt.Println("err here")
+			return cmd, fmt.Errorf("multiple containers for the given pod: %v: please provide a container name as an additional argument", strings.Join(containerList, ", "))
+		}
+
+		container, ok := containers[containerName]
+		if ok {
+			targetContainer = container
+		} else {
+			return cmd, fmt.Errorf("no container matching `%v`: containers found for the given pod: %v", containerName, strings.Join(containerList, ", "))
+		}
+	}
+
+	// determine target shell if one was not provided
+	if shell == "" {
+		availableShells, err := getAvailableShells(pod, targetContainer)
+		if err != nil {
+			return cmd, err
+		}
+		shell = availableShells[0]
+		fmt.Printf("available shells: %v: using first available: %v\n", strings.Join(availableShells, ", "), shell)
+	}
+
+	// generate and run kubectl exec command
+	generateExecCmd, err := GenerateCommand(kubectlExecTemplate, KubectlExecRequest{
+		PodName:       pod.Name,
+		ContainerName: targetContainer.Name,
+		Command:       shell,
+	})
+	if err != nil {
+		return cmd, err
 	}
 
 	generateExecCmd.Stdin = os.Stdin
 	generateExecCmd.Stdout = os.Stdout
 	generateExecCmd.Stderr = os.Stderr
-
-	fmt.Println(generateExecCmd)
-	if err := generateExecCmd.Start(); err != nil {
-		return err
-	}
-
-	return generateExecCmd.Wait()
+	return generateExecCmd, nil
 }
 
-
+// getAvailableShells takes an input pod and container and returns a list of shells that are available
+// relies on /etc/shells
 func getAvailableShells(targetPod *v1.Pod, targetContainer *v1.Container) (shells []string, err error) {
-	// cat /etc/shells
 	getShells, err := GenerateCommand(kubectlExecTemplate, KubectlExecRequest{
-		PodName: targetPod.Name,
+		PodName:       targetPod.Name,
 		ContainerName: targetContainer.Name,
-		Command:   "cat /etc/shells | grep /",
+		Command:       "cat /etc/shells | grep /",
 	})
 	if err != nil {
 		return shells, err
@@ -149,9 +168,11 @@ func getAvailableShells(targetPod *v1.Pod, targetContainer *v1.Container) (shell
 	if err := getShells.Run(); err != nil {
 		return shells, err
 	}
-	fmt.Println("SHELBUF")
-	fmt.Println(strings.Fields(shellsBuf.String()), len(shellsBuf.String()))
-	return strings.Fields(shellsBuf.String()), nil
+	shells = strings.Fields(shellsBuf.String())
+	if len(shells) < 1 {
+		return shells, fmt.Errorf("could not locate any available shells")
+	}
+	return shells, nil
 }
 
 func init() {
