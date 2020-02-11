@@ -3,11 +3,10 @@ package cmd
 import (
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
+	"os/exec"
 	"path"
 	"testing"
-	"os/exec"
 )
-
 
 func TestLogsCLI(t *testing.T) {
 	tests := []struct {

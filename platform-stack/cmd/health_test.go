@@ -6,9 +6,9 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
+	"os/exec"
 	"path"
 	"testing"
-	"os/exec"
 )
 
 func TestHealthIntegration(t *testing.T) {
@@ -47,7 +47,6 @@ func TestHealthIntegration(t *testing.T) {
 		})
 	}
 }
-
 
 func TestPodHealth(t *testing.T) {
 

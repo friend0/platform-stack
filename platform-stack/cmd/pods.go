@@ -17,7 +17,7 @@ var podsCmd = &cobra.Command{
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return initK8s()
 	},
-	RunE:  pods,
+	RunE: pods,
 }
 
 func pods(cmd *cobra.Command, args []string) (err error) {
@@ -31,10 +31,6 @@ func pods(cmd *cobra.Command, args []string) (err error) {
 	podList, err := getPodsList(api, ns, label, field)
 	printPods(podList)
 	return nil
-}
-
-func processLabels() {
-
 }
 
 func getPodsList(api v12.CoreV1Interface, ns string, label, field []string) (list *v1.PodList, err error) {

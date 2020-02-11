@@ -63,7 +63,7 @@ func TestPrintPods(t *testing.T) {
 					Image:           "alpine:latest",
 					ImagePullPolicy: v1.PullIfNotPresent,
 					Command:         []string{"cat"},
-					Stdin:   true,
+					Stdin:           true,
 				},
 			},
 			RestartPolicy: v1.RestartPolicyAlways,

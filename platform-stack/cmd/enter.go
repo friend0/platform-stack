@@ -107,7 +107,6 @@ func enterContainerCommand(pod *v1.Pod, containerName, shell string) (cmd *exec.
 		}
 
 		if containerName == "" {
-			fmt.Println("err here")
 			return cmd, fmt.Errorf("multiple containers for the given pod: %v: please provide a container name as an additional argument", strings.Join(containerList, ", "))
 		}
 
