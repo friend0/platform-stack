@@ -74,6 +74,7 @@ func initConfig() {
 	viper.ReadInConfig()
 
 	// Defaults
+	viper.SetDefault("env", "local")
 	viper.SetDefault("deployment_directory", "./deployments")
 	viper.SetDefault("build_directory", "./build")
 

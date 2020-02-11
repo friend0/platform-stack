@@ -76,7 +76,7 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (er
 	// todo: up command hard-coded to config-local.env - taker flags
 	generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
 		Manifest:   fmt.Sprintf("%v/%v.yaml", deploymentsDirectory, component.Name),
-		EnvFrom:    []string{fmt.Sprintf("%v/config-%v.env", deploymentsDirectory, "local")},
+		EnvFrom:    []string{fmt.Sprintf("%v/config-%v.env", deploymentsDirectory, viper.Get("env"))},
 		Env:        envs,
 		OutputFile: outputYamlFile,
 	})
