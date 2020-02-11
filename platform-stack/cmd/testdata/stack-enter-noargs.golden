@@ -1,0 +1,15 @@
+Initiates a terminal session for a pod in the given Deployment.
+
+Usage:
+  stack enter <pod> [container] [flags]
+
+Flags:
+  -f, --field strings      Field selector
+  -h, --help               help for enter
+  -l, --label strings      Label selector
+  -n, --namespace string   Namespace
+  -s, --shell string       Provide a target shell.
+
+Global Flags:
+  -r, --project_directory string     set the project directory of the stack (default ".")
+      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")

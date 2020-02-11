@@ -8,6 +8,7 @@ jobs:
       image: ubuntu-1604:201903-01    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
       docker_layer_caching: true
     environment:
+      ENV: ci
       K8S_VERSION: v1.17.0
       KUBECONFIG: /home/circleci/.kube/config
       MINIKUBE_VERSION: v1.6.2
@@ -87,9 +88,6 @@ jobs:
     docker:
       - image: circleci/golang:1.13.6
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "59:10:67:a9:10:2f:c5:b9:b2:82:47:4c:40:42:70:85"
       - checkout
       - run: go get -u github.com/mitchellh/gox
       - run: go get -u github.com/tcnksm/ghr

@@ -29,7 +29,7 @@ func TestGetPodList(t *testing.T) {
 		},
 	})
 
-	podList, err := getPodsList(api.CoreV1(), "testns", "tag=testtag", "")
+	podList, err := getPodsList(api.CoreV1(), "testns", []string{"tag=testtag"}, []string{})
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -55,6 +55,18 @@ func TestPrintPods(t *testing.T) {
 		Status: v1.PodStatus{
 			Phase: v1.PodRunning,
 			PodIP: "172.1.0.3",
+		},
+		Spec: v1.PodSpec{
+			Containers: []v1.Container{
+				{
+					Name:            "tls-app",
+					Image:           "alpine:latest",
+					ImagePullPolicy: v1.PullIfNotPresent,
+					Command:         []string{"cat"},
+					Stdin:           true,
+				},
+			},
+			RestartPolicy: v1.RestartPolicyAlways,
 		},
 	})
 
