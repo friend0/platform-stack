@@ -21,9 +21,6 @@ var downCmd = &cobra.Command{
 	Long: `Tears down the stack.
 
 If no arguments are provided, all configured objects will be taken down.`,
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		return viper.Unmarshal(&config)
-	},
 	RunE: downAllComponents,
 }
 

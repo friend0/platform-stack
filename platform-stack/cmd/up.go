@@ -27,12 +27,6 @@ type KubetplRenderRequest struct {
 	OutputFile string
 }
 
-type ComponentDescription struct {
-	Name              string   `json:"name"`
-	RequiredVariables []string `json:"required_variables"`
-	Exposable         bool     `json:"exposable"`
-}
-
 // upCmd represents the up command
 var upCmd = &cobra.Command{
 	Use:   "up [<component>...]",
@@ -40,9 +34,6 @@ var upCmd = &cobra.Command{
 	Long: `Brings up components of the stack.
 
 If no components are provided as arguments, all configured components will be brought up.'`,
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		return viper.Unmarshal(&config)
-	},
 	RunE: upAllComponents,
 }
 

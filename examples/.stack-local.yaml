@@ -5,7 +5,7 @@ stack: app
 components:
   - name: config
     requiredVariables:
-      - YOU_HAVE_TO_SET_ME
+      - ENV
   - name: app
     requiredVariables:
       - PWD
