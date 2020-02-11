@@ -19,21 +19,19 @@ Over time, stack can become less opinionated about how your project is organized
 
 ### Install
 
-You can get started with stack right away by downloading the latest release from [github](https://github.com/altiscope/platform-stack/releases).
+Option 1: Install `jq` with `brew install jq`, then run the install script `install.sh`
+You will need to export a github personal access token as GIT_TOKEN `export GIT_TOKEN=<GENERATED_TOKEN_HERE>` [see here](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
 
-If you have `go` installed, you can also build stack from source and put in onto your path with `go build -o /usr/local/bin/stack -v ../platform-stack/main.go`.
+Option 2: Navigate to https://github.com/altiscope/platform-stack/releases and take the latest.
+Next, put the appropriate binary onto your path renamed as `stack`
+Option 3: Build from source `go build -o /usr/local/bin/stack -v ../platform-stack/main.go`
 
 Once stack is available, system dependencies can be installed by running `stack install`.  
 
 To develop against a local kubernetes cluster, docker-desktop is the simplest path forward. 
 For this, you'll need to follow the install steps described [here](https://docs.docker.com/docker-for-mac/install/).
 
-
 ### Project Setup and Configuration
-
-
-
-
 
 Stack assumes that your project maintains a containers directory for container definitions, and a `deployments` 
 directory for kubernetes object definitions.

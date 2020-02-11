@@ -1,8 +1,3 @@
-Building
-========
-
-`go build -o /usr/local/bin/stack -v ../platform-stack/main.go`
-
 Testing
 =======
 
