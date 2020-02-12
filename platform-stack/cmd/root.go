@@ -21,6 +21,17 @@ var stackConfigurationFileName string
 
 var clientset *kubernetes.Clientset
 
+var config Config
+type ComponentDescription struct {
+	Name              string   `json:"name"`
+	RequiredVariables []string `json:"required_variables"`
+	Exposable         bool     `json:"exposable"`
+}
+
+type Config struct {
+	Components []ComponentDescription
+}
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "stack",
@@ -63,9 +74,11 @@ func initConfig() {
 	viper.ReadInConfig()
 
 	// Defaults
+	viper.SetDefault("env", "local")
 	viper.SetDefault("deployment_directory", "./deployments")
 	viper.SetDefault("build_directory", "./build")
 
+	viper.Unmarshal(&config)
 }
 
 // GenerateCommandString builds a non-executable command string

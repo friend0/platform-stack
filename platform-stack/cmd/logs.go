@@ -10,7 +10,7 @@ const kubectlLogsTemplate = `kubectl logs {{if .Stream}} -f {{end}} --all-contai
 
 type KubectlLogsRequest struct {
 	Deployment string
-	Stream bool
+	Stream     bool
 }
 
 var (
@@ -21,9 +21,9 @@ var (
 var logsCmd = &cobra.Command{
 	Use:   "logs <component>",
 	Short: "Show logs for a given running pod / deployment by short name",
-	Long: `Show logs for a given running pod / deployment by short name.`,
-	Args: cobra.MinimumNArgs(1),
-	RunE: showLogs,
+	Long:  `Show logs for a given running pod / deployment by short name.`,
+	Args:  cobra.MinimumNArgs(1),
+	RunE:  showLogs,
 }
 
 func showLogs(cmd *cobra.Command, args []string) (err error) {
@@ -31,7 +31,7 @@ func showLogs(cmd *cobra.Command, args []string) (err error) {
 
 	fetchLogsCmd, err := GenerateCommand(kubectlLogsTemplate, KubectlLogsRequest{
 		Deployment: args[0],
-		Stream: streamLogs,
+		Stream:     streamLogs,
 	})
 
 	if err != nil {
@@ -45,8 +45,6 @@ func showLogs(cmd *cobra.Command, args []string) (err error) {
 	}
 	return nil
 }
-
-
 
 func init() {
 	logsCmd.Flags().BoolVarP(&streamLogs, "follow", "f", false, "follow (stream) logs as they happen")
