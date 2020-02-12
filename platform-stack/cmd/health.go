@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/spf13/cobra"
 	v1 "k8s.io/api/core/v1"
+	v12 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"strings"
+	"time"
 	"unicode/utf8"
 )
 
@@ -79,10 +82,53 @@ func podHealth(pods *v1.PodList) (output []string) {
 		if healthy {
 			output = append(output, fmt.Sprintf("✔️  %v in namespace `%v` is healthy\n", pod.Name, pod.Namespace))
 		} else {
-			output = append(output, fmt.Sprintf("✖️  %v in namespace `%v` is not healthy\n", pod.Name, pod.Namespace) + podDetailOutput)
+			output = append(output, fmt.Sprintf("✖️  %v in namespace `%v` is not healthy\n", pod.Name, pod.Namespace)+podDetailOutput)
 		}
 	}
 	return output
+}
+
+func waitForStackWithTimeout(api v12.CoreV1Interface, cmd *cobra.Command, timeoutMs time.Duration) (results []string, err error, ctx context.Context) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeoutMs*time.Millisecond)
+	defer cancel() // releases resources if slowOperation completes before timeout elapses
+	results, err = waitForStack(api, cmd, ctx)
+	return results, err, ctx
+}
+
+func waitForStack(api v12.CoreV1Interface, cmd *cobra.Command, ctx context.Context) (results []string, err error) {
+
+	ns, _ := cmd.Flags().GetString("namespace")
+	label, _ := cmd.Flags().GetStringSlice("label")
+	field, _ := cmd.Flags().GetStringSlice("field")
+
+	podList, err := getPodsList(api, ns, label, field)
+	if err != nil {
+		return results, err
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			fmt.Println("cancelled from sig")
+			return results, ctx.Err()
+		default:
+			fmt.Println("looping...")
+			results = podHealth(podList)
+			allReady := true
+			for _, item := range results {
+				notHealthy := strings.Contains(item, "not healthy")
+				if notHealthy {
+					allReady = false
+				}
+			}
+			if allReady {
+				return results, nil
+			}
+			time.Sleep(10 * time.Second)
+		}
+	}
+
 }
 
 func init() {
