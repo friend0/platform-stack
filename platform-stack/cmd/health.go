@@ -39,7 +39,7 @@ func health(cmd *cobra.Command, args []string) (err error) {
 }
 
 // podHealth generates a report string given an input PodList
-func podHealth(pods *v1.PodList) (output string) {
+func podHealth(pods *v1.PodList) (output []string) {
 
 	for _, pod := range pods.Items {
 		healthy := true
@@ -83,9 +83,9 @@ func podHealth(pods *v1.PodList) (output string) {
 		}
 
 		if healthy {
-			output += fmt.Sprintf("✔️  %v in namespace `%v` is healthy\n", pod.Name, pod.Namespace)
+			output = append(output, fmt.Sprintf("✔️  %v in namespace `%v` is healthy\n", pod.Name, pod.Namespace))
 		} else {
-			output += fmt.Sprintf("✖️  %v in namespace `%v` is not healthy\n", pod.Name, pod.Namespace) + podDetailOutput
+			output = append(output, fmt.Sprintf("✖️  %v in namespace `%v` is not healthy\n", pod.Name, pod.Namespace) + podDetailOutput)
 		}
 	}
 	return output

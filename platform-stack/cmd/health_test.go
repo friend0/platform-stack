@@ -8,6 +8,7 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 	"os/exec"
 	"path"
+	"strings"
 	"testing"
 )
 
@@ -73,7 +74,7 @@ func TestPodHealth(t *testing.T) {
 		t.Error(err.Error())
 	}
 	healthOutput := podHealth(podList)
-	golden.AssertBytes(t, []byte(healthOutput), "stack-health-one-healthy.golden")
+	golden.AssertBytes(t, []byte(strings.Join(healthOutput, "")), "stack-health-one-healthy.golden")
 
 }
 
@@ -142,6 +143,6 @@ func TestPodHealthWithUnhealthy(t *testing.T) {
 		t.Error(err.Error())
 	}
 	healthOutput := podHealth(podList)
-	golden.AssertBytes(t, []byte(healthOutput), "stack-health-one-unhealthy.golden")
+	golden.AssertBytes(t, []byte(strings.Join(healthOutput, "")), "stack-health-one-unhealthy.golden")
 
 }
