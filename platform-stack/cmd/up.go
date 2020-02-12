@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"path/filepath"
+	"strings"
+	"time"
 
 	//"github.com/spf13/viper"
 	"os"
@@ -34,6 +37,10 @@ var upCmd = &cobra.Command{
 	Long: `Brings up components of the stack.
 
 If no components are provided as arguments, all configured components will be brought up.'`,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		initK8s()
+		return viper.BindPFlag("wait", cmd.Flags().Lookup("wait"))
+	},
 	RunE: upAllComponents,
 }
 
@@ -55,7 +62,60 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 			return err
 		}
 	}
+
+	// todo: timeout
+	// todo: easily parsible report
+	wait := viper.GetBool("wait")
+
+	if wait {
+		healthDetail, err, ctx := waitForStackWithTimeout(cmd, 30000)
+		if err != nil {
+			return err
+		}
+
+		if ctx.Err() == context.DeadlineExceeded {
+			return fmt.Errorf("timed out waiting for stack:\n %v", healthDetail)
+		}
+
+	}
+
 	return nil
+}
+
+func waitForStackWithTimeout(cmd *cobra.Command, timeoutMs time.Duration) (results []string, err error, ctx context.Context) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeoutMs*time.Millisecond)
+	defer cancel()  // releases resources if slowOperation completes before timeout elapses
+	results, err =  waitForStack(cmd)
+	return results, err, ctx
+}
+
+func waitForStack(cmd *cobra.Command) (results []string, err error) {
+
+	api := clientset.CoreV1()
+
+	ns, _ := cmd.Flags().GetString("namespace")
+	label, _ := cmd.Flags().GetStringSlice("label")
+	field, _ := cmd.Flags().GetStringSlice("field")
+
+	podList, err := getPodsList(api, ns, label, field)
+	if err != nil {
+		return results, err
+	}
+	for {
+		results = podHealth(podList)
+		allReady := true
+		for _, item := range results {
+			notHealthy := strings.Contains(item, "not healthy")
+			if notHealthy {
+				allReady = false
+			}
+		}
+		if allReady {
+			return results, nil
+		}
+		time.Sleep(10 * time.Second)
+	}
 }
 
 func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (err error) {
@@ -155,4 +215,6 @@ func generateEnvs(requiredVariables []string, getEnv func(string) string) (envs 
 func init() {
 	rootCmd.AddCommand(upCmd)
 	upCmd.Flags().StringVarP(&env, "environment", "e", "local", "Select deployment environment")
+	upCmd.Flags().BoolP("wait", "w", false, "Wait until stack is ready before exit")
+
 }

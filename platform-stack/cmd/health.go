@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	v1 "k8s.io/api/core/v1"
 	"strings"
 	"unicode/utf8"
@@ -27,11 +26,6 @@ func health(cmd *cobra.Command, args []string) (err error) {
 	ns, _ := cmd.Flags().GetString("namespace")
 	label, _ := cmd.Flags().GetStringSlice("label")
 	field, _ := cmd.Flags().GetStringSlice("field")
-
-	defaultLabel := viper.GetString("stack")
-	if defaultLabel != "" {
-		label = append(label, fmt.Sprintf("stack=%v", defaultLabel))
-	}
 
 	podList, err := getPodsList(api, ns, label, field)
 	fmt.Println(podHealth(podList))
