@@ -20,12 +20,6 @@ type KubectlExposeRequest struct {
 
 var forwardCmds = map[string]*exec.Cmd{}
 
-type Config struct {
-	Components []ComponentDescription
-}
-
-var config Config
-
 // exposeCmd represents the expose command
 var exposeCmd = &cobra.Command{
 	Use:   "expose <component> <local port> <remote port>",

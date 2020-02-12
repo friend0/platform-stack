@@ -27,12 +27,6 @@ type KubetplRenderRequest struct {
 	OutputFile string
 }
 
-type ComponentDescription struct {
-	Name              string   `json:"name"`
-	RequiredVariables []string `json:"required_variables"`
-	Exposable         bool     `json:"exposable"`
-}
-
 // upCmd represents the up command
 var upCmd = &cobra.Command{
 	Use:   "up [<component>...]",
@@ -82,7 +76,7 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (er
 	// todo: up command hard-coded to config-local.env - taker flags
 	generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
 		Manifest:   fmt.Sprintf("%v/%v.yaml", deploymentsDirectory, component.Name),
-		EnvFrom:    []string{fmt.Sprintf("%v/config-%v.env", deploymentsDirectory, "local")},
+		EnvFrom:    []string{fmt.Sprintf("%v/config-%v.env", deploymentsDirectory, viper.Get("env"))},
 		Env:        envs,
 		OutputFile: outputYamlFile,
 	})
@@ -118,33 +112,27 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (er
 func parseComponentArgs(args []string) (components []ComponentDescription, err error) {
 
 	if len(args) >= 1 {
-		// todo: check if component has been configured
+		// todo: cross reference with config to get additional component description items
 		for _, arg := range args {
 			components = append(components, ComponentDescription{Name: arg})
 		}
 		return components, nil
 	} else {
-		// Use components from the project's config
-		configuredComponents := viper.Get("components").([]interface{})
-		for _, component := range configuredComponents {
-			if componentString, ok := component.(string); ok {
+
+		if len(config.Components) < 1 {
+			return components, fmt.Errorf("no components found - double check you are in a stack directory with configured components")
+		}
+
+		for _, component := range config.Components {
+			if len(component.RequiredVariables) >= 1 {
 				components = append(components, ComponentDescription{
-					Name: componentString,
+					Name:              component.Name,
+					RequiredVariables: component.RequiredVariables,
 				})
-			}
-			if componentMap, ok := component.(map[interface{}]interface{}); ok {
-				if _, ok := componentMap["name"].(string); ok {
-					if _, ok := componentMap["required_variables"].([]string); ok {
-						components = append(components, ComponentDescription{
-							Name:              componentMap["name"].(string),
-							RequiredVariables: componentMap["required_variables"].([]string),
-						})
-					} else {
-						components = append(components, ComponentDescription{
-							Name: componentMap["name"].(string),
-						})
-					}
-				}
+			} else {
+				components = append(components, ComponentDescription{
+					Name: component.Name,
+				})
 			}
 		}
 	}

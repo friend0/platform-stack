@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
 	v1 "k8s.io/api/core/v1"
@@ -8,10 +9,11 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 	"os/exec"
 	"path"
+	"strings"
 	"testing"
 )
 
-func TestHealthIntegration(t *testing.T) {
+func TestEnterIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -21,12 +23,11 @@ func TestHealthIntegration(t *testing.T) {
 		setupArgs string
 		fixture   string
 	}{
-		{"expose", []string{"help", "health"}, "", "stack-health-help.golden"},
+		{"enter", []string{"-r=../../examples", "help", "enter"}, "", "stack-enter-noargs.golden"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			if tt.setupArgs != "" {
 				cmd := exec.Command("sh", "-c", tt.setupArgs)
 				_, err := cmd.CombinedOutput()
@@ -34,7 +35,6 @@ func TestHealthIntegration(t *testing.T) {
 					t.Error(err)
 				}
 			}
-
 			if tt.fixture != "" {
 				cmd := exec.Command(path.Join(".", "stack"), tt.args...)
 				result, _ := cmd.CombinedOutput()
@@ -48,36 +48,7 @@ func TestHealthIntegration(t *testing.T) {
 	}
 }
 
-func TestPodHealth(t *testing.T) {
-
-	api := fake.NewSimpleClientset(&v1.Pod{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "Pod",
-			APIVersion: "v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "tls-app-579f7cd745-t6fdg",
-			Namespace: "testns",
-			Labels: map[string]string{
-				"tag": "testtag",
-			},
-		},
-		Status: v1.PodStatus{
-			Phase: v1.PodRunning,
-			PodIP: "172.1.0.3",
-		},
-	})
-
-	podList, err := getPodsList(api.CoreV1(), "testns", []string{"tag=testtag"}, []string{})
-	if err != nil {
-		t.Error(err.Error())
-	}
-	healthOutput := podHealth(podList)
-	golden.AssertBytes(t, []byte(healthOutput), "stack-health-one-healthy.golden")
-
-}
-
-func TestPodHealthWithUnhealthy(t *testing.T) {
+func TestEnterContainerCommand(t *testing.T) {
 
 	api := fake.NewSimpleClientset(&v1.Pod{
 		TypeMeta: metav1.TypeMeta{
@@ -128,9 +99,10 @@ func TestPodHealthWithUnhealthy(t *testing.T) {
 			Containers: []v1.Container{
 				{
 					Name:            "tls-app",
-					Image:           "foo/bar",
+					Image:           "alpine:latest",
 					ImagePullPolicy: v1.PullIfNotPresent,
-					Command:         []string{"echo hello"},
+					Command:         []string{"cat"},
+					Stdin:           true,
 				},
 			},
 			RestartPolicy: v1.RestartPolicyAlways,
@@ -139,9 +111,18 @@ func TestPodHealthWithUnhealthy(t *testing.T) {
 
 	podList, err := getPodsList(api.CoreV1(), "testns", []string{"stack=testapp"}, []string{})
 	if err != nil {
-		t.Error(err.Error())
+		t.Fail()
+		return
 	}
-	healthOutput := podHealth(podList)
-	golden.AssertBytes(t, []byte(healthOutput), "stack-health-one-unhealthy.golden")
 
+	fmt.Println(podList)
+	var targetPod *v1.Pod
+	if len(podList.Items) < 1 {
+		t.Fail()
+	} else {
+		targetPod = &podList.Items[0]
+	}
+
+	enterCommand, err := enterContainerCommand(targetPod, "tls-app", "bin/sh")
+	golden.Assert(t, strings.Join(enterCommand.Args, " "), "stack-enter-command.golden")
 }

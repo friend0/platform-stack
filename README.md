@@ -15,6 +15,9 @@ as a part of the stack
 
 Over time, stack can become less opinionated about how your project is organized - as of now, no free lunch!
 
+Please note that by default stack searches for project configuration in you current working directory. Stack uses these configurations to 
+locate containers, manifests, etc. Moreover, this setup helps to scope the stack CLI on a system where multiple stacks may be running.
+
 ## Getting Started
 
 ### Install
@@ -39,9 +42,7 @@ directory for kubernetes object definitions.
 These directories can be configured in the project's configuration file as `build_directory`, and `deployment_directory` 
 respectively.
 
-
-Stack uses a configurable set of components along with the above directory configurations to properly scope commands.
- 
+Stack uses a configurable set of components along with the above directory configurations to properly scope commands. 
 
 Components should be defined in the configuration file as a list of component description objects. The name
 must correspond to it's name in the deployments directory. For each component, you may specify 
