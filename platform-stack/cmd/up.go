@@ -1,11 +1,11 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"path/filepath"
-
 	//"github.com/spf13/viper"
 	"os"
 )
@@ -34,6 +34,10 @@ var upCmd = &cobra.Command{
 	Long: `Brings up components of the stack.
 
 If no components are provided as arguments, all configured components will be brought up.'`,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		initK8s()
+		return viper.BindPFlag("wait", cmd.Flags().Lookup("wait"))
+	},
 	RunE: upAllComponents,
 }
 
@@ -55,6 +59,21 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 			return err
 		}
 	}
+
+	// todo: timeout
+	// todo: easily parsible report
+	wait := viper.GetBool("wait")
+	if wait {
+		api := clientset.CoreV1()
+		healthDetail, err, ctx := waitForStackWithTimeout(api, cmd, 30000)
+		if err != nil {
+			return err
+		}
+		if ctx.Err() == context.DeadlineExceeded {
+			return fmt.Errorf("timed out waiting for stack:\n %v", healthDetail)
+		}
+	}
+
 	return nil
 }
 
@@ -155,4 +174,6 @@ func generateEnvs(requiredVariables []string, getEnv func(string) string) (envs 
 func init() {
 	rootCmd.AddCommand(upCmd)
 	upCmd.Flags().StringVarP(&env, "environment", "e", "local", "Select deployment environment")
+	upCmd.Flags().BoolP("wait", "w", false, "Wait until stack is ready before exit")
+
 }

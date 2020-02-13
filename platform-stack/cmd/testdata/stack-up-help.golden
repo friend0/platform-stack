@@ -1,0 +1,15 @@
+Brings up components of the stack.
+
+If no components are provided as arguments, all configured components will be brought up.'
+
+Usage:
+  stack up [<component>...] [flags]
+
+Flags:
+  -e, --environment string   Select deployment environment (default "local")
+  -h, --help                 help for up
+  -w, --wait                 Wait until stack is ready before exit
+
+Global Flags:
+  -r, --project_directory string     set the project directory of the stack (default ".")
+      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
