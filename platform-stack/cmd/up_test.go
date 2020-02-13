@@ -18,6 +18,7 @@ func TestUpCLI(t *testing.T) {
 		args    []string
 		fixture string
 	}{
+		{"up", []string{"help", "up"}, "stack-up-help.golden"},
 		{"up", []string{"-r=../../examples", "up", "app"}, "stack-up-app.golden"},
 		{"up", []string{"-r=../../examples", "up"}, "stack-up-no-args.golden"},
 	}
