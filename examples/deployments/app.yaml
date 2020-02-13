@@ -38,3 +38,6 @@ spec:
           env:
             - name: TEST_VARIABLE
               value: $TEST_VARIABLE
+          envFrom:
+            - configMapRef:
+                name: special-config

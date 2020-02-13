@@ -11,5 +11,9 @@ components:
       - PWD
       - HOME
     exposable: true
+    containers:
+      - dockerfile: ./containers/app/Dockerfile
+        context: ./containers/app
+        image: stack_app
 postgres_deployment: postgres
 env_prefix: examples
