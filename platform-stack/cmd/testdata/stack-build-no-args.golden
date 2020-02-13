@@ -1,15 +1,19 @@
 Error: accepts between 1 and 2 arg(s), received 0
 Usage:
   stack build <component> [tag] [flags]
+  stack build [command]
+
+Available Commands:
+  all         Builds all containers for all components of the stack, or for the component provided [optional].
 
 Flags:
-  -c, --context string      Select Docker build context
-  -d, --dockerfile string   Select Dockerfile (default "Dockerfile")
-  -h, --help                help for build
-      --noCache             Build images without cache
-  -t, --tag string          Image tag. Tag parameter will override this. (default "latest")
+  -h, --help         help for build
+      --noCache      Build images without cache
+  -t, --tag string   Image tag. Tag parameter will override this. (default "latest")
 
 Global Flags:
   -r, --project_directory string     set the project directory of the stack (default ".")
       --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
+
+Use "stack build [command] --help" for more information about a command.
 

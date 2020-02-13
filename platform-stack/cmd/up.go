@@ -125,8 +125,8 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (er
 
 }
 
-// parseComponentArgs generates a list of ComponentDescriptions from the `up`, and will
-// use the configured components in the project's stack.yaml if no arguments are provided.
+// parseComponentArgs generates a list of ComponentDescriptions from the up command's arguments if provided, defaulting
+// to all configured components if none are provided
 func parseComponentArgs(args []string) (components []ComponentDescription, err error) {
 
 	if len(args) >= 1 {
@@ -157,8 +157,9 @@ func parseComponentArgs(args []string) (components []ComponentDescription, err e
 	return components, nil
 }
 
-// generateEnvs builds a list of environment key value pairs to hydrate required variables with system values.
+// generateEnvs builds a list of environment key value pairs that are hydrated with values obtained from the provided getEnv function.
 // Pairs are given in .env format as `key="value"`.
+// You can provide `os.Getenv` as the argument to the getEnv parameter to access system variables
 func generateEnvs(requiredVariables []string, getEnv func(string) string) (envs []string, err error) {
 	for _, variable := range requiredVariables {
 		if getEnv(variable) != "" {
