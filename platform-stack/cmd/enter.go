@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"github.com/spf13/viper"
 	v1 "k8s.io/api/core/v1"
 	"os"
 	"os/exec"
@@ -40,10 +39,10 @@ func enter(cmd *cobra.Command, args []string) (err error) {
 	label, _ := cmd.Flags().GetStringSlice("label")
 	field, _ := cmd.Flags().GetStringSlice("field")
 
-	defaultLabel := viper.GetString("stack")
-	if defaultLabel != "" {
-		label = append(label, fmt.Sprintf("stack=%v", defaultLabel))
-	}
+	//defaultLabel := viper.GetString("stack")
+	//if defaultLabel != "" {
+	//	label = append(label, fmt.Sprintf("stack=%v", defaultLabel))
+	//}
 
 	pods, err := getPodsList(api, ns, label, field)
 	if err != nil {
@@ -69,6 +68,8 @@ func enter(cmd *cobra.Command, args []string) (err error) {
 	targetShell, _ := cmd.Flags().GetString("shell")
 	if len(args) >= 2 {
 		targetContainerName = args[1]
+	} else {
+		targetContainerName = targetPod.Spec.Containers[0].Name
 	}
 
 	enterCmd, err := enterContainerCommand(targetPod, targetContainerName, targetShell)

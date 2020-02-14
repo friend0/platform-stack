@@ -6,6 +6,7 @@ replace github.com/altiscope/platform-stack/platform-stack/cmd => ./platform-sta
 
 require (
 	github.com/Azure/go-autorest v11.1.2+incompatible // indirect
+	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/imdario/mergo v0.3.8 // indirect
 	github.com/magiconair/properties v1.8.0
