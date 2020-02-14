@@ -7,3 +7,4 @@ while :; do
     fi
     sleep 1;
 done;
+cat
