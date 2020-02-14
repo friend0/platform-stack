@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+	"github.com/cenkalti/backoff"
 )
 
 // podsCmd represents the pods command
@@ -16,8 +17,8 @@ var healthCmd = &cobra.Command{
 	Use:   "health",
 	Short: "Get the health of the stack.",
 	Long:  `List running pods.`,
-	PreRun: func(cmd *cobra.Command, args []string) {
-		initK8s()
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		return initK8s()
 	},
 	RunE: health,
 }
@@ -107,28 +108,37 @@ func waitForStack(api v12.CoreV1Interface, cmd *cobra.Command, ctx context.Conte
 		return results, err
 	}
 
+	backoffConfig := backoff.NewExponentialBackOff()
+	backoffConfig.MaxInterval = 10
+	ticker := backoff.NewTicker(backoffConfig)
+	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("cancelled from sig")
 			return results, ctx.Err()
+		case <- ticker.C:
 		default:
-			fmt.Println("looping...")
-			results = podHealth(podList)
-			allReady := true
-			for _, item := range results {
-				notHealthy := strings.Contains(item, "not healthy")
-				if notHealthy {
-					allReady = false
-				}
-			}
+			results, allReady := isPodHealthy(podList)
 			if allReady {
 				return results, nil
 			}
-			time.Sleep(10 * time.Second)
 		}
 	}
 
+}
+
+func isPodHealthy(podList *v1.PodList) (results []string, healthy bool) {
+	results = podHealth(podList)
+	allReady := true
+	for _, item := range results {
+		notHealthy := strings.Contains(item, "not healthy")
+		if notHealthy {
+			allReady = false
+		}
+	}
+
+	return results, allReady
 }
 
 func init() {
