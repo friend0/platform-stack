@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"github.com/spf13/cobra"
 	"gotest.tools/v3/assert"
@@ -11,7 +12,6 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 	"os/exec"
 	"path"
-	"strings"
 	"testing"
 	"time"
 )
@@ -77,8 +77,13 @@ func TestPodHealth(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	healthOutput := podHealth(podList)
-	golden.AssertBytes(t, []byte(strings.Join(healthOutput, "")), "stack-health-one-healthy.golden")
+	var buf bytes.Buffer
+	healthy, err := printPodListHealth(podList, &buf)
+	if err != nil {
+		t.Fail()
+	}
+	assert.Assert(t, healthy == true)
+	golden.AssertBytes(t, buf.Bytes(), "stack-health-one-healthy.golden")
 
 }
 
@@ -146,8 +151,14 @@ func TestPodHealthWithUnhealthy(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	healthOutput := podHealth(podList)
-	golden.AssertBytes(t, []byte(strings.Join(healthOutput, "")), "stack-health-one-unhealthy.golden")
+
+	var buf bytes.Buffer
+	healthy, err := printPodListHealth(podList, &buf)
+	if err != nil {
+		t.Fail()
+	}
+	assert.Assert(t, healthy == false)
+	golden.AssertBytes(t, buf.Bytes(), "stack-health-one-unhealthy.golden")
 
 }
 
@@ -302,7 +313,7 @@ func TestWaitForStackTimeout(t *testing.T) {
 	cobraCmd.Flags().StringSliceP("label", "l", []string{}, "Label selectors")
 	cobraCmd.Flags().StringSliceP("field", "f", []string{}, "Field selectors")
 
-	_, err, ctx := waitForStackWithTimeout(api.CoreV1(), &cobraCmd, 0)
+	err, ctx := waitForStackWithTimeout(api.CoreV1(), &cobraCmd, 0)
 
 	assert.Error(t, err, "context deadline exceeded")
 	assert.Equal(t, ctx.Err(), context.DeadlineExceeded)
