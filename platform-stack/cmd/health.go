@@ -47,7 +47,6 @@ func health(cmd *cobra.Command, args []string) (err error) {
 	return err
 }
 
-
 func printPodListHealth(pods *v1.PodList, out io.Writer) (podsHealthy bool, err error) {
 
 	podsHealthy = true
@@ -63,23 +62,23 @@ func printPodListHealth(pods *v1.PodList, out io.Writer) (podsHealthy bool, err 
 	}
 
 	if podsHealthy {
-		_, _ = fmt.Fprintf(out,"All pods are healthy\n")
+		_, _ = fmt.Fprintf(out, "All pods are healthy\n")
 	} else {
-		_, _ = fmt.Fprintf(out,"Not all pods are healthy\n")
+		_, _ = fmt.Fprintf(out, "Not all pods are healthy\n")
 	}
 	for _, podDetail := range podsMeta {
 		if podDetail.Healthy {
 			_, _ = fmt.Fprintf(out, "✔️  %v in namespace `%v` is healthy\n", podDetail.Name, podDetail.Namespace)
 		} else {
 			podsHealthy = false
-			_, _ = fmt.Fprintf(out,"✖️  %v in namespace `%v` is not healthy\n", podDetail.Name, podDetail.Namespace)
+			_, _ = fmt.Fprintf(out, "✖️  %v in namespace `%v` is not healthy\n", podDetail.Name, podDetail.Namespace)
 			if !podDetail.Healthy {
 				podDetailHeader := fmt.Sprintf("\n\tPod Details `%v`\n", podDetail.Name)
 				_, _ = fmt.Fprintf(out, podDetailHeader)
-				_, _ = fmt.Fprintf(out,"\t%v\n", strings.Repeat("=", utf8.RuneCountInString(podDetailHeader)))
+				_, _ = fmt.Fprintf(out, "\t%v\n", strings.Repeat("=", utf8.RuneCountInString(podDetailHeader)))
 
 				for _, condition := range unhealthyPodsMap[podDetail.Name].Status.Conditions {
-					_, _ = fmt.Fprintf(out,"\t%v: %v\n", condition.Type, condition.Status)
+					_, _ = fmt.Fprintf(out, "\t%v: %v\n", condition.Type, condition.Status)
 				}
 
 				for _, container := range unhealthyPodsMap[podDetail.Name].Status.ContainerStatuses {
@@ -88,13 +87,13 @@ func printPodListHealth(pods *v1.PodList, out io.Writer) (podsHealthy bool, err 
 					containerDetailHeader := fmt.Sprintf("\n\tContainer Details `%v`\n", container.Name)
 					_, _ = fmt.Fprintf(out, containerDetailHeader)
 					if container.State.Waiting != nil || container.State.Terminated != nil {
-						_, _ = fmt.Fprintf(out,"\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
+						_, _ = fmt.Fprintf(out, "\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
 					}
 					if container.State.Waiting != nil {
-						_, _ = fmt.Fprintf(out,"\tContainer Waiting: %v\n", container.State.Waiting.Message)
+						_, _ = fmt.Fprintf(out, "\tContainer Waiting: %v\n", container.State.Waiting.Message)
 					}
 					if container.State.Terminated != nil {
-						_, _ = fmt.Fprintf(out,"\tContainer Terminated with non-zero ExitCode: %v: %v\n", container.State.Terminated.ExitCode, container.State.Terminated.Message)
+						_, _ = fmt.Fprintf(out, "\tContainer Terminated with non-zero ExitCode: %v: %v\n", container.State.Terminated.ExitCode, container.State.Terminated.Message)
 					}
 				}
 			}
@@ -117,12 +116,10 @@ func waitForStack(api v12.CoreV1Interface, cmd *cobra.Command, ctx context.Conte
 	label, _ := cmd.Flags().GetStringSlice("label")
 	field, _ := cmd.Flags().GetStringSlice("field")
 
-
-
 	backoffConfig := backoff.NewExponentialBackOff()
 
 	backoffConfig.Multiplier = 2
-	backoffConfig.MaxInterval = 10*time.Second
+	backoffConfig.MaxInterval = 10 * time.Second
 	ticker := backoff.NewTicker(backoffConfig)
 	defer ticker.Stop()
 
@@ -150,7 +147,6 @@ func waitForStack(api v12.CoreV1Interface, cmd *cobra.Command, ctx context.Conte
 	}
 
 }
-
 
 func translateTimestampSince(timestamp metav1.Time) string {
 	if timestamp.IsZero() {

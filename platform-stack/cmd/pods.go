@@ -31,7 +31,7 @@ type PodColumns struct {
 	ReadinessGates string
 	Healthy        bool
 	Namespace      string
-	Images 		   []string
+	Images         []string
 }
 
 // podsCmd represents the pods command
@@ -219,7 +219,7 @@ func printPod(pod *v1.Pod) (podDetail PodColumns, err error) {
 	}
 
 	images := make([]string, len(pod.Spec.Containers))
-	for i, container := range(pod.Spec.Containers) {
+	for i, container := range pod.Spec.Containers {
 		images[i] = container.Image
 	}
 
@@ -231,7 +231,7 @@ func printPod(pod *v1.Pod) (podDetail PodColumns, err error) {
 		Age:       translateTimestampSince(pod.CreationTimestamp),
 		Healthy:   healthy,
 		Namespace: pod.Namespace,
-		Images: images,
+		Images:    images,
 	}
 
 	if true {
