@@ -1,2 +1,2 @@
 NAME                                            READY   STATUS          RESTARTS        AGE             IP              NODE                    NOMINATED       READINESS       IMAGES
-tls-app-579f7cd745-t6fdg                        0/1     Running         0               <unknown>       <none>          <none>                  <none>          <none>          [alpine:latest]
+tls-app-579f7cd745-t6fdg                        0/1     Running         0               <unknown>       172.1.0.3       <none>                  <none>          <none>          [alpine:latest]

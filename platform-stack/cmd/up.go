@@ -35,8 +35,11 @@ var upCmd = &cobra.Command{
 
 If no components are provided as arguments, all configured components will be brought up.'`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		initK8s()
-		return viper.BindPFlag("wait", cmd.Flags().Lookup("wait"))
+		err := viper.BindPFlag("wait", cmd.Flags().Lookup("wait"))
+		if err != nil {
+			return err
+		}
+		return initK8s()
 	},
 	RunE: upAllComponents,
 }

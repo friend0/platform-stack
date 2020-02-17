@@ -9,6 +9,7 @@ Flags:
   -h, --help                                          help for health
   -l, --label strings                                 Label selectors
   -n, --namespace string                              Namespace
+  -w, --wide                                          Wide cell (default true)
 
 Global Flags:
   -r, --project_directory string     set the project directory of the stack (default ".")

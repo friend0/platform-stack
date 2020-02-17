@@ -238,6 +238,10 @@ func printPod(pod *v1.Pod) (podDetail PodColumns, err error) {
 		nodeName := pod.Spec.NodeName
 		nominatedNodeName := pod.Status.NominatedNodeName
 		podIP := ""
+
+		if pod.Status.PodIP != "" {
+			podIP = pod.Status.PodIP
+		}
 		if len(pod.Status.PodIPs) > 0 {
 			podIP = pod.Status.PodIPs[0].IP
 		}
@@ -245,6 +249,7 @@ func printPod(pod *v1.Pod) (podDetail PodColumns, err error) {
 		if podIP == "" {
 			podIP = "<none>"
 		}
+
 		if nodeName == "" {
 			nodeName = "<none>"
 		}

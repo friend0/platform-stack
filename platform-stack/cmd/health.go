@@ -82,8 +82,6 @@ func printPodListHealth(pods *v1.PodList, out io.Writer) (podsHealthy bool, err 
 				}
 
 				for _, container := range unhealthyPodsMap[podDetail.Name].Status.ContainerStatuses {
-					fmt.Println("CONTAINER")
-					fmt.Printf("%v", container.Name)
 					containerDetailHeader := fmt.Sprintf("\n\tContainer Details `%v`\n", container.Name)
 					_, _ = fmt.Fprintf(out, containerDetailHeader)
 					if container.State.Waiting != nil || container.State.Terminated != nil {
