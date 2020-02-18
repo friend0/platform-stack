@@ -175,7 +175,7 @@ func init() {
 
 	enterCmd.Flags().StringP("shell", "s", "", "Provide a target shell.")
 
-	enterCmd.Flags().StringP("namespace", "n", "", "Namespace")
-	enterCmd.Flags().StringSliceP("label", "l", []string{}, "Label selector")
-	enterCmd.Flags().StringSliceP("field", "f", []string{}, "Field selector")
+	enterCmd.Flags().StringP("namespace", "", "", "Namespace")
+	enterCmd.Flags().StringSliceP("label", "", []string{}, "Label selector")
+	enterCmd.Flags().StringSliceP("field", "", []string{}, "Field selector")
 }

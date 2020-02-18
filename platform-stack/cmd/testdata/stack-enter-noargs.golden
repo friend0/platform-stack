@@ -4,10 +4,10 @@ Usage:
   stack enter <pod> [container] [flags]
 
 Flags:
-  -f, --field strings      Field selector
+      --field strings      Field selector
   -h, --help               help for enter
-  -l, --label strings      Label selector
-  -n, --namespace string   Namespace
+      --label strings      Label selector
+      --namespace string   Namespace
   -s, --shell string       Provide a target shell.
 
 Global Flags:

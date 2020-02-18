@@ -287,8 +287,8 @@ func printPod(pod *v1.Pod) (podDetail PodColumns, err error) {
 func init() {
 	rootCmd.AddCommand(podsCmd)
 
-	podsCmd.Flags().StringP("namespace", "n", "", "Namespace")
-	podsCmd.Flags().StringSliceP("label", "l", []string{}, "Label selector")
-	podsCmd.Flags().StringSliceP("field", "f", []string{}, "Field selector")
+	podsCmd.Flags().StringP("namespace", "", "", "Namespace")
+	podsCmd.Flags().StringSliceP("label", "", []string{}, "Label selector")
+	podsCmd.Flags().StringSliceP("field", "", []string{}, "Field selector")
 
 }

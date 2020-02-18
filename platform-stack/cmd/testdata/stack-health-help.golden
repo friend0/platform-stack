@@ -5,10 +5,10 @@ Usage:
 
 Flags:
   -d, --dependency_versions dependency_name=version   Comma separated list of dependency version assignments as dependency_name=version
-  -f, --field strings                                 Field selectors
+      --field strings                                 Field selectors
   -h, --help                                          help for health
-  -l, --label strings                                 Label selectors
-  -n, --namespace string                              Namespace
+      --label strings                                 Label selectors
+      --namespace string                              Namespace
   -w, --wide                                          Wide cell (default true)
 
 Global Flags:

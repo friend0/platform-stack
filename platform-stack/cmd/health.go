@@ -159,7 +159,7 @@ func init() {
 
 	healthCmd.Flags().BoolP("wide", "w", true, "Wide cell")
 
-	healthCmd.Flags().StringP("namespace", "n", "", "Namespace")
-	healthCmd.Flags().StringSliceP("label", "l", []string{}, "Label selectors")
-	healthCmd.Flags().StringSliceP("field", "f", []string{}, "Field selectors")
+	healthCmd.Flags().StringP("namespace", "", "", "Namespace")
+	healthCmd.Flags().StringSliceP("label", "", []string{}, "Label selectors")
+	healthCmd.Flags().StringSliceP("field", "", []string{}, "Field selectors")
 }
