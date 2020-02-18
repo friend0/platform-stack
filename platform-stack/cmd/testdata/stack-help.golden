@@ -4,7 +4,7 @@ Usage:
   stack [command]
 
 Available Commands:
-  build       Builds an image for the given component using the Dockerfile at the configured build directory.
+  build       Builds images for the given component using containers defined in config.
   down        Tears down the stack.
   enter       Initiates a terminal session for a pod in the given Deployment.
   expose      Exposes a kubernetes deployment to your local machine.

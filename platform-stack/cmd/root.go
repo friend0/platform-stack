@@ -22,10 +22,26 @@ var stackConfigurationFileName string
 var clientset *kubernetes.Clientset
 
 var config Config
+
 type ComponentDescription struct {
 	Name              string   `json:"name"`
 	RequiredVariables []string `json:"required_variables"`
 	Exposable         bool     `json:"exposable"`
+	Containers        []ContainerDescription `json:"containers"`
+	Manifests         []string `json:"manifests"`
+
+}
+
+type ContainerDescription struct {
+	Dockerfile string `json:"dockerfile"`
+	Context    string `json:"context"`
+	Image 	   string `json:"image"`
+}
+
+type ManifestDescription struct {
+	Dockerfile string `json:"dockerfile"`
+	Context    string `json:"context"`
+	Image 	   string `json:"image"`
 }
 
 type Config struct {
