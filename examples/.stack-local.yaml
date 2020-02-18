@@ -15,5 +15,7 @@ components:
       - dockerfile: ./containers/app/Dockerfile
         context: ./containers/app
         image: stack_app
+    manifests:
+      - ./deployments/app.yaml
 postgres_deployment: postgres
 env_prefix: examples

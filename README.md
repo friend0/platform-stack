@@ -1,22 +1,15 @@
 # Stack
-Stack is the Platform deployment CLI.
+
+Stack is a tool for defining and running multi-object Kubernetes applications. 
+With Stack, you use a configuration file to define the services that make up your application. 
+Then, with a few simple commands, you create and start all the services from your configuration. 
 
 Stack is a generalized CLI for seamless test, development, and debugging across environments.
 Currently for local development only, stack has the potential to minimize dev/prod deltas, and to give developers
 a powerful set of tools that make them more productive. 
 
-Stack makes deployments simple by making a few organizational assumptions about your service:
-
-1) Containers are defined in a single directory
-2) Deployment manifests are defined in another directory - these are sometimes referred to within these docs as
-components
-3) A configuration file is present defining the above directories, as well as the components that will be managed
-as a part of the stack
-
-Over time, stack can become less opinionated about how your project is organized - as of now, no free lunch!
-
-Please note that by default stack searches for project configuration in you current working directory. Stack uses these configurations to 
-locate containers, manifests, etc. Moreover, this setup helps to scope the stack CLI on a system where multiple stacks may be running.
+Please note that when running stack commands stack searches for project configuration in you current working directory. 
+Stack uses these configurations to locate containers, manifests, etc. 
 
 ## Getting Started
 

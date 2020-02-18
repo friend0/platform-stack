@@ -40,4 +40,4 @@ spec:
               value: $TEST_VARIABLE
           envFrom:
             - configMapRef:
-                name: special-config
+                name: stack-env
