@@ -35,13 +35,15 @@ var upCmd = &cobra.Command{
 
 If no components are provided as arguments, all configured components will be brought up.'`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		initK8s()
-		return viper.BindPFlag("wait", cmd.Flags().Lookup("wait"))
+		err := viper.BindPFlag("wait", cmd.Flags().Lookup("wait"))
+		if err != nil {
+			return err
+		}
+		return initK8s()
 	},
 	RunE: upAllComponents,
 }
 
-// todo: share this map with downAllComponents
 func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 
 	// Determine component list from config
@@ -60,17 +62,15 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
-	// todo: timeout
-	// todo: easily parsible report
 	wait := viper.GetBool("wait")
 	if wait {
 		api := clientset.CoreV1()
-		healthDetail, err, ctx := waitForStackWithTimeout(api, cmd, 30000)
+		err, ctx := waitForStackWithTimeout(api, cmd, 60000)
 		if err != nil {
 			return err
 		}
 		if ctx.Err() == context.DeadlineExceeded {
-			return fmt.Errorf("timed out waiting for stack:\n %v", healthDetail)
+			return fmt.Errorf("timed out waiting for stack")
 		}
 	}
 
@@ -92,7 +92,6 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (er
 		return err
 	}
 
-	// todo: up command hard-coded to config-local.env - taker flags
 	generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
 		Manifest:   fmt.Sprintf("%v/%v.yaml", deploymentsDirectory, component.Name),
 		EnvFrom:    []string{fmt.Sprintf("%v/config-%v.env", deploymentsDirectory, viper.Get("env"))},

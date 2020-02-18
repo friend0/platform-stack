@@ -1,3 +1,4 @@
+Not all pods are healthy
 ✖️  tls-app-579f7cd745-t6fdg in namespace `testns` is not healthy
 
 	Pod Details `tls-app-579f7cd745-t6fdg`

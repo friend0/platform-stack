@@ -3,13 +3,17 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/cenkalti/backoff"
 	"github.com/spf13/cobra"
+	"io"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/duration"
 	v12 "k8s.io/client-go/kubernetes/typed/core/v1"
+	"os"
 	"strings"
 	"time"
 	"unicode/utf8"
-	"github.com/cenkalti/backoff"
 )
 
 // podsCmd represents the pods command
@@ -32,117 +36,128 @@ func health(cmd *cobra.Command, args []string) (err error) {
 	field, _ := cmd.Flags().GetStringSlice("field")
 
 	podList, err := getPodsList(api, ns, label, field)
-	fmt.Println(podHealth(podList))
-	return nil
+	if err != nil {
+		return err
+	}
+	if len(podList.Items) == 0 {
+		return fmt.Errorf("no pods found")
+	}
+
+	_, err = printPodListHealth(podList, os.Stdout)
+	return err
 }
 
-// podHealth generates a report string given an input PodList
-func podHealth(pods *v1.PodList) (output []string) {
+func printPodListHealth(pods *v1.PodList, out io.Writer) (podsHealthy bool, err error) {
 
-	for _, pod := range pods.Items {
-		healthy := true
-		numContainersHealthy := 0
-
-		podDetailHeader := fmt.Sprintf("\n\tPod Details `%v`\n", pod.Name)
-		podDetailOutput := podDetailHeader
-		podDetailOutput += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(podDetailHeader)))
-
-		for _, condition := range pod.Status.Conditions {
-			podDetailOutput += fmt.Sprintf("\t%v: %v\n", condition.Type, condition.Status)
+	podsHealthy = true
+	var podsMeta []PodColumns
+	unhealthyPodsMap := make(map[string]*v1.Pod)
+	for i := range pods.Items {
+		podMeta, _ := printPod(&pods.Items[i])
+		podsMeta = append(podsMeta, podMeta)
+		if !podMeta.Healthy {
+			unhealthyPodsMap[(&pods.Items[i]).Name] = &pods.Items[i]
+			podsHealthy = false
 		}
+	}
 
-		// check container numbers
-		for _, container := range pod.Status.ContainerStatuses {
-			if container.Ready {
-				numContainersHealthy++
-			}
+	if podsHealthy {
+		_, _ = fmt.Fprintf(out, "All pods are healthy\n")
+	} else {
+		_, _ = fmt.Fprintf(out, "Not all pods are healthy\n")
+	}
+	for _, podDetail := range podsMeta {
+		if podDetail.Healthy {
+			_, _ = fmt.Fprintf(out, "✔️  %v in namespace `%v` is healthy\n", podDetail.Name, podDetail.Namespace)
+		} else {
+			podsHealthy = false
+			_, _ = fmt.Fprintf(out, "✖️  %v in namespace `%v` is not healthy\n", podDetail.Name, podDetail.Namespace)
+			if !podDetail.Healthy {
+				podDetailHeader := fmt.Sprintf("\n\tPod Details `%v`\n", podDetail.Name)
+				_, _ = fmt.Fprintf(out, podDetailHeader)
+				_, _ = fmt.Fprintf(out, "\t%v\n", strings.Repeat("=", utf8.RuneCountInString(podDetailHeader)))
 
-			if container.State.Waiting != nil || container.State.Terminated != nil {
-				containerDetailHeader := fmt.Sprintf("\n\tContainer Details `%v`\n", container.Name)
-				podDetailOutput += containerDetailHeader
-				podDetailOutput += fmt.Sprintf("\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
-			}
-			if container.State.Waiting != nil {
-				podDetailOutput += fmt.Sprintf("\tContainer Waiting: %v\n", container.State.Waiting.Message)
-				healthy = false
-			}
-			if container.State.Terminated != nil {
-				if container.State.Terminated.ExitCode == 0 {
-					numContainersHealthy++
-				} else {
-					podDetailOutput += fmt.Sprintf("\tContainer Terminated with non-zero ExitCode: %v: %v\n", container.State.Terminated.ExitCode, container.State.Terminated.Message)
-					healthy = false
+				for _, condition := range unhealthyPodsMap[podDetail.Name].Status.Conditions {
+					_, _ = fmt.Fprintf(out, "\t%v: %v\n", condition.Type, condition.Status)
+				}
+
+				for _, container := range unhealthyPodsMap[podDetail.Name].Status.ContainerStatuses {
+					containerDetailHeader := fmt.Sprintf("\n\tContainer Details `%v`\n", container.Name)
+					_, _ = fmt.Fprintf(out, containerDetailHeader)
+					if container.State.Waiting != nil || container.State.Terminated != nil {
+						_, _ = fmt.Fprintf(out, "\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
+					}
+					if container.State.Waiting != nil {
+						_, _ = fmt.Fprintf(out, "\tContainer Waiting: %v\n", container.State.Waiting.Message)
+					}
+					if container.State.Terminated != nil {
+						_, _ = fmt.Fprintf(out, "\tContainer Terminated with non-zero ExitCode: %v: %v\n", container.State.Terminated.ExitCode, container.State.Terminated.Message)
+					}
 				}
 			}
 		}
-
-		if numContainersHealthy != len(pod.Spec.Containers) {
-			healthy = false
-		}
-
-		if healthy {
-			output = append(output, fmt.Sprintf("✔️  %v in namespace `%v` is healthy\n", pod.Name, pod.Namespace))
-		} else {
-			output = append(output, fmt.Sprintf("✖️  %v in namespace `%v` is not healthy\n", pod.Name, pod.Namespace)+podDetailOutput)
-		}
 	}
-	return output
+	return podsHealthy, nil
 }
 
-func waitForStackWithTimeout(api v12.CoreV1Interface, cmd *cobra.Command, timeoutMs time.Duration) (results []string, err error, ctx context.Context) {
+func waitForStackWithTimeout(api v12.CoreV1Interface, cmd *cobra.Command, timeoutMs time.Duration) (err error, ctx context.Context) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeoutMs*time.Millisecond)
 	defer cancel() // releases resources if slowOperation completes before timeout elapses
-	results, err = waitForStack(api, cmd, ctx)
-	return results, err, ctx
+	err = waitForStack(api, cmd, ctx)
+	return err, ctx
 }
 
-func waitForStack(api v12.CoreV1Interface, cmd *cobra.Command, ctx context.Context) (results []string, err error) {
+func waitForStack(api v12.CoreV1Interface, cmd *cobra.Command, ctx context.Context) (err error) {
 
 	ns, _ := cmd.Flags().GetString("namespace")
 	label, _ := cmd.Flags().GetStringSlice("label")
 	field, _ := cmd.Flags().GetStringSlice("field")
 
-	podList, err := getPodsList(api, ns, label, field)
-	if err != nil {
-		return results, err
-	}
-
 	backoffConfig := backoff.NewExponentialBackOff()
-	backoffConfig.MaxInterval = 10
+
+	backoffConfig.Multiplier = 2
+	backoffConfig.MaxInterval = 10 * time.Second
 	ticker := backoff.NewTicker(backoffConfig)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
-			return results, ctx.Err()
-		case <- ticker.C:
-		default:
-			results, allReady := isPodHealthy(podList)
-			if allReady {
-				return results, nil
+			return ctx.Err()
+		case <-ticker.C:
+			podList, err := getPodsList(api, ns, label, field)
+			if err != nil {
+				return err
+			}
+			null, err := os.Open(os.DevNull) // For read access.
+			if err != nil {
+				return err
+			}
+			healthy, err := printPodListHealth(podList, null)
+			if err != nil {
+				return err
+			}
+			if healthy {
+				return nil
 			}
 		}
 	}
 
 }
 
-func isPodHealthy(podList *v1.PodList) (results []string, healthy bool) {
-	results = podHealth(podList)
-	allReady := true
-	for _, item := range results {
-		notHealthy := strings.Contains(item, "not healthy")
-		if notHealthy {
-			allReady = false
-		}
+func translateTimestampSince(timestamp metav1.Time) string {
+	if timestamp.IsZero() {
+		return "<unknown>"
 	}
 
-	return results, allReady
+	return duration.HumanDuration(time.Since(timestamp.Time))
 }
 
 func init() {
 	rootCmd.AddCommand(healthCmd)
+
+	healthCmd.Flags().BoolP("wide", "w", true, "Wide cell")
 
 	healthCmd.Flags().StringP("namespace", "n", "", "Namespace")
 	healthCmd.Flags().StringSliceP("label", "l", []string{}, "Label selectors")
