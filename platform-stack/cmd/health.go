@@ -76,22 +76,21 @@ func printPodListHealth(pods *v1.PodList, out io.Writer) (podsHealthy bool, err 
 				podDetailHeader := fmt.Sprintf("\n\tPod Details `%v`\n", podDetail.Name)
 				_, _ = fmt.Fprintf(out, podDetailHeader)
 				_, _ = fmt.Fprintf(out, "\t%v\n", strings.Repeat("=", utf8.RuneCountInString(podDetailHeader)))
-
 				for _, condition := range unhealthyPodsMap[podDetail.Name].Status.Conditions {
 					_, _ = fmt.Fprintf(out, "\t%v: %v\n", condition.Type, condition.Status)
 				}
-
 				for _, container := range unhealthyPodsMap[podDetail.Name].Status.ContainerStatuses {
 					containerDetailHeader := fmt.Sprintf("\n\tContainer Details `%v`\n", container.Name)
 					_, _ = fmt.Fprintf(out, containerDetailHeader)
-					if container.State.Waiting != nil || container.State.Terminated != nil {
-						_, _ = fmt.Fprintf(out, "\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
-					}
+					_, _ = fmt.Fprintf(out, "\t%v\n", strings.Repeat("=", utf8.RuneCountInString(containerDetailHeader)))
 					if container.State.Waiting != nil {
 						_, _ = fmt.Fprintf(out, "\tContainer Waiting: %v\n", container.State.Waiting.Message)
 					}
 					if container.State.Terminated != nil {
 						_, _ = fmt.Fprintf(out, "\tContainer Terminated with non-zero ExitCode: %v: %v\n", container.State.Terminated.ExitCode, container.State.Terminated.Message)
+					}
+					if container.State.Running != nil && unhealthyPodsMap[podDetail.Name].DeletionTimestamp != nil {
+						_, _ = fmt.Fprintf(out, "\tContainer Terminating: DeletionTimestamp: %v\n",unhealthyPodsMap[podDetail.Name].DeletionTimestamp)
 					}
 				}
 			}
@@ -121,12 +120,14 @@ func waitForStack(api v12.CoreV1Interface, cmd *cobra.Command, ctx context.Conte
 	ticker := backoff.NewTicker(backoffConfig)
 	defer ticker.Stop()
 
+	podList, err := getPodsList(api, ns, label, field)
 	for {
 		select {
 		case <-ctx.Done():
+			_, _ = printPodListHealth(podList, os.Stdout)
 			return ctx.Err()
 		case <-ticker.C:
-			podList, err := getPodsList(api, ns, label, field)
+			podList, err = getPodsList(api, ns, label, field)
 			if err != nil {
 				return err
 			}
@@ -136,9 +137,11 @@ func waitForStack(api v12.CoreV1Interface, cmd *cobra.Command, ctx context.Conte
 			}
 			healthy, err := printPodListHealth(podList, null)
 			if err != nil {
+				_, _ = printPodListHealth(podList, os.Stdout)
 				return err
 			}
 			if healthy {
+				_, _ = printPodListHealth(podList, os.Stdout)
 				return nil
 			}
 		}
