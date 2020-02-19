@@ -1,4 +1,4 @@
-Builds all containers for all components of the stack, or for the component provided [optional].
+Builds all containers for all components of the stack.
 
 Usage:
   stack build all [flags]

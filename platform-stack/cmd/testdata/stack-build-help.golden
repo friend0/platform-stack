@@ -13,7 +13,7 @@ Usage:
   stack build [command]
 
 Available Commands:
-  all         Builds all containers for all components of the stack, or for the component provided [optional].
+  all         Builds all containers for all components of the stack.
 
 Flags:
   -h, --help         help for build
