@@ -1,11 +1,11 @@
 context: ./containers
-build_directory: ./containers
-deployment_directory: ./deployments
 stack: app
 components:
   - name: config
     requiredVariables:
       - ENV
+    manifests:
+      - ./deployments/config-local.env
   - name: app
     requiredVariables:
       - PWD
