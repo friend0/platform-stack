@@ -47,7 +47,7 @@ If no components are provided as arguments, all configured components will be br
 func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 
 	// Determine component list from config
-	upComponents, err := parseComponentArgs(args)
+	upComponents, err := parseComponentArgs(args, config.Components)
 	if err != nil {
 		return err
 	}
@@ -130,13 +130,20 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (er
 
 // parseComponentArgs generates a list of ComponentDescriptions from the up command's arguments if provided, defaulting
 // to all configured components if none are provided
-func parseComponentArgs(args []string) (components []ComponentDescription, err error) {
-	if len(config.Components) < 1 {
+func parseComponentArgs(args []string, configuredComponents []ComponentDescription) (components []ComponentDescription, err error) {
+	if len(configuredComponents) < 1 {
 		return components, fmt.Errorf("no components found - double check you are in a stack directory with configured components")
 	}
+	argMap := make(map[string]bool)
+	for _, arg := range args {
+		argMap[arg] = true
+	}
 
-	for _, component := range config.Components {
-		if len(args) >= 1 && args[0] != component.Name {
+	for _, component := range configuredComponents {
+		if len(args) >= 1 {
+			if argMap[component.Name] == true {
+				components = append(components, component)
+			}
 			continue
 		}
 		components = append(components, component)
