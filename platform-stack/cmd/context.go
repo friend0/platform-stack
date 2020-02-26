@@ -40,14 +40,15 @@ If a target argument is provided, then stack will activate the configured contex
 }
 
 // runContextCommandFunction returns a cobra command handler for running kubectl-config commands
-func runContextCommandFunction(configCommand string) func (cmd *cobra.Command, args []string) (err error){
+func runContextCommandFunction(configCommand string, out io.Writer) func (cmd *cobra.Command, args []string) (err error){
 	return func(cmd *cobra.Command, args []string) (err error) {
-		return runContextFunction(configCommand, os.Stdout)()
+		return runContextFunction(configCommand, out)()
 	}
 }
+
 // runContextFunction returns a function handler for running kubectl-config commands
-func runContextFunction(configCommand string, out io.Writer) func ()(error){
-	return func()error{
+func runContextFunction(configCommand string, out io.Writer) func() (error) {
+	return func() error {
 		contextsCmd, err := GenerateCommand(kubectlContextTemplate, kubectlContextRequest{
 			ConfigCommand: configCommand,
 		})

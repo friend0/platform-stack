@@ -26,7 +26,7 @@ var enterCmd = &cobra.Command{
 	Short: "Initiates a terminal session for a pod in the given Deployment.",
 	Long:  `Initiates a terminal session for a pod in the given Deployment.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		return initK8s()
+		return initK8s("")
 	},
 	RunE: enter,
 }
