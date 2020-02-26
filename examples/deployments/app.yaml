@@ -34,7 +34,11 @@ spec:
           imagePullPolicy: $APP_IMAGE_PULL_POLICY
           ports:
             - containerPort: 8080
-          # TODO: More templating for more fields (later)
+          # Add Secret Variables Here
           env:
             - name: TEST_VARIABLE
               value: $TEST_VARIABLE
+          # Use the ConfigMap named here for general env
+          envFrom:
+            - configMapRef:
+                name: stack-env

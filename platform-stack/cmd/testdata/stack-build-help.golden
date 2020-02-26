@@ -1,4 +1,13 @@
-Error: accepts between 1 and 2 arg(s), received 0
+Builds images for the given component using containers defined in config.
+This command can also be used to build a specific container for a specific component instead of building and tagging them all at once.
+An optional tag can be provided as a flag, or 'latest' will be used.
+
+For example:
+
+	stack build app -t v0.1.0-alpha		# builds the images for all the containers defined by the app component in the project's config' with the tag v0.1.0-alpha 
+
+	stack build app app-image			# build the image 'app:latest' for the container 'app' defined by the component 'app'
+
 Usage:
   stack build <component> [container] [flags]
   stack build [command]
@@ -16,4 +25,3 @@ Global Flags:
       --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
 
 Use "stack build [command] --help" for more information about a command.
-

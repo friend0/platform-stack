@@ -25,8 +25,8 @@ fi
 
 asset_id=`curl -sL -H "Authorization: token $github_oauth_token" -H "Accept: application/vnd.github.v3.raw" https://$github_api/repos/$github_repo/releases | jq "$parser"`
 
-curl --silent --show-error --header "Authorization: token $github_oauth_token" --header 'Accept: application/octet-stream' --location --output "$output_path" --request GET \
-https://$github_oauth_token:@$github_api/repos/$github_repo/releases/assets/$asset_id
+curl --show-error --header 'Accept: application/octet-stream' --location --output "$output_path" --request GET \
+https://$github_oauth_token:@$github_api/repos/$github_repo/releases/assets/$asset_id?access_token=$github_oauth_token
 
 if [[ "$?" -eq 0 ]]; then
   sudo chmod +x "$output_path"

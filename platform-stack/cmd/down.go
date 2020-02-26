@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"path/filepath"
 )
 
@@ -25,22 +24,14 @@ If no arguments are provided, all configured objects will be taken down.`,
 }
 
 func downAllComponents(cmd *cobra.Command, args []string) (err error) {
-
-	// parses ComponentDescriptions from input args, uses all configured components if none are provided
-	components, err := parseComponentArgs(args)
+	components, err := parseComponentArgs(args, config.Components)
 	if err != nil {
 		return err
 	}
 
-	projectDirectory, _ := cmd.Flags().GetString("project_directory")
-	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
-
-	deploymentsDirectory := filepath.Join(absoluteProjectDirectory, viper.GetString("deployment_directory"))
-
 	for _, component := range components {
 		fmt.Printf("Tearing down components at %v...\n", component.Name)
-		generatedYaml := filepath.Join(deploymentsDirectory, fmt.Sprintf("%v-generated.yaml", component.Name))
-		err := downComponent(generatedYaml)
+		err := downComponent(cmd, component)
 		if err != nil {
 			fmt.Printf("`%v` component failed teardown. You may need to delete it manually.\n", component.Name)
 		}
@@ -48,25 +39,29 @@ func downAllComponents(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func downComponent(yamlFile string) (err error) {
+func downComponent(cmd *cobra.Command, component ComponentDescription) (err error) {
+	projectDirectory, _ := cmd.Flags().GetString("project_directory")
+	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
 
-	deleteYamlCmd, err := GenerateCommand(kubectlDeleteTemplate, KubectlDeleteRequest{
-		YamlFile: yamlFile,
-	})
+	for _, manifest := range component.Manifests {
+		manifestPath := filepath.Join(absoluteProjectDirectory, manifest)
+		manifestDirectory := filepath.Dir(manifestPath)
+		generatedYamlFile := fmt.Sprintf("%v/%v-generated.yaml", manifestDirectory, component.Name)
 
-	if err != nil {
-		return err
+		deleteYamlCmd, err := GenerateCommand(kubectlDeleteTemplate, KubectlDeleteRequest{
+			YamlFile: generatedYamlFile,
+		})
+		if err != nil {
+			return err
+		}
+		var stdoutBytes, errorBytes bytes.Buffer
+		deleteYamlCmd.Stdout = &stdoutBytes
+		deleteYamlCmd.Stderr = &errorBytes
+		if err := deleteYamlCmd.Run(); err != nil {
+			return fmt.Errorf(errorBytes.String())
+		}
+		fmt.Println(stdoutBytes.String())
 	}
-
-	var stdoutBytes, errorBytes bytes.Buffer
-	deleteYamlCmd.Stdout = &stdoutBytes
-	deleteYamlCmd.Stderr = &errorBytes
-
-	if err := deleteYamlCmd.Run(); err != nil {
-		return fmt.Errorf(errorBytes.String())
-	}
-
-	fmt.Println(stdoutBytes.String())
 	return nil
 }
 

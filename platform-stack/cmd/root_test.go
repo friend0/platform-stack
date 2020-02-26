@@ -3,12 +3,12 @@ package cmd
 import (
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
-	"os/exec"
 	"path"
 	"testing"
+	"os/exec"
 )
 
-func TestBuildIntegration(t *testing.T) {
+func TestRoot(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -17,9 +17,7 @@ func TestBuildIntegration(t *testing.T) {
 		args    []string
 		fixture string
 	}{
-		{"build command", []string{"help", "build"}, "stack-build-help.golden"},
-		{"build command", []string{"build"}, "stack-build-no-args.golden"},
-		{"build command with component", []string{"-r=../../examples", "build", "app"}, ""},
+		{"build command", []string{"help"}, "stack-help.golden"},
 	}
 
 	for _, tt := range tests {
