@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const kubectlLogsTemplate = `kubectl logs {{if .Stream}} -f {{end}} {{if .ContainerName}}--container {{ .ContainerName }}{{else}}--all-containers=true{{end}} deployments/{{ .Deployment}}`
+const kubectlLogsTemplate = `kubectl logs {{if .Stream}} -f {{end}} {{if .ContainerName}}--container {{ .ContainerName }}{{else}}--all-containers=true{{end}} {{ .PodName}}`
 
 type KubectlLogsRequest struct {
 	PodName string
@@ -24,8 +24,11 @@ var (
 // logsCmd represents the logs command
 var logsCmd = &cobra.Command{
 	Use:   "logs <pod> [container]",
-	Short: "Show logs for a given running pod / deployment by short name",
-	Long:  `Show logs for a given running pod / deployment by short name.`,
+	Short: "Show logs for a pod in the given Deployment",
+	Long:  `Show logs for a pod in the given Deployment.`,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		initK8s()
+	},
 	Args:  cobra.MinimumNArgs(1),
 	RunE:  showLogs,
 }
@@ -37,6 +40,9 @@ func showLogs(cmd *cobra.Command, args []string) (err error) {
 	ns, _ := cmd.Flags().GetString("namespace")
 	label, _ := cmd.Flags().GetStringSlice("label")
 	field, _ := cmd.Flags().GetStringSlice("field")
+
+	// add deployment name to labels
+	label = append(label, fmt.Sprintf("app=%v", args[0]))
 
 	pods, err := getPodsList(api, ns, label, field)
 	if err != nil {
@@ -59,16 +65,28 @@ func showLogs(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	var targetContainerName string
+	var podContainerNames []string
+
 	if len(args) >= 2 {
 		targetContainerName = args[1]
+		podContainerNames = append(podContainerNames, targetContainerName)
 	} else {
-		targetContainerName = targetPod.Spec.Containers[0].Name
+		podContainerNames = make([]string, len(targetPod.Spec.Containers))
+		for i, container := range targetPod.Spec.Containers {
+			podContainerNames[i] = container.Name
+		}
+		if len(podContainerNames) == 1 {
+			targetContainerName = podContainerNames[0]
+		} else {
+			// default to showing all containers
+			targetContainerName = ""
+		}
 	}
 
-	fmt.Printf("Showing logs for %v\n", args[0])
+	fmt.Printf("Showing logs for pod %v [containers: %v]\n", targetPod.Name, strings.Join(podContainerNames, ", "))
 
 	fetchLogsCmd, err := GenerateCommand(kubectlLogsTemplate, KubectlLogsRequest{
-		PodName: args[0],
+		PodName: targetPod.Name,
 		ContainerName: targetContainerName,
 		Stream: streamLogs,
 	})
@@ -87,9 +105,9 @@ func showLogs(cmd *cobra.Command, args []string) (err error) {
 
 func init() {
 	rootCmd.AddCommand(logsCmd)
+
 	logsCmd.Flags().BoolVarP(&streamLogs, "follow", "f", false, "stream (follow) logs as they happen")
 	logsCmd.Flags().StringP("namespace", "", "", "Namespace")
 	logsCmd.Flags().StringSliceP("label", "", []string{}, "Label selector")
 	logsCmd.Flags().StringSliceP("field", "", []string{}, "Field selector")
-
 }

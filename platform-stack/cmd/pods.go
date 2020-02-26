@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	v12 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -70,9 +71,7 @@ func getPodsList(api v12.CoreV1Interface, ns string, label, field []string) (lis
 	if defaultLabel != "" {
 		labelSelect = fmt.Sprintf("stack=%v", defaultLabel)
 	}
-	for _, elem := range label {
-		labelSelect += elem
-	}
+	labelSelect += strings.Join(label, ",")
 
 	fieldSelect := ""
 	for _, elem := range field {
