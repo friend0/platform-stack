@@ -21,7 +21,25 @@ var stackConfigurationFileName string
 
 var clientset *kubernetes.Clientset
 
+// config is the global configuration object made available to all root sub-commands.
+// It has trivial values up until the `initConfig` function is run.
 var config Config
+
+type StackDescription struct {
+	Name string
+}
+
+type ActivationDescription struct {
+	ConfirmWithUser bool
+	Env	string
+	Context string
+}
+
+type EnvironmentDescription struct {
+	Name string
+	Context string
+	Activation ActivationDescription
+}
 
 type ComponentDescription struct {
 	Name              string   `json:"name"`
@@ -29,7 +47,6 @@ type ComponentDescription struct {
 	Exposable         bool     `json:"exposable"`
 	Containers        []ContainerDescription `json:"containers"`
 	Manifests         []string `json:"manifests"`
-
 }
 
 type ContainerDescription struct {
@@ -45,7 +62,9 @@ type ManifestDescription struct {
 }
 
 type Config struct {
-	Components []ComponentDescription
+	Components         []ComponentDescription
+	Environments       []EnvironmentDescription
+	Stack              StackDescription
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -66,6 +85,7 @@ func Execute() {
 func init() {
 	// todo do not allow config file path directly until project directory is appropriately overriden to reflect config's location
 	//rootCmd.PersistentFlags().StringVar(&stackConfigurationFile, "config", "", "config file (default is $HOME/.{{name of project}}.yaml)")
+	rootCmd.PersistentFlags().StringP("environment", "e", "local", "set the name of the environment to be used")
 	rootCmd.PersistentFlags().StringVar(&stackConfigurationFileName, "stack_configuration", ".stack-local", "set the name of the configuration file to be used")
 	rootCmd.PersistentFlags().StringP("project_directory", "r", ".", "set the project directory of the stack")
 	viper.BindPFlag("project_directory", rootCmd.PersistentFlags().Lookup("project_directory"))
@@ -92,6 +112,7 @@ func initConfig() {
 	// Defaults
 	viper.SetDefault("env", "local")
 	viper.Unmarshal(&config)
+
 }
 
 // GenerateCommandString builds a non-executable command string
@@ -187,28 +208,40 @@ func directoryExists(dirname string) bool {
 	return info.IsDir()
 }
 
-func initK8s() (err error) {
-
+// initK8s initializes a global clientset object using $HOME/.kube/config
+func initK8s(context string) (err error) {
 	home := homeDir()
-
 	kubeconfigPath := filepath.Join(home, ".kube", "config")
-
 	if !fileExists(kubeconfigPath) {
 		return fmt.Errorf("kube config not found")
 	}
 
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(home, ".kube", "config"))
-	if err != nil {
-		return err
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	// if you want to change the loading rules (which files in which order), you can do so here
+	loadingRules.ExplicitPath = kubeconfigPath
+
+	configOverrides := &clientcmd.ConfigOverrides{}
+	// if you want to change override values or bind them to flags, there are methods to help you
+
+	if context != "" {
+		configOverrides.CurrentContext = context
 	}
 
-	// create the clientset
+	// use the current context in kubeconfig
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+	config, err := kubeConfig.ClientConfig()
 	clientset, err = kubernetes.NewForConfig(config)
 
+
+	//fmt.Println(kubeConfig.Namespace())
+	//rc, _ := kubeConfig.RawConfig()
+	//fmt.Println("GET STARTING CONFIG")
+	//fmt.Println(rc)
+	//fmt.Println(rc.CurrentContext)
 	if err != nil {
 		return err
 	}
+
 
 	for {
 		if clientset != nil {

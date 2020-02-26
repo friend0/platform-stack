@@ -8,6 +8,7 @@ require (
 	github.com/Azure/go-autorest v11.1.2+incompatible // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/googleapis/gnostic v0.3.1 // indirect
+	github.com/gookit/color v1.2.2
 	github.com/imdario/mergo v0.3.8 // indirect
 	github.com/magiconair/properties v1.8.0
 	github.com/mitchellh/go-homedir v1.1.0
