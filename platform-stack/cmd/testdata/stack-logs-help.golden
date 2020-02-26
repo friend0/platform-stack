@@ -1,4 +1,4 @@
-Show logs for a given running pod / deployment by short name.
+Show logs for a pod in the given Deployment.
 
 Usage:
   stack logs <pod> [container] [flags]
