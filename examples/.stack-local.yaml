@@ -14,7 +14,7 @@ components:
     containers:
       - dockerfile: ./containers/app/Dockerfile
         context: ./containers/app
-        image: stack_app
+        image: stack-app
     manifests:
       - ./deployments/app.yaml
 postgres_deployment: postgres

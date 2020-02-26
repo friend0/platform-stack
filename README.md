@@ -8,7 +8,7 @@ Stack is a generalized CLI for seamless test, development, and debugging across 
 Currently for local development only, stack has the potential to minimize dev/prod deltas, and to give developers
 a powerful set of tools that make them more productive. 
 
-Please note that when running stack commands stack searches for project configuration in you current working directory. 
+Please note that when running stack commands stack searches for project configuration in your current working directory. 
 Stack uses these configurations to locate containers, manifests, etc. 
 
 ## Getting Started

@@ -32,7 +32,7 @@ For example:
 
 	stack build app -t v0.1.0-alpha		# builds the images for all the containers defined by the app component in the project's config' with the tag v0.1.0-alpha 
 
-	stack build app app			# build the image 'app:latest' for the container 'app' defined by the component 'app'
+	stack build app app-image			# build the image 'app:latest' for the container 'app' defined by the component 'app'
 `,
 	RunE: runBuildComponent,
 }
