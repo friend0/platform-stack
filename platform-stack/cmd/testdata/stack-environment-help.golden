@@ -1,0 +1,19 @@
+Get or set the current active environment.
+If no args are provided, the current environment is retrieved. 
+If a target argument is provided, then stack will activate the configured environment with name matching target.
+
+Usage:
+  stack environment [target] [flags]
+  stack environment [command]
+
+Available Commands:
+  list        List configured environments.
+
+Flags:
+  -h, --help   help for environment
+
+Global Flags:
+  -r, --project_directory string     set the project directory of the stack (default ".")
+      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
+
+Use "stack environment [command] --help" for more information about a command.

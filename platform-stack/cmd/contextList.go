@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"os"
 )
 
 // contextListCmd represents the contextList command
@@ -14,7 +15,7 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	RunE: runContextCommandFunction("get-contexts"),
+	RunE: runContextCommandFunction("get-contexts", os.Stdout),
 }
 
 func init() {

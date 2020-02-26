@@ -85,7 +85,6 @@ func Execute() {
 func init() {
 	// todo do not allow config file path directly until project directory is appropriately overriden to reflect config's location
 	//rootCmd.PersistentFlags().StringVar(&stackConfigurationFile, "config", "", "config file (default is $HOME/.{{name of project}}.yaml)")
-	rootCmd.PersistentFlags().StringP("environment", "e", "local", "set the name of the environment to be used")
 	rootCmd.PersistentFlags().StringVar(&stackConfigurationFileName, "stack_configuration", ".stack-local", "set the name of the configuration file to be used")
 	rootCmd.PersistentFlags().StringP("project_directory", "r", ".", "set the project directory of the stack")
 	viper.BindPFlag("project_directory", rootCmd.PersistentFlags().Lookup("project_directory"))
@@ -112,7 +111,6 @@ func initConfig() {
 	// Defaults
 	viper.SetDefault("env", "local")
 	viper.Unmarshal(&config)
-
 }
 
 // GenerateCommandString builds a non-executable command string

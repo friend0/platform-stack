@@ -9,12 +9,12 @@ environments:
   - name: stage
     context: platform-stg-blue
     activation:
-      - env: ENV=stage
+      env: ENV=stage
   - name: prod
     context: aks-cluster1
     activation:
-      - confirmWithUser: true
-        env: ENV=prod
+      confirmWithUser: true
+      env: ENV=prod
 components:
   - name: config
     requiredVariables:

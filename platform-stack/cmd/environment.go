@@ -24,17 +24,18 @@ If a target argument is provided, then stack will activate the configured enviro
 			if err != nil {
 				return err
 			}
+			fmt.Printf("Current stack environment \"%v\".\n", environment.Name)
 		} else {
 			targetEnvironment := args[0]
 			environment, err = setEnvironment(targetEnvironment)
 			if err != nil {
 				return err
 			}
+			if environment == (EnvironmentDescription{}) {
+				return fmt.Errorf("blank env returned")
+			}
+			fmt.Printf("Switched to environment \"%v\".\n", environment.Name)
 		}
-		if environment == (EnvironmentDescription{}) {
-			return fmt.Errorf("blank env returned")
-		}
-		fmt.Printf("Switched to environment \"%v\".\n", environment.Name)
 		return nil
 	},
 }

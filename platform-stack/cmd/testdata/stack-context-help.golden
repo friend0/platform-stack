@@ -1,0 +1,19 @@
+Get or set the current active kubectx
+If no args are provided, the current context is retrieved. 
+If a target argument is provided, then stack will activate the configured context for the environment with name matching target.
+
+Usage:
+  stack context [target] [flags]
+  stack context [command]
+
+Available Commands:
+  list        A brief description of your command
+
+Flags:
+  -h, --help   help for context
+
+Global Flags:
+  -r, --project_directory string     set the project directory of the stack (default ".")
+      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
+
+Use "stack context [command] --help" for more information about a command.

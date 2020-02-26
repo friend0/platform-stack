@@ -5,8 +5,10 @@ Usage:
 
 Available Commands:
   build       Builds images for the given component using containers defined in config.
+  context     Get or set the current active kubectx.
   down        Tears down the stack.
   enter       Initiates a terminal session for a pod in the given Deployment.
+  environment Get or set the current active environment.
   expose      Exposes a kubernetes deployment to your local machine.
   health      Get the health of the stack.
   help        Help about any command
