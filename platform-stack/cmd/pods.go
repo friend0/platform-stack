@@ -75,7 +75,6 @@ func getPodsList(api v12.CoreV1Interface, ns string, label, field []string) (lis
 	}
 	labelSelect += strings.Join(label, ",")
 
-	fieldSelect := ""
 	for _, elem := range field {
 		fieldSelect += elem
 	}
