@@ -26,10 +26,10 @@ var logsCmd = &cobra.Command{
 	Use:   "logs <pod> [container]",
 	Short: "Show logs for a pod in the given Deployment",
 	Long:  `Show logs for a pod in the given Deployment.`,
-	PreRun: func(cmd *cobra.Command, args []string) {
+	PreRunE: func(cmd *cobra.Command, args []string) {
 		initK8s()
 	},
-	Args:  cobra.MinimumNArgs(1),
+	Args:  cobra.RangeArgs(1, 2),
 	RunE:  showLogs,
 }
 
@@ -67,7 +67,7 @@ func showLogs(cmd *cobra.Command, args []string) (err error) {
 	var targetContainerName string
 	var podContainerNames []string
 
-	if len(args) >= 2 {
+	if len(args) == 2 {
 		targetContainerName = args[1]
 		podContainerNames = append(podContainerNames, targetContainerName)
 	} else {
