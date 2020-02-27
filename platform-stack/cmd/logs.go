@@ -26,8 +26,8 @@ var logsCmd = &cobra.Command{
 	Use:   "logs <pod> [container]",
 	Short: "Show logs for a pod in the given Deployment",
 	Long:  `Show logs for a pod in the given Deployment.`,
-	PreRunE: func(cmd *cobra.Command, args []string) {
-		initK8s()
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		return initK8s()
 	},
 	Args:  cobra.RangeArgs(1, 2),
 	RunE:  showLogs,
