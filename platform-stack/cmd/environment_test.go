@@ -41,7 +41,6 @@ func TestGetCurrentEnvironment(t *testing.T) {
 	env, err := getCurrentEnvironment([]EnvironmentDescription{
 		{
 			Name:    "testenv",
-			Context: "testcontext",
 			Activation: ActivationDescription{
 				Env:     "env=activationtest",
 				Context: "testcontext",
@@ -56,6 +55,6 @@ func TestGetCurrentEnvironment(t *testing.T) {
 		return
 	}
 
-	assert.True(t, env.Context == "testcontext")
+	assert.True(t, env.Activation.Context == "testcontext")
 
 }

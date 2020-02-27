@@ -37,7 +37,6 @@ type ActivationDescription struct {
 
 type EnvironmentDescription struct {
 	Name string
-	Context string
 	Activation ActivationDescription
 }
 

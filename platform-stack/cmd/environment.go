@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/spf13/viper"
+	"github.com/gookit/color"
+	"io"
 	"os"
 	"strings"
 
@@ -24,17 +26,18 @@ If a target argument is provided, then stack will activate the configured enviro
 			if err != nil {
 				return err
 			}
-			fmt.Printf("Current stack environment \"%v\".\n", environment.Name)
+			fmt.Printf("Current stack environment \"%v\". \nEnvironmentDescription:\n", environment.Name)
+			res, _ := json.MarshalIndent(environment, "", "    ")
+			color.Info.Println(string(res))
 		} else {
 			targetEnvironment := args[0]
-			environment, err = setEnvironment(targetEnvironment)
+			environment, err = setEnvironment(targetEnvironment, os.Stdout)
 			if err != nil {
 				return err
 			}
 			if environment == (EnvironmentDescription{}) {
 				return fmt.Errorf("blank env returned")
 			}
-			fmt.Printf("Switched to environment \"%v\".\n", environment.Name)
 		}
 		return nil
 	},
@@ -77,7 +80,7 @@ func getCurrentEnvironment(configuredEnvironments []EnvironmentDescription, kube
 
 // setEnvironment sets the current kubectx and environment flags to those defined by the EnvironmentDescription with name
 // matching the provided argument. EnvironmentDescriptions are defined at the top level of a stack configuration file.
-func setEnvironment(targetEnvironmentName string) (targetEnvironment EnvironmentDescription, err error) {
+func setEnvironment(targetEnvironmentName string, out io.Writer) (targetEnvironment EnvironmentDescription, err error) {
 	if len(config.Environments) <= 0 {
 		return EnvironmentDescription{}, fmt.Errorf("no environments found - double check you are in a stack directory with configured environments")
 	}
@@ -95,11 +98,24 @@ func setEnvironment(targetEnvironmentName string) (targetEnvironment Environment
 	if err != nil {
 		return targetEnvironment, err
 	}
-	envKeyValue := strings.Split(targetEnvironment.Activation.Env, "=")
-	if len(envKeyValue) != 2 {
-		return targetEnvironment, fmt.Errorf("expected actiavtion env as `key=value`, got `%v` instead", targetEnvironment.Activation.Env)
+	if targetEnvironment.Activation.Env != "" {
+		envKeyValue := strings.Split(targetEnvironment.Activation.Env, "=")
+		if len(envKeyValue) != 2 {
+			return targetEnvironment, fmt.Errorf("expected actiavtion env as `key=value`, got `%v` instead", targetEnvironment.Activation.Env)
+		}
+		activationEnvKey, activationEnvValue := envKeyValue[0], envKeyValue[1]
+		if os.Getenv(activationEnvKey) == activationEnvValue {
+			_, _ = fmt.Fprintf(out, "Switched to environment \"%v\".\n", targetEnvironment.Name)
+
+		} else {
+			_, err = fmt.Fprintf(out, "Target environment requires parent process environment variables to be set. Run the following in your terminal:\n\t$ export %v=%v\n", envKeyValue[0], envKeyValue[1])
+		}
+		if err != nil {
+			return targetEnvironment, err
+		}
+	} else {
+		_, _ = fmt.Fprintf(out, "Switched to environment \"%v\".\n", targetEnvironment.Name)
 	}
-	viper.Set(envKeyValue[0], envKeyValue[1])
 	return targetEnvironment, nil
 }
 

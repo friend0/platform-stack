@@ -5,16 +5,16 @@ environments:
     context: minikube
     activation:
       context: minikube
-      env: ENV=local
   - name: ci
     context: minikube
     activation:
       context: minikube
       env: ENV=ci
-  - name: stage
+  - name: staging
     context: platform-stg-blue
     activation:
-      env: ENV=stage
+      context: platform-stg-blue
+      env: ENV=staging
 components:
   - name: config
     requiredVariables:
