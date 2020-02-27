@@ -6,6 +6,11 @@ environments:
     activation:
       context: minikube
       env: ENV=local
+  - name: ci
+    context: minikube
+    activation:
+      context: minikube
+      env: ENV=ci
   - name: stage
     context: platform-stg-blue
     activation:

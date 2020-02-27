@@ -43,29 +43,37 @@ If a target argument is provided, then stack will activate the configured enviro
 // getEnvironment inspects the current kubectx and environment variables to determine the active environment.
 // This determination is made based on the EnvironmentDescriptions provided at the top level of the project's stack configuration file.
 func getEnvironment() (currentEnvironment EnvironmentDescription, err error) {
-	currentContext := getContext()
-	configuredEnvironments := config.Environments
-	if len(configuredEnvironments) <= 0 {
+	if len(config.Environments) <= 0 {
 		return EnvironmentDescription{}, fmt.Errorf("no environments found - double check you are in a stack directory with configured environments")
 	}
+	currentContext := getContext()
+	currentEnvironment, err = getCurrentEnvironment(config.Environments, currentContext, os.Getenv)
+	if err != nil {
+		return currentEnvironment, err
+	}
+	return currentEnvironment, nil
+}
 
+
+// getCurrentEnvironment encapsulates retrieval of the current environment into a testable unit
+func getCurrentEnvironment(configuredEnvironments []EnvironmentDescription, kubectx string, getEnv func(string)string) (EnvironmentDescription, error) {
 	for _, env := range configuredEnvironments {
 		var contextActivation, envActivation bool
-		if currentContext == env.Activation.Context {
+		if kubectx == env.Activation.Context {
 			contextActivation = true
 		}
-		if  len(env.Activation.Env) == 0 {
+		if len(env.Activation.Env) == 0 {
 			envActivation = true
 		} else {
 			activationEnvs := strings.Split(env.Activation.Env, "=")
 			activationEnvKey, activationEnvValue := activationEnvs[0], activationEnvs[1]
-			envActivation = os.Getenv(activationEnvKey) == activationEnvValue
+			envActivation = getEnv(activationEnvKey) == activationEnvValue
 		}
 		if contextActivation && envActivation {
 			return env, nil
 		}
 	}
-	return EnvironmentDescription{}, fmt.Errorf("no environment active under current confitions")
+	return EnvironmentDescription{}, fmt.Errorf("no matching environment")
 }
 
 // setEnvironment sets the current kubectx and environment flags to those defined by the EnvironmentDescription with name
@@ -74,7 +82,6 @@ func setEnvironment(targetEnvironmentName string) (targetEnvironment Environment
 	if len(config.Environments) <= 0 {
 		return EnvironmentDescription{}, fmt.Errorf("no environments found - double check you are in a stack directory with configured environments")
 	}
-
 	for _, env := range config.Environments {
 		if env.Name == targetEnvironmentName {
 			targetEnvironment = env
@@ -84,13 +91,11 @@ func setEnvironment(targetEnvironmentName string) (targetEnvironment Environment
 	if targetEnvironment == (EnvironmentDescription{}) {
 		return targetEnvironment, fmt.Errorf("target environment not found")
 	}
-
 	// activate the context and environment variables described
 	err = setContext(targetEnvironment.Activation.Context)
 	if err != nil {
 		return targetEnvironment, err
 	}
-
 	envKeyValue := strings.Split(targetEnvironment.Activation.Env, "=")
 	if len(envKeyValue) != 2 {
 		return targetEnvironment, fmt.Errorf("expected actiavtion env as `key=value`, got `%v` instead", targetEnvironment.Activation.Env)

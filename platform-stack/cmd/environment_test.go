@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/stretchr/testify/assert"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
 	"os/exec"
@@ -19,8 +20,6 @@ func TestEnvironmentIntegration(t *testing.T) {
 	}{
 		{"environment help", []string{"help", "environment"}, "stack-environment-help.golden"},
 		{"environment no config", []string{"environment"}, "stack-environment-no-config-error.golden"},
-		{"environment set", []string{"-r=../../examples", "environment", "local"}, "stack-environment-set-local.golden"},
-		{"environment get", []string{"-r=../../examples", "environment"}, "stack-environment-get-local.golden"},
 	}
 
 	for _, tt := range tests {
@@ -37,3 +36,27 @@ func TestEnvironmentIntegration(t *testing.T) {
 		})
 	}
 }
+
+func TestGetCurrentEnvironment(t *testing.T) {
+	env, err := getCurrentEnvironment([]EnvironmentDescription{
+		{
+			Name:"testenv",
+			Context:"testcontext",
+			Activation: ActivationDescription{
+				Env: "env=activationtest",
+				Context: "testcontext",
+			},
+		},
+	}, "testcontext", func(string) string {
+		return "activationtest"
+	})
+
+	if err != nil {
+		t.Fail()
+		return
+	}
+
+	assert.True(t, env.Context == "testcontext")
+
+}
+
