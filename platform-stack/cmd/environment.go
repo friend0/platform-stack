@@ -54,9 +54,8 @@ func getEnvironment() (currentEnvironment EnvironmentDescription, err error) {
 	return currentEnvironment, nil
 }
 
-
 // getCurrentEnvironment encapsulates retrieval of the current environment into a testable unit
-func getCurrentEnvironment(configuredEnvironments []EnvironmentDescription, kubectx string, getEnv func(string)string) (EnvironmentDescription, error) {
+func getCurrentEnvironment(configuredEnvironments []EnvironmentDescription, kubectx string, getEnv func(string) string) (EnvironmentDescription, error) {
 	for _, env := range configuredEnvironments {
 		var contextActivation, envActivation bool
 		if kubectx == env.Activation.Context {
@@ -103,7 +102,6 @@ func setEnvironment(targetEnvironmentName string) (targetEnvironment Environment
 	viper.Set(envKeyValue[0], envKeyValue[1])
 	return targetEnvironment, nil
 }
-
 
 func init() {
 	rootCmd.AddCommand(environmentCmd)

@@ -12,7 +12,7 @@ import (
 const kubectlContextTemplate = `kubectl config {{ .ConfigCommand }}`
 
 type kubectlContextRequest struct {
-	ConfigCommand 	string
+	ConfigCommand string
 }
 
 // contextCmd represents the context command
@@ -25,7 +25,7 @@ If a target argument is provided, then stack will activate the configured contex
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return initK8s("")
 	},
-	RunE:  func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			currentContext := getContext()
 			if currentContext == "" {
@@ -40,14 +40,14 @@ If a target argument is provided, then stack will activate the configured contex
 }
 
 // runContextCommandFunction returns a cobra command handler for running kubectl-config commands
-func runContextCommandFunction(configCommand string, out io.Writer) func (cmd *cobra.Command, args []string) (err error){
+func runContextCommandFunction(configCommand string, out io.Writer) func(cmd *cobra.Command, args []string) (err error) {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		return runContextFunction(configCommand, out)()
 	}
 }
 
 // runContextFunction returns a function handler for running kubectl-config commands
-func runContextFunction(configCommand string, out io.Writer) func() (error) {
+func runContextFunction(configCommand string, out io.Writer) func() error {
 	return func() error {
 		contextsCmd, err := GenerateCommand(kubectlContextTemplate, kubectlContextRequest{
 			ConfigCommand: configCommand,

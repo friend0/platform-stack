@@ -207,7 +207,7 @@ func directoryExists(dirname string) bool {
 }
 
 // initK8s initializes a global clientset object using $HOME/.kube/config
-func initK8s(context string) (err error) {
+func initK8s(kubectx string) (err error) {
 	home := homeDir()
 	kubeconfigPath := filepath.Join(home, ".kube", "config")
 	if !fileExists(kubeconfigPath) {
@@ -215,32 +215,20 @@ func initK8s(context string) (err error) {
 	}
 
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	// if you want to change the loading rules (which files in which order), you can do so here
 	loadingRules.ExplicitPath = kubeconfigPath
-
 	configOverrides := &clientcmd.ConfigOverrides{}
-	// if you want to change override values or bind them to flags, there are methods to help you
-
-	if context != "" {
-		configOverrides.CurrentContext = context
+	if kubectx != "" {
+		configOverrides.CurrentContext = kubectx
 	}
-
-	// use the current context in kubeconfig
 	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
 	config, err := kubeConfig.ClientConfig()
-	clientset, err = kubernetes.NewForConfig(config)
-
-
-	//fmt.Println(kubeConfig.Namespace())
-	//rc, _ := kubeConfig.RawConfig()
-	//fmt.Println("GET STARTING CONFIG")
-	//fmt.Println(rc)
-	//fmt.Println(rc.CurrentContext)
 	if err != nil {
 		return err
 	}
-
-
+	clientset, err = kubernetes.NewForConfig(config)
+	if err != nil {
+		return err
+	}
 	for {
 		if clientset != nil {
 			break

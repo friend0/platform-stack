@@ -44,7 +44,6 @@ func TestKubectlConfigProcess(t *testing.T) {
 	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
 		return
 	}
-	// some code here to check arguments perhaps?
 	fmt.Fprintf(os.Stdout, "minikube")
 	os.Exit(0)
 }
