@@ -107,7 +107,7 @@ func init() {
 	rootCmd.AddCommand(logsCmd)
 
 	logsCmd.Flags().BoolVarP(&streamLogs, "follow", "f", false, "stream (follow) logs as they happen")
-	logsCmd.Flags().StringP("namespace", "", "", "Namespace")
-	logsCmd.Flags().StringSliceP("label", "", []string{}, "Label selector")
-	logsCmd.Flags().StringSliceP("field", "", []string{}, "Field selector")
+	logsCmd.Flags().String("namespace", "", "Namespace")
+	logsCmd.Flags().StringSlice("label", []string{}, "Label selector")
+	logsCmd.Flags().StringSlice("field", []string{}, "Field selector")
 }
