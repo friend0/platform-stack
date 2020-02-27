@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	v12 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -68,11 +69,9 @@ func getPodsList(api v12.CoreV1Interface, ns string, label, field []string) (lis
 
 	labelSelect := ""
 	if defaultLabel != "" {
-		labelSelect = fmt.Sprintf("stack=%v", defaultLabel)
+		label = append(label, fmt.Sprintf("stack=%v", defaultLabel))
 	}
-	for _, elem := range label {
-		labelSelect += elem
-	}
+	labelSelect += strings.Join(label, ",")
 
 	fieldSelect := ""
 	for _, elem := range field {
@@ -287,8 +286,8 @@ func printPod(pod *v1.Pod) (podDetail PodColumns, err error) {
 func init() {
 	rootCmd.AddCommand(podsCmd)
 
-	podsCmd.Flags().StringP("namespace", "n", "", "Namespace")
-	podsCmd.Flags().StringSliceP("label", "l", []string{}, "Label selector")
-	podsCmd.Flags().StringSliceP("field", "f", []string{}, "Field selector")
+	podsCmd.Flags().String("namespace", "", "Namespace")
+	podsCmd.Flags().StringSlice("label", []string{}, "Label selector")
+	podsCmd.Flags().StringSlice("field", []string{}, "Field selector")
 
 }

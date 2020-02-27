@@ -1,11 +1,14 @@
-Show logs for a given running pod / deployment by short name.
+Show logs for a pod in the given Deployment.
 
 Usage:
-  stack logs <component> [flags]
+  stack logs <pod> [container] [flags]
 
 Flags:
-  -f, --follow   follow (stream) logs as they happen
-  -h, --help     help for logs
+      --field strings      Field selector
+  -f, --follow             stream (follow) logs as they happen
+  -h, --help               help for logs
+      --label strings      Label selector
+      --namespace string   Namespace
 
 Global Flags:
   -r, --project_directory string     set the project directory of the stack (default ".")
