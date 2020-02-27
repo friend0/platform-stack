@@ -69,7 +69,7 @@ func getPodsList(api v12.CoreV1Interface, ns string, label, field []string) (lis
 
 	labelSelect := ""
 	if defaultLabel != "" {
-		labelSelect = fmt.Sprintf("stack=%v", defaultLabel)
+		label = append(label, fmt.Sprintf("stack=%v", defaultLabel))
 	}
 	labelSelect += strings.Join(label, ",")
 
