@@ -1,15 +1,21 @@
 context: ./containers
-build_directory: ./containers
-deployment_directory: ./deployments
 stack: app
 components:
   - name: config
     requiredVariables:
       - ENV
+    manifests:
+      - ./deployments/config-local.env
   - name: app
     requiredVariables:
       - PWD
       - HOME
     exposable: true
+    containers:
+      - dockerfile: ./containers/app/Dockerfile
+        context: ./containers/app
+        image: stack-app
+    manifests:
+      - ./deployments/app.yaml
 postgres_deployment: postgres
 env_prefix: examples

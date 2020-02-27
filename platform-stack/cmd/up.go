@@ -47,7 +47,7 @@ If no components are provided as arguments, all configured components will be br
 func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 
 	// Determine component list from config
-	upComponents, err := parseComponentArgs(args)
+	upComponents, err := parseComponentArgs(args, config.Components)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 		fmt.Println("Bringing up", component.Name)
 		err := componentUpFunction(cmd, component)
 		if err != nil {
-			fmt.Printf("Bringing up `%v` failed", component)
+			fmt.Printf("Bringing up `%v` failed", component.Name)
 			return err
 		}
 	}
@@ -78,87 +78,82 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 }
 
 func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (err error) {
-
 	projectDirectory, _ := cmd.Flags().GetString("project_directory")
 	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
 
-	deploymentsDirectory := filepath.Join(absoluteProjectDirectory, viper.GetString("deployment_directory"))
+	for _, manifest := range component.Manifests {
+		manifestPath := filepath.Join(absoluteProjectDirectory, manifest)
+		manifestDirectory := filepath.Dir(manifestPath)
 
-	outputYamlFile := fmt.Sprintf("%v/%v-generated.yaml", deploymentsDirectory, component.Name)
+		outputYamlFile := fmt.Sprintf("%v/%v-generated.yaml", manifestDirectory, component.Name)
 
-	requiredVariables := component.RequiredVariables
-	envs, err := generateEnvs(requiredVariables, os.Getenv)
-	if err != nil {
-		return err
-	}
+		requiredVariables := component.RequiredVariables
+		envs, err := generateEnvs(requiredVariables, os.Getenv)
+		if err != nil {
+			return err
+		}
 
-	generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
-		Manifest:   fmt.Sprintf("%v/%v.yaml", deploymentsDirectory, component.Name),
-		EnvFrom:    []string{fmt.Sprintf("%v/config-%v.env", deploymentsDirectory, viper.Get("env"))},
-		Env:        envs,
-		OutputFile: outputYamlFile,
-	})
+		generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
+			Manifest:   fmt.Sprintf("%v/%v.yaml", manifestDirectory, component.Name),
+			EnvFrom:    []string{fmt.Sprintf("%v/config-%v.env", manifestDirectory, viper.Get("env"))},
+			Env:        envs,
+			OutputFile: outputYamlFile,
+		})
 
-	applyYamlCmd, err := GenerateCommand(kubectlApplyTemplate, KubectlApplyRequest{
-		YamlFile: outputYamlFile,
-	})
+		applyYamlCmd, err := GenerateCommand(kubectlApplyTemplate, KubectlApplyRequest{
+			YamlFile: outputYamlFile,
+		})
 
-	if err != nil {
-		return err
-	}
+		if err != nil {
+			return err
+		}
 
-	// todo: remove env append if able
-	generateYamlCmd.Env = append(os.Environ())
-	generateYamlCmd.Stdout = os.Stdout
-	generateYamlCmd.Stderr = os.Stderr
-	if err := generateYamlCmd.Run(); err != nil {
-		return err
-	}
+		// todo: remove env append if able
+		generateYamlCmd.Env = append(os.Environ())
+		generateYamlCmd.Stdout = os.Stdout
+		generateYamlCmd.Stderr = os.Stderr
+		if err := generateYamlCmd.Run(); err != nil {
+			return err
+		}
 
-	applyYamlCmd.Stdout = os.Stdout
-	applyYamlCmd.Stderr = os.Stderr
-	if err := applyYamlCmd.Run(); err != nil {
-		return err
+		applyYamlCmd.Stdout = os.Stdout
+		applyYamlCmd.Stderr = os.Stderr
+		if err := applyYamlCmd.Run(); err != nil {
+			return err
+		}
+
 	}
 
 	return nil
 
 }
 
-// parseComponentArgs generates a list of ComponentDescriptions from the `up`, and will
-// use the configured components in the project's stack.yaml if no arguments are provided.
-func parseComponentArgs(args []string) (components []ComponentDescription, err error) {
+// parseComponentArgs generates a list of ComponentDescriptions from the up command's arguments if provided, defaulting
+// to all configured components if none are provided
+func parseComponentArgs(args []string, configuredComponents []ComponentDescription) (components []ComponentDescription, err error) {
+	if len(configuredComponents) < 1 {
+		return components, fmt.Errorf("no components found - double check you are in a stack directory with configured components")
+	}
+	argMap := make(map[string]bool)
+	for _, arg := range args {
+		argMap[arg] = true
+	}
 
-	if len(args) >= 1 {
-		// todo: cross reference with config to get additional component description items
-		for _, arg := range args {
-			components = append(components, ComponentDescription{Name: arg})
-		}
-		return components, nil
-	} else {
-
-		if len(config.Components) < 1 {
-			return components, fmt.Errorf("no components found - double check you are in a stack directory with configured components")
-		}
-
-		for _, component := range config.Components {
-			if len(component.RequiredVariables) >= 1 {
-				components = append(components, ComponentDescription{
-					Name:              component.Name,
-					RequiredVariables: component.RequiredVariables,
-				})
-			} else {
-				components = append(components, ComponentDescription{
-					Name: component.Name,
-				})
+	for _, component := range configuredComponents {
+		if len(args) >= 1 {
+			if argMap[component.Name] == true {
+				components = append(components, component)
 			}
+			continue
 		}
+		components = append(components, component)
 	}
 	return components, nil
 }
 
-// generateEnvs builds a list of environment key value pairs to hydrate required variables with system values.
+// generateEnvs builds a list of environment key value pairs that are hydrated with values obtained from the provided getEnv function.
 // Pairs are given in .env format as `key="value"`.
+// You can provide `os.Getenv` as the argument to the getEnv parameter to access system variables
 func generateEnvs(requiredVariables []string, getEnv func(string) string) (envs []string, err error) {
 	for _, variable := range requiredVariables {
 		if getEnv(variable) != "" {

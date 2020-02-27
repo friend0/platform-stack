@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestBuildIntegration(t *testing.T) {
+func TestBuildAllIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -17,9 +17,9 @@ func TestBuildIntegration(t *testing.T) {
 		args    []string
 		fixture string
 	}{
-		{"build command", []string{"help", "build"}, "stack-build-help.golden"},
-		{"build command", []string{"build"}, "stack-build-no-args.golden"},
-		{"build command with component", []string{"-r=../../examples", "build", "app"}, ""},
+		{"no arguments", []string{"help", "build","all"}, "stack-build-all-help.golden"},
+		{"build all command", []string{"build", "all"}, "stack-build-all-no-args-unconfigured.golden"},
+		{"build all command with component", []string{"-r=../../examples", "build", "app"}, ""},
 	}
 
 	for _, tt := range tests {
