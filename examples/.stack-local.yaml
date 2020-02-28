@@ -2,16 +2,13 @@ stack:
   name: app
 environments:
   - name: local
-    context: minikube
     activation:
-      context: minikube
+      context: docker-desktop
   - name: ci
-    context: minikube
     activation:
       context: minikube
       env: ENV=ci
   - name: staging
-    context: platform-stg-blue
     activation:
       context: platform-stg-blue
       env: ENV=staging
@@ -20,7 +17,7 @@ components:
     requiredVariables:
       - ENV
     manifests:
-      - ./deployments/config-local.env
+      - ./deployments/config.yaml
   - name: app
     requiredVariables:
       - PWD

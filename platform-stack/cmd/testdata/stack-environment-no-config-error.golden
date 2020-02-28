@@ -3,6 +3,9 @@ Usage:
   stack environment [target] [flags]
   stack environment [command]
 
+Aliases:
+  environment, env
+
 Available Commands:
   list        List configured environments.
 
