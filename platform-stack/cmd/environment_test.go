@@ -37,10 +37,58 @@ func TestEnvironmentIntegration(t *testing.T) {
 	}
 }
 
+func TestValidateConfiguredEnvironments(t *testing.T) {
+	tests := []struct {
+		Descriptions []EnvironmentDescription
+		Kubectx      string
+		EnvFunc      func(string) string
+		Err bool
+	}{
+		{[]EnvironmentDescription{
+			{
+				Name: "testenv",
+				Activation: ActivationDescription{
+					Env:     "env=activationtest",
+					Context: "testcontext",
+				},
+			},
+		}, "minikube", func(string) string {
+			return "activationtest"
+		}, false},
+		{[]EnvironmentDescription{
+			{
+				Name: "testenv",
+				Activation: ActivationDescription{
+					Env:     "env=activationtest",
+					Context: "testcontext",
+				},
+			},
+			{
+				Name: "testenv",
+				Activation: ActivationDescription{
+					Env:     "env=activationtest",
+					Context: "testcontext",
+				},
+			},
+		}, "testcontext", func(string) string {
+			return "activationtest"
+		}, true},
+	}
+
+	for _, tt := range tests {
+		err := validateConfiguredEnvironments(tt.Descriptions, tt.Kubectx, tt.EnvFunc)
+		if tt.Err {
+			assert.Error(t, err)
+		} else {
+			assert.NoError(t, err)
+		}
+	}
+}
+
 func TestGetCurrentEnvironment(t *testing.T) {
 	env, err := getCurrentEnvironment([]EnvironmentDescription{
 		{
-			Name:    "testenv",
+			Name: "testenv",
 			Activation: ActivationDescription{
 				Env:     "env=activationtest",
 				Context: "testcontext",

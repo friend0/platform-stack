@@ -21,7 +21,10 @@ var contextCmd = &cobra.Command{
 	Short: "Get or set the current active kubectx.",
 	Long: `Get or set the current active kubectx
 If no args are provided, the current context is retrieved. 
-If a target argument is provided, then stack will activate the configured context for the environment with name matching target.`,
+If a target argument is provided, then stack will activate the configured context for the environment with name matching target.
+If user, namespace, or cluster flags are given, those flags will be used to set-context for the target kubectx prior to target kubectx activation.`,
+	Aliases: []string{"ctx"},
+	Args: cobra.MaximumNArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return initK8s("")
 	},
@@ -33,6 +36,19 @@ If a target argument is provided, then stack will activate the configured contex
 			}
 			fmt.Println(currentContext)
 		} else {
+			var setContextFlags []string
+			for _, flag := range []string{"user", "cluster", "namespace"} {
+				elem, _ := cmd.Flags().GetString(flag)
+				if elem != "" {
+					setContextFlags = append(setContextFlags, fmt.Sprintf("--%v=%v", flag, elem))
+				}
+			}
+			if len(setContextFlags) >= 1 {
+				err := runContextFunction(fmt.Sprintf("set-context %v ", args[0]) + strings.Join(setContextFlags, " "), os.Stdout)()
+				if err != nil {
+
+				}
+			}
 			return setContext(args[0])
 		}
 		return nil
@@ -81,4 +97,7 @@ func setContext(targetContext string) error {
 
 func init() {
 	rootCmd.AddCommand(contextCmd)
+	contextCmd.Flags().StringP("user", "u", "", "Set context user")
+	contextCmd.Flags().StringP("namespace", "n", "", "Set context namespace")
+	contextCmd.Flags().StringP("cluster", "c", "", "Set context cluster")
 }
