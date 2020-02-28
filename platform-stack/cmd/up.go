@@ -39,12 +39,20 @@ If no components are provided as arguments, all configured components will be br
 		if err != nil {
 			return err
 		}
-		return initK8s()
+		return initK8s("")
 	},
 	RunE: upAllComponents,
 }
 
 func upAllComponents(cmd *cobra.Command, args []string) (err error) {
+
+	currentEnv, err := getEnvironment()
+	if err != nil {
+		return err
+	}
+	if currentEnv.Activation.ConfirmWithUser {
+		confirmWithUser(fmt.Sprintf("You are about to deploy to environment `%v`", currentEnv.Name))
+	}
 
 	// Determine component list from config
 	upComponents, err := parseComponentArgs(args, config.Components)

@@ -21,7 +21,24 @@ var stackConfigurationFileName string
 
 var clientset *kubernetes.Clientset
 
+// config is the global configuration object made available to all root sub-commands.
+// It has trivial values up until the `initConfig` function is run.
 var config Config
+
+type StackDescription struct {
+	Name string
+}
+
+type ActivationDescription struct {
+	ConfirmWithUser bool
+	Env	string
+	Context string
+}
+
+type EnvironmentDescription struct {
+	Name string
+	Activation ActivationDescription
+}
 
 type ComponentDescription struct {
 	Name              string   `json:"name"`
@@ -29,7 +46,6 @@ type ComponentDescription struct {
 	Exposable         bool     `json:"exposable"`
 	Containers        []ContainerDescription `json:"containers"`
 	Manifests         []string `json:"manifests"`
-
 }
 
 type ContainerDescription struct {
@@ -45,7 +61,9 @@ type ManifestDescription struct {
 }
 
 type Config struct {
-	Components []ComponentDescription
+	Components         []ComponentDescription
+	Environments       []EnvironmentDescription
+	Stack              StackDescription
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -187,29 +205,29 @@ func directoryExists(dirname string) bool {
 	return info.IsDir()
 }
 
-func initK8s() (err error) {
-
+// initK8s initializes a global clientset object using $HOME/.kube/config
+func initK8s(kubectx string) (err error) {
 	home := homeDir()
-
 	kubeconfigPath := filepath.Join(home, ".kube", "config")
-
 	if !fileExists(kubeconfigPath) {
 		return fmt.Errorf("kube config not found")
 	}
 
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(home, ".kube", "config"))
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	loadingRules.ExplicitPath = kubeconfigPath
+	configOverrides := &clientcmd.ConfigOverrides{}
+	if kubectx != "" {
+		configOverrides.CurrentContext = kubectx
+	}
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+	config, err := kubeConfig.ClientConfig()
 	if err != nil {
 		return err
 	}
-
-	// create the clientset
 	clientset, err = kubernetes.NewForConfig(config)
-
 	if err != nil {
 		return err
 	}
-
 	for {
 		if clientset != nil {
 			break

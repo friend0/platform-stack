@@ -1,0 +1,26 @@
+Get or set the current active kubectx
+If no args are provided, the current context is retrieved. 
+If a target argument is provided, then stack will activate the configured context for the environment with name matching target.
+If user, namespace, or cluster flags are given, those flags will be used to set-context for the target kubectx prior to target kubectx activation.
+
+Usage:
+  stack context [target] [flags]
+  stack context [command]
+
+Aliases:
+  context, ctx
+
+Available Commands:
+  list        List all available kubectx.
+
+Flags:
+  -c, --cluster string     Set context cluster
+  -h, --help               help for context
+  -n, --namespace string   Set context namespace
+  -u, --user string        Set context user
+
+Global Flags:
+  -r, --project_directory string     set the project directory of the stack (default ".")
+      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
+
+Use "stack context [command] --help" for more information about a command.
