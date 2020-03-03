@@ -112,7 +112,7 @@ func getCurrentEnvironment(configuredEnvironments []EnvironmentDescription, kube
 			return env, nil
 		}
 	}
-	return EnvironmentDescription{}, fmt.Errorf("no matching environment")
+	return EnvironmentDescription{}, nil
 }
 
 // setEnvironment sets the current kubectx and environment flags to those defined by the EnvironmentDescription with name
