@@ -72,6 +72,16 @@ var rootCmd = &cobra.Command{
 	Use:   "stack",
 	Short: "Commands for building, deploying, and maintaining platform services.",
 	Long:  `Commands for building, deploying, and maintaining platform services.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		version, err := cmd.Flags().GetBool("version")
+		if err != nil {
+			return err
+		}
+		if version {
+			fmt.Printf("Stack CLI Version %v\n", Version)
+		}
+		return nil
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -87,7 +97,7 @@ func init() {
 	//rootCmd.PersistentFlags().StringVar(&stackConfigurationFile, "config", "", "config file (default is $HOME/.{{name of project}}.yaml)")
 	rootCmd.PersistentFlags().StringVar(&stackConfigurationFileName, "stack_configuration", ".stack-local", "set the name of the configuration file to be used")
 	rootCmd.PersistentFlags().StringP("project_directory", "r", ".", "Set the project directory of the stack")
-	rootCmd.PersistentFlags().BoolP("version", "v", false, "Print the stack CLI version")
+	rootCmd.Flags().BoolP("version", "v", false, "Print the stack CLI version")
 	viper.BindPFlag("project_directory", rootCmd.PersistentFlags().Lookup("project_directory"))
 	cobra.OnInitialize(initConfig)
 }
