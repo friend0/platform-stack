@@ -78,7 +78,7 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 		if version {
-			fmt.Printf("Stack CLI Version %v\n", Version)
+			fmt.Printf("Stack CLI Version: %v\n", Version)
 		}
 		return nil
 	},
