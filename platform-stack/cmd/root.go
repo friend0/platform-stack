@@ -183,13 +183,6 @@ func confirmWithUser(confirmationText string) (confirmation bool) {
 	}
 }
 
-func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
-	}
-	return os.Getenv("USERPROFILE") // windows
-}
-
 func containsString(slice []string, element string) bool {
 	for _, elem := range slice {
 		if elem == element {
@@ -197,22 +190,6 @@ func containsString(slice []string, element string) bool {
 		}
 	}
 	return false
-}
-
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
-}
-
-func directoryExists(dirname string) bool {
-	info, err := os.Stat(dirname)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return info.IsDir()
 }
 
 // initK8s initializes a global clientset object using the system KUBECONFIG, with default merging rules
