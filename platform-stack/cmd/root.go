@@ -96,7 +96,7 @@ func init() {
 	// todo do not allow config file path directly until project directory is appropriately overriden to reflect config's location
 	//rootCmd.PersistentFlags().StringVar(&stackConfigurationFile, "config", "", "config file (default is $HOME/.{{name of project}}.yaml)")
 	rootCmd.PersistentFlags().StringVar(&stackConfigurationFileName, "stack_configuration", ".stack-local", "set the name of the configuration file to be used")
-	rootCmd.PersistentFlags().StringP("project_directory", "r", ".", "Set the project directory of the stack")
+	rootCmd.PersistentFlags().StringP("project_directory", "r", ".", "set the project directory of the stack")
 	rootCmd.Flags().BoolP("version", "v", false, "Print the stack CLI version")
 	viper.BindPFlag("project_directory", rootCmd.PersistentFlags().Lookup("project_directory"))
 	cobra.OnInitialize(initConfig)
