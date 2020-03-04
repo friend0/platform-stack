@@ -31,7 +31,12 @@ If a target argument is provided, then stack will activate the configured enviro
 			if err != nil {
 				return err
 			}
-			fmt.Printf("Current stack environment \"%v\". \nEnvironmentDescription:\n", environment.Name)
+
+			if environment != (EnvironmentDescription{}) {
+				fmt.Printf("Current stack environment \"%v\". \nEnvironmentDescription:\n", environment.Name)
+			} else {
+				fmt.Println("No environment currently active.")
+			}
 			res, _ := json.MarshalIndent(environment, "", "    ")
 			color.Info.Println(string(res))
 		} else {
