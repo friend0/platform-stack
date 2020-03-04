@@ -9,7 +9,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"text/template"
 )
 
@@ -32,39 +31,39 @@ type StackDescription struct {
 
 type ActivationDescription struct {
 	ConfirmWithUser bool
-	Env	string
-	Context string
+	Env             string
+	Context         string
 }
 
 type EnvironmentDescription struct {
-	Name string
+	Name       string
 	Activation ActivationDescription
 }
 
 type ComponentDescription struct {
-	Name              string   `json:"name"`
-	RequiredVariables []string `json:"required_variables"`
-	Exposable         bool     `json:"exposable"`
+	Name              string                 `json:"name"`
+	RequiredVariables []string               `json:"required_variables"`
+	Exposable         bool                   `json:"exposable"`
 	Containers        []ContainerDescription `json:"containers"`
-	Manifests         []string `json:"manifests"`
+	Manifests         []string               `json:"manifests"`
 }
 
 type ContainerDescription struct {
 	Dockerfile string `json:"dockerfile"`
 	Context    string `json:"context"`
-	Image 	   string `json:"image"`
+	Image      string `json:"image"`
 }
 
 type ManifestDescription struct {
 	Dockerfile string `json:"dockerfile"`
 	Context    string `json:"context"`
-	Image 	   string `json:"image"`
+	Image      string `json:"image"`
 }
 
 type Config struct {
-	Components         []ComponentDescription
-	Environments       []EnvironmentDescription
-	Stack              StackDescription
+	Components   []ComponentDescription
+	Environments []EnvironmentDescription
+	Stack        StackDescription
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -79,8 +78,9 @@ var rootCmd = &cobra.Command{
 		}
 		if version {
 			fmt.Printf("Stack CLI Version: %v\n", Version)
+			return nil
 		}
-		return nil
+		return cmd.Help()
 	},
 }
 
@@ -184,13 +184,6 @@ func confirmWithUser(confirmationText string) (confirmation bool) {
 	}
 }
 
-func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
-	}
-	return os.Getenv("USERPROFILE") // windows
-}
-
 func containsString(slice []string, element string) bool {
 	for _, elem := range slice {
 		if elem == element {
@@ -200,32 +193,9 @@ func containsString(slice []string, element string) bool {
 	return false
 }
 
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
-}
-
-func directoryExists(dirname string) bool {
-	info, err := os.Stat(dirname)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return info.IsDir()
-}
-
-// initK8s initializes a global clientset object using $HOME/.kube/config
+// initK8s initializes a global clientset object using the system KUBECONFIG, with default merging rules
 func initK8s(kubectx string) (err error) {
-	home := homeDir()
-	kubeconfigPath := filepath.Join(home, ".kube", "config")
-	if !fileExists(kubeconfigPath) {
-		return fmt.Errorf("kube config not found")
-	}
-
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	loadingRules.ExplicitPath = kubeconfigPath
 	configOverrides := &clientcmd.ConfigOverrides{}
 	if kubectx != "" {
 		configOverrides.CurrentContext = kubectx
