@@ -21,7 +21,7 @@ type KubectlExecRequest struct {
 
 // enterCmd represents the enter command
 var enterCmd = &cobra.Command{
-	Use:   "enter <pod> [container]",
+	Use:   "enter <deployment> [container]",
 	Args:  cobra.MinimumNArgs(1),
 	Short: "Initiates a terminal session for a pod in the given Deployment.",
 	Long:  `Initiates a terminal session for a pod in the given Deployment.`,
