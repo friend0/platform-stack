@@ -1,4 +1,4 @@
-Show logs for a kubernetes deployment (or particular container).
+Show logs for a pod of the given k8s deployment (or a container in it).
 
 Usage:
   stack logs <deployment> [container] [flags]
