@@ -42,3 +42,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: stack-env
+          resources:
+            limits:
+              memory: "100Mi"
+              cpu: "50m"

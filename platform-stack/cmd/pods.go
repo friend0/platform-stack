@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"io"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -41,7 +40,7 @@ var podsCmd = &cobra.Command{
 	Short: "List running pods.",
 	Long:  `List running pods.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		return initK8s()
+		return initK8s("")
 	},
 	RunE: pods,
 }
@@ -55,6 +54,9 @@ func pods(cmd *cobra.Command, args []string) (err error) {
 	api := clientset.CoreV1()
 
 	podList, err := getPodsList(api, ns, label, field)
+	if err != nil {
+		return err
+	}
 	_, err = printPodList(podList, os.Stdout)
 	if err != nil {
 		return err
@@ -64,20 +66,18 @@ func pods(cmd *cobra.Command, args []string) (err error) {
 
 // getPodsList retrieves a PodList from the given namespace, labels, and fields
 func getPodsList(api v12.CoreV1Interface, ns string, label, field []string) (list *v1.PodList, err error) {
-
-	defaultLabel := viper.GetString("stack")
+	defaultLabel := config.Stack.Name
 
 	labelSelect := ""
+	fieldSelect := ""
 	if defaultLabel != "" {
 		label = append(label, fmt.Sprintf("stack=%v", defaultLabel))
 	}
 	labelSelect += strings.Join(label, ",")
 
-	fieldSelect := ""
 	for _, elem := range field {
 		fieldSelect += elem
 	}
-
 	listOptions := metav1.ListOptions{
 		LabelSelector: labelSelect,
 		FieldSelector: fieldSelect,

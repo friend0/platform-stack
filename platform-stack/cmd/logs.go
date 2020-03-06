@@ -27,7 +27,7 @@ var logsCmd = &cobra.Command{
 	Short: "Show logs for a kubernetes deployment (or particular container).",
 	Long:  `Show logs for a kubernetes deployment (or particular container).`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		return initK8s()
+		return initK8s("")
 	},
 	Args:  cobra.RangeArgs(1, 2),
 	RunE:  showLogs,

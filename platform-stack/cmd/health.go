@@ -22,7 +22,7 @@ var healthCmd = &cobra.Command{
 	Short: "Get the health of the stack.",
 	Long:  `List running pods.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		return initK8s()
+		return initK8s("")
 	},
 	RunE: health,
 }
@@ -159,7 +159,6 @@ func translateTimestampSince(timestamp metav1.Time) string {
 
 func init() {
 	rootCmd.AddCommand(healthCmd)
-
 	healthCmd.Flags().BoolP("wide", "w", true, "Wide cell")
 
 	healthCmd.Flags().String("namespace", "", "Namespace")
