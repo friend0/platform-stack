@@ -18,7 +18,10 @@ var execCommand = exec.Command
 var stackConfigurationFile string
 var stackConfigurationFileName string
 
-var clientset *kubernetes.Clientset
+var (
+	clientset        *kubernetes.Clientset
+	currentNamespace string
+)
 
 // config is the global configuration object made available to all root sub-commands.
 // It has trivial values up until the `initConfig` function is run.
@@ -202,6 +205,10 @@ func initK8s(kubectx string) (err error) {
 	}
 	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
 	config, err := kubeConfig.ClientConfig()
+	if err != nil {
+		return err
+	}
+	currentNamespace, _, err = kubeConfig.Namespace()
 	if err != nil {
 		return err
 	}
