@@ -1,7 +1,7 @@
-Show logs for a pod in the given Deployment.
+Show logs for a kubernetes deployment (or particular container).
 
 Usage:
-  stack logs <pod> [container] [flags]
+  stack logs <deployment> [container] [flags]
 
 Flags:
       --field strings      Field selector

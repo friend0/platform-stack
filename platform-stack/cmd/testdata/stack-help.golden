@@ -14,7 +14,7 @@ Available Commands:
   health      Get the health of the stack.
   help        Help about any command
   install     Installs dependencies needed to run stack commands.
-  logs        Show logs for a pod in the given Deployment
+  logs        Show logs for a kubernetes deployment (or particular container).
   pods        List running pods.
   up          Brings up components of the stack.
 

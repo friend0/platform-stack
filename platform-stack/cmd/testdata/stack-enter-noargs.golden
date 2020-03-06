@@ -1,7 +1,7 @@
 Initiates a terminal session for a pod in the given Deployment.
 
 Usage:
-  stack enter <pod> [container] [flags]
+  stack enter <deployment> [container] [flags]
 
 Flags:
       --field strings      Field selector
