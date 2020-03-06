@@ -8,13 +8,13 @@ Available Commands:
   build       Builds images for the given component using containers defined in config.
   context     Get or set the current active kubectx.
   down        Tears down the stack.
-  enter       Initiates a terminal session for a pod in the given Deployment.
+  enter       Initiates a terminal session to a container in a pod of the given k8s deployment
   environment Get or set the current active environment.
   expose      Exposes a kubernetes deployment to your local machine.
   health      Get the health of the stack.
   help        Help about any command
   install     Installs dependencies needed to run stack commands.
-  logs        Show logs for a pod in the given Deployment
+  logs        Show logs for a pod of the given k8s deployment (or a container in it).
   pods        List running pods.
   up          Brings up components of the stack.
 
