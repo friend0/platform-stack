@@ -14,17 +14,17 @@ var env string
 
 const kubectlApplyTemplate = `kubectl apply -f "{{ .YamlFile }}"`
 
-const kubetplRenderTemplate = `kubetpl render -o {{.OutputFile}} --allow-fs-access {{ .Manifest }} {{ range .EnvFrom }} -i {{.}} {{end}} {{ range .Env }} -s {{.}} {{end}}`
+const kubetplRenderTemplate = `kubetpl render -o {{.OutputFile}} --allow-fs-access {{ .Manifest }} {{ range .ConfigFiles }} -i {{.}} {{end}} {{ range .Env }} -s {{.}} {{end}}`
 
 type KubectlApplyRequest struct {
 	YamlFile string
 }
 
 type KubetplRenderRequest struct {
-	Manifest   string
-	EnvFrom    []string
-	Env        []string
-	OutputFile string
+	Manifest    string
+	ConfigFiles []string
+	Env         []string
+	OutputFile  string
 }
 
 // upCmd represents the up command
@@ -102,10 +102,10 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (er
 		}
 
 		generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
-			Manifest:   fmt.Sprintf("%v/%v.yaml", manifestDirectory, component.Name),
-			EnvFrom:    []string{fmt.Sprintf("%v/config-%v.env", manifestDirectory, viper.Get("env"))},
-			Env:        envs,
-			OutputFile: outputYamlFile,
+			Manifest:    fmt.Sprintf("%v/%v.yaml", manifestDirectory, component.Name),
+			ConfigFiles: []string{fmt.Sprintf("%v/config-%v.env", manifestDirectory, viper.Get("env"))},
+			Env:         envs,
+			OutputFile:  outputYamlFile,
 		})
 
 		applyYamlCmd, err := GenerateCommand(kubectlApplyTemplate, KubectlApplyRequest{
@@ -175,7 +175,5 @@ func generateEnvs(requiredVariables []string, getEnv func(string) string) (envs 
 
 func init() {
 	rootCmd.AddCommand(upCmd)
-	upCmd.Flags().StringVarP(&env, "environment", "e", "local", "Select deployment environment")
 	upCmd.Flags().BoolP("wait", "w", false, "Wait until stack is ready before exit")
-
 }

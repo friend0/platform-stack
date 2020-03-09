@@ -83,7 +83,6 @@ func getPodsList(api v12.CoreV1Interface, ns string, label, field []string) (lis
 		FieldSelector: fieldSelect,
 	}
 
-
 	pods, err := api.Pods(currentNamespace).List(listOptions)
 	if err != nil {
 		return pods, err
