@@ -23,9 +23,9 @@ var (
 
 // logsCmd represents the logs command
 var logsCmd = &cobra.Command{
-	Use:   "logs <pod> [container]",
-	Short: "Show logs for a pod in the given Deployment",
-	Long:  `Show logs for a pod in the given Deployment.`,
+	Use:   "logs <deployment> [container]",
+	Short: "Show logs for a pod of the given k8s deployment (or a container in it).",
+	Long:  `Show logs for a pod of the given k8s deployment (or a container in it).`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return initK8s("")
 	},

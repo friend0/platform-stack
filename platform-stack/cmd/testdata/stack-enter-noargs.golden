@@ -1,7 +1,7 @@
-Initiates a terminal session for a pod in the given Deployment.
+Initiates a terminal session to a container in a pod of the given k8s deployment
 
 Usage:
-  stack enter <pod> [container] [flags]
+  stack enter <deployment> [container] [flags]
 
 Flags:
       --field strings      Field selector
