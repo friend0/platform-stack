@@ -1,0 +1,12 @@
+# kubetpl:syntax:$
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    stack: react-app
+    app: react-app-env
+  name: react-app-env
+# kubetpl will load data from the specified file at templating time
+kubetpl/data-from-env-file:
+  - config-$ENV.env
