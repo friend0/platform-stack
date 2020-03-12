@@ -32,6 +32,7 @@ spec:
         stack: react-app
         app: frontend
     spec:
+      # todo: get dev running as containerized version for alternative to telepresence flow
       containers:
         - name: frontend
           image: $FRONTEND_IMAGE:$FRONTEND_TAG
