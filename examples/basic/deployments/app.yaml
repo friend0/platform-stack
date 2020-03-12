@@ -46,3 +46,20 @@ spec:
             limits:
               memory: "100Mi"
               cpu: "50m"
+        - name: app2
+          image: $APP_IMAGE:$APP_TAG
+          imagePullPolicy: $APP_IMAGE_PULL_POLICY
+          ports:
+            - containerPort: 8080
+          # Add Secret Variables Here
+          env:
+            - name: TEST_VARIABLE
+              value: $TEST_VARIABLE
+          # Use the ConfigMap named here for general env
+          envFrom:
+            - configMapRef:
+                name: stack-env
+          resources:
+            limits:
+              memory: "100Mi"
+              cpu: "50m"

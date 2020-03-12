@@ -4,6 +4,7 @@ environments:
   - name: local
     activation:
       context: docker-desktop
+      env: ENV=local
   - name: ci
     activation:
       context: minikube
@@ -19,9 +20,6 @@ components:
     manifests:
       - ./deployments/config.yaml
   - name: app
-    requiredVariables:
-      - PWD
-      - HOME
     exposable: true
     containers:
       - dockerfile: ./containers/app/Dockerfile
