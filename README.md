@@ -6,7 +6,8 @@ With Stack, you use a configuration file to define the services that make up you
 Then, with a few simple commands, you build and deploy all the services from your configuration. 
 
 Stack is a generalized CLI for seamless test, development, and debugging across environments.
-Stack has the potential to minimize dev/prod deltas, and to give developers a powerful set of tools for developing and maintaining services.
+Stack aims to give developers a powerful set of tools for developing and maintaining services across environment, 
+helping to minimize differences between development and production.
 
 
 ## 🚀 Getting Started
@@ -69,7 +70,7 @@ Components are logical groupings of kubernetes objects that may be defined by an
           - ./deployments/app.yaml
           
 Each component must be named, and should define a list of kubernetes manifests that make up the component.
-Component's can also define a list of containers that the constituent manifests may depend on. These configurations
+Components can also define a list of containers that the constituent manifests may depend on. These configurations
 allow for command shorthands like `stack up app` and `stack build app` that will operate on all manifests, or containers respectively.
 
 ## Examples
