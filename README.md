@@ -23,7 +23,7 @@ Option 3: Build from source `go build -o /usr/local/bin/stack -v ../platform-sta
 
 Once stack is available, system dependencies can be installed by running `stack install`.  
 
-To develop against a local kubernetes cluster, docker-desktop is the simplest path forward. 
+To develop against a local kubernetes cluster, docker-desktop is the simplest path forward.
 For this, you'll need to follow the install steps described [here](https://docs.docker.com/docker-for-mac/install/).
 
 ### The Stack Configuration File

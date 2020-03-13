@@ -18,7 +18,7 @@ func TestExposeIntegration(t *testing.T) {
 		setupArgs string
 		fixture   string
 	}{
-		{"expose", []string{"-r=../../examples", "expose", "missingComponent", "80", "80"}, "", "stack-expose-nonexistent.golden"},
+		{"expose", []string{"-r=../../examples/basic", "expose", "missingComponent", "80", "80"}, "", "stack-expose-nonexistent.golden"},
 	}
 
 	for _, tt := range tests {
