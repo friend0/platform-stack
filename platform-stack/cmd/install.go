@@ -143,7 +143,7 @@ func installDependencies(dependencies map[string]DependencyDescription, dryRun b
 								installed = append(installed, "failed installing %v")
 								return installed, err
 							}
-							installed = append(installed, "installed %v")
+							installed = append(installed, fmt.Sprintf("installed %v", dep))
 						}
 					}
 				}

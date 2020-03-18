@@ -3,8 +3,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"path/filepath"
 )
 
 // buildAllCmd represents the buildAll command
@@ -24,11 +22,7 @@ func buildAllComponents(cmd *cobra.Command, args []string) (err error) {
 		fmt.Printf("Building all containers for component `%v`", component.Name)
 		for _, container := range component.Containers {
 			tag, _ := cmd.Flags().GetString("tag")
-			configDirectory := viper.GetString("project_directory")
-			contextPath, _ := filepath.Abs(filepath.Join(configDirectory, container.Context))
-			dockerfilePath, _ := filepath.Abs(filepath.Join(configDirectory, container.Dockerfile))
-
-			err := buildComponent(contextPath, dockerfilePath, container.Image, tag)
+			err := buildComponent(container.Context, container.Dockerfile, container.Image, tag)
 			if err != nil {
 				return err
 			}

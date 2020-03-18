@@ -4,7 +4,6 @@ environments:                       # Define a local context that's active on ku
   - name: local
     activation:                     # Environment activation conditions - ALL conditions must be met for an environment to be active
       context: docker-desktop       # The name of the current kubernetes context that should be active in order for this environment to be active
-      env: ENV=local                # This environment key/value pair must be present on the system in order for this environment to be active
 components:
   - name: config                    # Define a global config map for public environment variables to be used by the frontend or backend
     requiredVariables:              # Variables defined here MUST be set on the system running stack commands when doing `stack up`

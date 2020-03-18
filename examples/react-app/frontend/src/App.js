@@ -20,14 +20,6 @@ class App extends Component {
                 console.log(err));
     }
     render() {
-    //     return (
-    //         <div className="App">
-    //         <h1>Users</h1>
-    //     {this.state.users.map(user =>
-    //     <div key={user.id}>user: {user.name} Password: {user.password}</div>
-    //     )}
-    // </div>
-    // );
         return (
             <div className="App">
             <header className="App-header">
