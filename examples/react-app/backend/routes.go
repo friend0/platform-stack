@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 )
@@ -12,7 +13,6 @@ type Todo struct {
 	Due       time.Time `json:"due"`
 }
 
-type Todos []Todo
 
 func (s *Server) routes() {
 	todosRouter := s.Router.PathPrefix("/todos").Subrouter()
@@ -22,14 +22,12 @@ func (s *Server) routes() {
 
 func (s *Server) Discover() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		todos := Todos{
-			Todo{Name: "Write presentation"},
-			Todo{Name: "Host meetup"},
+		log.Printf("Handling /todos/ request from %v\n", r.Host)
+		todos := []Todo{
+			{Name: "Write presentation"},
+			{Name: "Host meetup"},
 		}
-
-		json.NewEncoder(w).Encode(todos)
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(todos); err != nil {
 			panic(err)
 		}

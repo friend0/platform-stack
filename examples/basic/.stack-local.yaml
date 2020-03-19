@@ -4,15 +4,12 @@ environments:
   - name: local
     activation:
       context: docker-desktop
-      env: ENV=local
   - name: ci
     activation:
       context: minikube
-      env: ENV=ci
   - name: staging
     activation:
       context: platform-stg-blue
-      env: ENV=staging
 components:
   - name: config
     requiredVariables:

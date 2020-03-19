@@ -11,7 +11,7 @@ class App extends Component {
     componentDidMount() {
         fetch('/api/todos/')
             .then(res => {
-                return res.toString()
+                return res.json()
             })
             .then(todos => {
                 console.log(todos);

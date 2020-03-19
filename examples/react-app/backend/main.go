@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"log"
 )
 
 func main() {
@@ -16,12 +17,12 @@ func main() {
 func run() error {
 
 	s := NewServer()
-	s.InitDependencies("database", "logger")
 	defer s.Close()
 
-	addr := GetEnv("API_PORT", ":5001")
-	if err := http.ListenAndServe(fmt.Sprintf("%v", addr), s.Router); err != nil {
-		s.Log.Fatal("There was an error starting the server", err)
+	addr := GetEnv("BACKEND_API_PORT", "5001")
+	log.Printf("Server listening on port %v...\n", addr)
+	if err := http.ListenAndServe(fmt.Sprintf(":%v", addr), s.Router); err != nil {
+		log.Fatal("There was an error starting the server", err)
 	}
 
 	return nil
