@@ -6,7 +6,9 @@ import './App.css';
 class App extends Component {
     constructor(){
         super();
-        this.state ={todos: []};
+        this.state ={
+            todos: null
+        };
     }
     componentDidMount() {
         fetch('/api/todos/')

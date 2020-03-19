@@ -59,7 +59,8 @@ Get stack health:
     ✔️  backend-6c8668857d-q7gbl in namespace `default` is healthy
     ✔️  frontend-5fc5f74467-bzzrl in namespace `default` is healthy
 
-Visit the frontend page at `localhost:31000` 
+Visit the frontend page at `localhost:31000`. Opening your browser's console will show that the app has 
+retrieved an array of todo items from the backend.
    
 Get backend logs:
 
