@@ -50,6 +50,9 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
+	if currentEnv == (EnvironmentDescription{}) {
+		return fmt.Errorf("no active environment detected")
+	}
 	if currentEnv.Activation.ConfirmWithUser {
 		confirmWithUser(fmt.Sprintf("You are about to deploy to environment `%v`", currentEnv.Name))
 	}
