@@ -1,12 +1,16 @@
-# Stack
+# [Stack](stack)
 
-# Prerequisites
+Stack is a tool for defining and running multi-object Kubernetes applications. 
+With Stack, you use a configuration file to define the services that make up your application. 
+Then, with a few simple commands, you create and start all the services from your configuration. 
+
+# [Prerequisites](prereqs)
 
 The Stack CLI requires a running kubernetes cluster to perform most commands. Locally, this will usually be Docker-Desktop, or Minikube.
 [Docker Desktop](https://docs.docker.com/docker-for-mac/install/)
 [Docker Desktop Kubernetes](https://docs.docker.com/docker-for-mac/#kubernetes#kubernetes)
 
-## Step 1: Install stack CLI
+## [Step 1: Install the Stack CLI](install)
 
 - Option 1: Install `jq` with `brew install jq`, then run the install script `install.sh`
 You will need to export a github personal access token as GIT_TOKEN `export GIT_TOKEN=<GENERATED_TOKEN_HERE>` [see here](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
@@ -19,14 +23,14 @@ Once stack is available, stack CLI dependencies can be installed by running
   
 This installation will install xcode, and the supported kubectl, and kubetpl versions. 
 
-## Step 2: Define Kubernetes Manifests and Stack Configuration file
+## [Step 2: Define Kubernetes Manifests and a Stack Configuration file](config)
 
 Stack is a tool for operating applications built on Kubernetes. In order for the Stack CLI to run your applicaion, you need:
     - A Stack configuration file
     - A set of Kubernetes YAML manifests
     - Dockerfile container definitions (if applicable)
     
-###[The Stack Configuration File](configuration) 
+###[The Stack Configuration File](stack-config) 
                 
 The configuration file is where you describe the Environments, and Components needed to run your application.
 By default, this file should be named `.stack-local.yaml`, and should be included at the base directory of the project.
@@ -126,7 +130,7 @@ manifests depend on before we try to bring up the cluster.
 The logical groupings that Components provide allow us to use easy shorthands like `stack up app` and `stack build app` 
 that will operate on all manifests, or containers defined by the component named `app`.
 
-### [Kubernetes Manifest Label Requirements](kubernetes-reqs) 
+### [Kubernetes Manifest Label Requirements](kubernetes-config) 
 
 In order for Stack to properly scope certain commands to objects owned by a particular stack, **we require that 
 kubernetes objects be defined with two required labels in their metadata**:
@@ -141,7 +145,7 @@ check manifest in the examples directory to see this in practice.
         
 
 
-## Step 3: Build Dependent Images and Running the Stack
+## Step 3: Build Dependent Images and Run the Stack
 
 ⚠ **Ensure you are in a configured directory, or have explicitly provided a path to a stack configuration file** 
 
@@ -164,7 +168,7 @@ Next, bring up the entire stack with:
 
     stack up
 
-## Step 4: Managing the app
+## [Step 4: Manage the App](manage)
 
 ### Expose
 If your app is running behind certain Kubernetes Services, you may need to port forward traffic from your local machine to the cluster.
@@ -192,7 +196,7 @@ Get running pods for the current Stack
     stack pods
 
 
-## Examples
+## [Examples](examples)
 
 If you would like to use the Stack CLI without first configuring your own project, you can navigate to the examples 
 directory to get a feel for how to setup projects, and how stack works.
