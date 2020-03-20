@@ -179,7 +179,7 @@ This can be done by running:
 See `stack help expose` for more details. This might not be necessary for types like ingress controllers and load balancers.
 
 ### Logs
-You can get for a given deployment with 
+You can get logs for a given deployment with: 
 
     stack logs [DEPLOYMENT_NAME]
 
@@ -195,6 +195,20 @@ Get running pods for the current Stack
  
     stack pods
 
+### Deploy to Target Environments
+Deploy to a remote environment by configuring your KUBECONFIG and associating Kubernetes contexts with environments
+defined in your stack configuration file. 
+
+Check your current environment:
+
+    stack environment
+    
+Change your environment:
+
+    stack environment staging
+    
+All operations will now be scoped to the current environment and context.
+
 
 ## [Examples](examples)
 
@@ -204,4 +218,4 @@ directory to get a feel for how to setup projects, and how stack works.
 - [Basic Application](./examples/basic/README.md): A lightweight dummy application for testing out stack commands 
 - [Nginx/React/Go Web Application](./examples/react-app/README.md): A prototypical web application with a backend, and
 frontend serving up compiled assets. This example uses CRA for a simple web frontend. The binary is built and served up by Nginx at runtime,
-and calls out to a golang backend.
+and calls out to a Golang backend.

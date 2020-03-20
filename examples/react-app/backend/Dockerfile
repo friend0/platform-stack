@@ -21,9 +21,9 @@ FROM alpine:3.7
 # NOTE: Using 3.7 above to supports psql 10.x below
 RUN apk update && apk add postgresql
 
-COPY --from=go_build /src/backend/run.sh /src/backend/main /opt/backend/
+COPY --from=go_build /src/backend/main /opt/backend/
 
 EXPOSE 8000
 WORKDIR /opt/backend
 
-CMD [ "./run.sh" ]
+CMD [ "./main" ]
