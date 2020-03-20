@@ -19,7 +19,7 @@ func TestBuildAllIntegration(t *testing.T) {
 	}{
 		{"no arguments", []string{"help", "build","all"}, "stack-build-all-help.golden"},
 		{"build all command", []string{"build", "all"}, "stack-build-all-no-args-unconfigured.golden"},
-		{"build all command with component", []string{"-r=../../examples", "build", "app"}, ""},
+		{"build all command with component", []string{"-r=../../examples/basic", "build", "app"}, ""},
 	}
 
 	for _, tt := range tests {

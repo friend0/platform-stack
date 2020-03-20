@@ -18,8 +18,8 @@ func TestDownIntegration(t *testing.T) {
 		setupArgs string
 		fixture   string
 	}{
-		{"down", []string{"-r=../../examples", "down"}, "", "stack-down-no-args-none-running.golden"},
-		{"down with running", []string{"-r=../../examples", "down"}, "stack -r=../../examples up", "stack-down-no-args-with-running.golden"},
+		{"down", []string{"-r=../../examples/basic", "down"}, "", "stack-down-no-args-none-running.golden"},
+		{"down with running", []string{"-r=../../examples/basic", "down"}, "stack -r=../../examples/basic up", "stack-down-no-args-with-running.golden"},
 	}
 
 	for _, tt := range tests {

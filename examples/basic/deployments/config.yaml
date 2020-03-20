@@ -1,0 +1,10 @@
+# kubetpl:syntax:$
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    stack: stack-env
+  name: stack-env
+kubetpl/data-from-env-file:
+  - config-$ENV.env

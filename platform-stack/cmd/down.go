@@ -24,6 +24,18 @@ If no arguments are provided, all configured objects will be taken down.`,
 }
 
 func downAllComponents(cmd *cobra.Command, args []string) (err error) {
+
+	currentEnv, err := getEnvironment()
+	if err != nil {
+		return err
+	}
+	if currentEnv == (EnvironmentDescription{}) {
+		return fmt.Errorf("no active environment detected")
+	}
+	if currentEnv.Activation.ConfirmWithUser {
+		confirmWithUser(fmt.Sprintf("You are about to destroy pods in `%v`", currentEnv.Name))
+	}
+
 	components, err := parseComponentArgs(args, config.Components)
 	if err != nil {
 		return err

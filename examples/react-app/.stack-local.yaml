@@ -1,0 +1,28 @@
+stack:
+  name: react-app
+environments:                       # Define a local context that's active on kubectx=docker-desktop, ENV=local
+  - name: local
+    activation:                     # Environment activation conditions - ALL conditions must be met for an environment to be active
+      context: docker-desktop       # The name of the current kubernetes context that should be active in order for this environment to be active
+components:
+  - name: config                    # Define a global config map for public environment variables to be used by the frontend or backend
+    requiredVariables:              # Variables defined here MUST be set on the system running stack commands when doing `stack up`
+      - ENV                         # The manifest below requires ENV to operate, and must be available on the system!
+    manifests:
+      - ./deployments/config.yaml   # A manifest describing a ConfigMap - kubetpl will hydrate this map with the contents of the .env file with suffix specified by the ENV variable.
+  - name: frontend
+    exposable: true
+    containers:
+      - dockerfile: ./frontend/Dockerfile
+        context: ./frontend
+        image: react-frontend
+    manifests:
+      - ./deployments/frontend.yaml
+  - name: backend
+    exposable: true
+    containers:
+      - dockerfile: ./backend/Dockerfile
+        context: ./backend
+        image: react-backend
+    manifests:
+      - ./deployments/backend.yaml

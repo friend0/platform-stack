@@ -23,7 +23,7 @@ func TestEnterIntegration(t *testing.T) {
 		setupArgs string
 		fixture   string
 	}{
-		{"enter", []string{"-r=../../examples", "help", "enter"}, "", "stack-enter-noargs.golden"},
+		{"enter", []string{"-r=../../examples/basic", "help", "enter"}, "", "stack-enter-noargs.golden"},
 	}
 
 	for _, tt := range tests {
