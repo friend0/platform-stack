@@ -39,10 +39,7 @@ func enter(cmd *cobra.Command, args []string) (err error) {
 	label, _ := cmd.Flags().GetStringSlice("label")
 	field, _ := cmd.Flags().GetStringSlice("field")
 
-	//defaultLabel := viper.GetString("stack")
-	//if defaultLabel != "" {
-	//	label = append(label, fmt.Sprintf("stack=%v", defaultLabel))
-	//}
+	label = append(label, fmt.Sprintf("app=%v", args[0]))
 
 	pods, err := getPodsList(api, ns, label, field)
 	if err != nil {

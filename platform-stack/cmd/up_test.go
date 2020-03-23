@@ -19,8 +19,8 @@ func TestUpCLI(t *testing.T) {
 		fixture string
 	}{
 		{"up", []string{"help", "up"}, "stack-up-help.golden"},
-		{"up", []string{"-r=../../examples", "up", "app"}, "stack-up-app.golden"},
-		{"up", []string{"-r=../../examples", "up"}, "stack-up-no-args.golden"},
+		{"up", []string{"-r=../../examples/basic", "up", "app"}, "stack-up-app.golden"},
+		{"up", []string{"-r=../../examples/basic", "up"}, "stack-up-no-args.golden"},
 	}
 
 	for _, tt := range tests {

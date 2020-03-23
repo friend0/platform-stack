@@ -1,0 +1,28 @@
+stack:
+  name: app
+environments:
+  - name: local
+    activation:
+      context: docker-desktop
+  - name: ci
+    activation:
+      context: minikube
+  - name: staging
+    activation:
+      context: platform-stg-blue
+components:
+  - name: config
+    requiredVariables:
+      - ENV
+    manifests:
+      - ./deployments/config.yaml
+  - name: app
+    exposable: true
+    containers:
+      - dockerfile: ./containers/app/Dockerfile
+        context: ./containers/app
+        image: stack-app
+    manifests:
+      - ./deployments/app.yaml
+postgres_deployment: postgres
+env_prefix: examples
