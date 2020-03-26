@@ -72,7 +72,7 @@ Get frontend logs:
 
 Expose a deployment by component name:
 
-    $ stack enter backend
+    $ stack expose backend 5001 5001
     
 Enter a running container:
 
