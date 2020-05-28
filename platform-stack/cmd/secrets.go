@@ -10,12 +10,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const kubectlCreateRegistrySecretTemplate = `kubectl create secret docker-registry acr-service-principal --docker-server=https://{{ .ContainerRegistry }}.azurecr.io --docker-username={{ .ServicePrincipleID }} --docker-password={{ .ServicePrinciplePassword }}/
+var secretTypesSecretNamesMap = map[string]string{
+	"registry": "acr-service-principal",
+}
+
+const kubectlCreateRegistrySecretTemplate = `kubectl create secret docker-registry {{ .SecretName }} --docker-server=https://{{ .ContainerRegistry }}.azurecr.io --docker-username={{ .ServicePrincipleID }} --docker-password={{ .ServicePrinciplePassword }}/
 											 kubectl label secret acr-service-principal stack={{ .StackName }}`
 
 const kubectlGetSecretTemplate = `kubectl get secrets -l stack={{ .StackName}}`
 
 type KubectlCreateRegistrySecretsRequest struct {
+	SecretName 				 string
 	ContainerRegistry        string
 	ServicePrincipleID       string
 	ServicePrinciplePassword string
@@ -29,13 +34,14 @@ type KubectlListRegistrySecretsRequest struct {
 
 // secretsCmd represents the secrets command
 var secretsCmd = &cobra.Command{
-	Use:   "secrets",
+	Use:   "secrets [secretType]",
 	Short: "Utility command for distributing credentials with Kubernetes secrets.",
 	Long: `Utility command for distributing credentials with Kubernetes secrets.
 
 Makes securely distributed credentials available to the stack.
-Available stock secrets:
-- "registry": Creates "acr-service-principal" secret to be used as an imagePullSecret in Kubernetes manifests. Requires
+
+Available SecretTypes:
+- registry: specify the registry type for creating the 'acr-service-principal' for manifest imagePullSecrets
 "SERVICE_PRINCIPLE_ID" and "SERVICE_PRINCIPLE_PASSWORD" variables to be set in the host environment.
 `,
 	Args: cobra.MaximumNArgs(1),
@@ -50,11 +56,9 @@ Available stock secrets:
 }
 
 func createSecret(cmd *cobra.Command, args []string) error {
+	secretType := args[0]
 	if len(args) > 0 {
-		secretType := args[0]
 		switch secretType {
-		case "":
-			return createRegistrySecret(cmd, args)
 		case "registry":
 			return createRegistrySecret(cmd, args)
 		default:
@@ -63,7 +67,6 @@ func createSecret(cmd *cobra.Command, args []string) error {
 	} else {
 		return listRegistrySecret(cmd, args)
 	}
-	return nil
 }
 
 func labelSecret(cmd *cobra.Command, args []string) error {
@@ -71,6 +74,8 @@ func labelSecret(cmd *cobra.Command, args []string) error {
 }
 
 func createRegistrySecret(cmd *cobra.Command, args []string) error {
+	secretName, _ := secretTypesSecretNamesMap[args[0]]
+
 	spid := viper.GetString("SERVICE_PRINCIPLE_ID")
 	sppwd := viper.GetString("SERVICE_PRINCIPLE_PASSWORD")
 
@@ -79,6 +84,7 @@ func createRegistrySecret(cmd *cobra.Command, args []string) error {
 	}
 
 	createRegistrySecretCmd, err := GenerateCommand(kubectlCreateRegistrySecretTemplate, KubectlCreateRegistrySecretsRequest{
+		secretName,
 		viper.GetString("registry"),
 		spid,
 		sppwd,
