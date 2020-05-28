@@ -28,7 +28,6 @@ func deleteSecret(cmd *cobra.Command, args []string) error {
 		config.Stack.Name,
 	}
 
-	fmt.Println(len(args))
 	if len(args) > 0 {
 		fmt.Println(args[0])
 		secretType, ok := secretTypesSecretNamesMap[args[0]]
@@ -39,7 +38,9 @@ func deleteSecret(cmd *cobra.Command, args []string) error {
 		}
 
 	} else {
-		confirmWithUser("you are about to delete all secrets for the stack")
+		if !confirmWithUser("you are about to delete all secrets for the stack") {
+			return nil
+		}
 	}
 
 	deleteSecretsCmd, err := GenerateCommand(kubectlDeleteSecretTemplate, request)
