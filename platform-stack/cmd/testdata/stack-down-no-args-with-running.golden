@@ -1,1 +1,7 @@
-you are about to delete all secrets for the stack - are you sure you want to proceed?
+Tearing down components at config...
+configmap "stack-env" deleted
+
+Tearing down components at app...
+service "app" deleted
+deployment.apps "app" deleted
+

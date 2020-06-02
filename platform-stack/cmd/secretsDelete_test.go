@@ -18,9 +18,9 @@ func TestSecretsDeleteIntegration(t *testing.T) {
 		setupArgs string
 		fixture   string
 	}{
-		{"secretsDeleteHelp", []string{"-r=../../examples/basic", "help", "secrets", "delete"}, "", "stack-secrets-delete-no-secrets.golden"},
+		{"secretsDeleteHelp", []string{"-r=../../examples/basic", "help", "secrets", "delete"}, "", "stack-secrets-delete-help.golden"},
 		{"secretsDelete", []string{"-r=../../examples/basic", "secrets", "delete"}, "", "stack-secrets-delete-no-secrets.golden"},
-		{"secretsDelete with secrets", []string{"-r=../../examples/basic", "secrets", "delete"}, "", "stack-down-no-args-with-running.golden"},
+		{"secretsDelete with secrets", []string{"-r=../../examples/basic", "secrets", "delete"}, "", "stack-secrets-delete-no-args.golden"},
 	}
 
 	for _, tt := range tests {
