@@ -18,7 +18,7 @@ var secretsDeleteCmd = &cobra.Command{
 	Use:   "delete [secretType]",
 	Short: "Delete the named stock secret.",
 	Long:  `Delete the named stock secret.`,
-	Args: cobra.MaximumNArgs(1),
+	Args:  cobra.MaximumNArgs(1),
 	RunE:  deleteSecret,
 }
 

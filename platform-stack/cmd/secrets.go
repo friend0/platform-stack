@@ -2,12 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
-
-	//"os"
-
-	"github.com/spf13/cobra"
 )
 
 var secretTypesSecretNamesMap = map[string]string{
@@ -20,7 +17,7 @@ const kubectlCreateRegistrySecretTemplate = `kubectl create secret docker-regist
 const kubectlGetSecretTemplate = `kubectl get secrets -l stack={{ .StackName}}`
 
 type KubectlCreateRegistrySecretsRequest struct {
-	SecretName 				 string
+	SecretName               string
 	ContainerRegistry        string
 	ServicePrincipleID       string
 	ServicePrinciplePassword string
@@ -28,9 +25,8 @@ type KubectlCreateRegistrySecretsRequest struct {
 }
 
 type KubectlListRegistrySecretsRequest struct {
-	StackName                string
+	StackName string
 }
-
 
 // secretsCmd represents the secrets command
 var secretsCmd = &cobra.Command{
@@ -122,7 +118,6 @@ func listRegistrySecret(cmd *cobra.Command, args []string) error {
 
 	return nil
 }
-
 
 func init() {
 	rootCmd.AddCommand(secretsCmd)
