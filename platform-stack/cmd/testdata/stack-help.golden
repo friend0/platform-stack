@@ -16,6 +16,7 @@ Available Commands:
   install     Installs dependencies needed to run stack commands.
   logs        Show logs for a pod of the given k8s deployment (or a container in it).
   pods        List running pods.
+  secrets     Utility command for distributing credentials with Kubernetes secrets.
   up          Brings up components of the stack.
 
 Flags:

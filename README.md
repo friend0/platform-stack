@@ -209,7 +209,26 @@ Change your environment:
     
 All operations will now be scoped to the current environment and context.
 
+### Add and Remove Stack Secrets
+As a convenience, the Stack CLI provides the secrets command for creating stock Kubenretes secret resources like those
+used for imagePullSecrets and so on.
 
+List the currently available secrets for the stack:
+
+    stack secrets
+
+Create a registry secret for authenticating with private container registries:
+
+    stack secrets registry
+
+Remove all secrets:
+
+    stack secrets delete
+
+Remove a specific secret:
+
+    stack secrets delete registry       # deletes only the registry secret created above
+    
 ## [Examples](examples)
 
 If you would like to use the Stack CLI without first configuring your own project, you can navigate to the examples 

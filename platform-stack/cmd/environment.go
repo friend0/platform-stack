@@ -63,8 +63,10 @@ func isEnvActive(env EnvironmentDescription, kubectx string, getEnv func(string)
 		envActivation = true
 	} else {
 		activationEnvs := strings.Split(env.Activation.Env, "=")
-		activationEnvKey, activationEnvValue := activationEnvs[0], activationEnvs[1]
-		envActivation = getEnv(activationEnvKey) == activationEnvValue
+		if len(activationEnvs) >= 2 {
+			activationEnvKey, activationEnvValue := activationEnvs[0], activationEnvs[1]
+			envActivation = getEnv(activationEnvKey) == activationEnvValue
+		}
 	}
 	return contextActivation && envActivation
 }
