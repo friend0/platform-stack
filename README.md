@@ -30,7 +30,7 @@ Stack is a tool for operating applications built on Kubernetes. In order for the
     - A set of Kubernetes YAML manifests
     - Dockerfile container definitions (if applicable)
     
-###[The Stack Configuration File](stack-config) 
+### [The Stack Configuration File](stack-config) 
                 
 The configuration file is where you describe the Environments, and Components needed to run your application.
 By default, this file should be named `.stack-local.yaml`, and should be included at the base directory of the project.
