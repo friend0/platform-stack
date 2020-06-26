@@ -52,8 +52,8 @@ Available SecretTypes:
 }
 
 func createSecret(cmd *cobra.Command, args []string) error {
-	secretType := args[0]
 	if len(args) > 0 {
+		secretType := args[0]
 		switch secretType {
 		case "registry":
 			return createRegistrySecret(cmd, args)
