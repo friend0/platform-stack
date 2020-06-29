@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const kubectlDeleteSecretTemplate = `kubectl delete secrets {{if .SecretName}} {{- .SecretName -}} {{end}} -l stack={{ .StackName}}`
+const kubectlDeleteSecretTemplate = `kubectl delete secrets -l stack={{ .StackName}}`
 
 type KubectlDeleteSecretsRequest struct {
 	SecretName string

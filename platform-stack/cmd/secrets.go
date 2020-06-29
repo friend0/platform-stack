@@ -11,7 +11,7 @@ var secretTypesSecretNamesMap = map[string]string{
 	"registry": "acr-service-principal",
 }
 
-const kubectlCreateRegistrySecretTemplate = `kubectl create secret docker-registry {{ .SecretName }} --docker-server=https://{{ .ContainerRegistry }}.azurecr.io --docker-username={{ .ServicePrincipleID }} --docker-password={{ .ServicePrinciplePassword }}/
+const kubectlCreateRegistrySecretTemplate = `kubectl create secret docker-registry {{ .SecretName }} --docker-server=https://{{ .ContainerRegistry }}.azurecr.io --docker-username={{ .ServicePrincipleID }} --docker-password={{ .ServicePrinciplePassword }} --docker-email=noreply@airbusutm.com/
 											 kubectl label secret acr-service-principal stack={{ .StackName }}`
 
 const kubectlGetSecretTemplate = `kubectl get secrets -l stack={{ .StackName}}`
