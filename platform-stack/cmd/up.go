@@ -14,17 +14,17 @@ var env string
 
 const kubectlApplyTemplate = `kubectl apply -f "{{ .YamlFile }}"`
 
-const kubetplRenderTemplate = `kubetpl render -o {{.OutputFile}} --allow-fs-access {{ .Manifest }} {{ range .ConfigFiles }} -i {{.}} {{end}} {{ range .Env }} -s {{.}} {{end}}`
+const kubetplRenderTemplate = `kubetpl render -o {{.OutputFile}} --allow-fs-access {{ .Manifest }} {{ range .TemplateConfig }} -i {{.}} {{end}} {{ range .Env }} -s {{.}} {{end}}`
 
 type KubectlApplyRequest struct {
 	YamlFile string
 }
 
 type KubetplRenderRequest struct {
-	Manifest    string
-	ConfigFiles []string
-	Env         []string
-	OutputFile  string
+	Manifest       string
+	TemplateConfig []string
+	Env            []string
+	OutputFile     string
 }
 
 // upCmd represents the up command
@@ -66,7 +66,7 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	// Bring up each configured component
 	for _, component := range upComponents {
 		fmt.Println("Bringing up", component.Name)
-		err := componentUpFunction(cmd, component)
+		err := componentUpFunction(cmd, component, currentEnv)
 		if err != nil {
 			fmt.Printf("Bringing up `%v` failed", component.Name)
 			return err
@@ -88,33 +88,40 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (err error) {
+func componentUpFunction(cmd *cobra.Command, component ComponentDescription, stackEnv EnvironmentDescription) (err error) {
 	projectDirectory, _ := cmd.Flags().GetString("project_directory")
 	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
+	requiredVariables := component.RequiredVariables
 
 	for _, manifest := range component.Manifests {
 		manifestPath := filepath.Join(absoluteProjectDirectory, manifest)
 		manifestDirectory := filepath.Dir(manifestPath)
-
 		outputYamlFile := fmt.Sprintf("%v/%v-generated.yaml", manifestDirectory, component.Name)
 
-		requiredVariables := component.RequiredVariables
 		envs, err := generateEnvs(requiredVariables, os.Getenv)
 		if err != nil {
 			return err
 		}
 
+		// if a componet does not have config specified, try to find the magic template config
+		cf := component.TemplateConfig
+		if len(cf) == 0 {
+			cf = []string{fmt.Sprintf("%v/config-%v.env", manifestDirectory, stackEnv.Name)}
+		}
+
 		generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
-			Manifest:    fmt.Sprintf("%v/%v.yaml", manifestDirectory, component.Name),
-			ConfigFiles: []string{fmt.Sprintf("%v/config-%v.env", manifestDirectory, viper.Get("env"))},
-			Env:         envs,
-			OutputFile:  outputYamlFile,
+			Manifest:       fmt.Sprintf(manifest),
+			TemplateConfig: cf,
+			Env:            envs,
+			OutputFile:     outputYamlFile,
 		})
+		if err != nil {
+			return err
+		}
 
 		applyYamlCmd, err := GenerateCommand(kubectlApplyTemplate, KubectlApplyRequest{
 			YamlFile: outputYamlFile,
 		})
-
 		if err != nil {
 			return err
 		}
