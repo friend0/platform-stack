@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"path/filepath"
+	"strings"
 )
 
 const kubectlDeleteTemplate = `kubectl delete -f "{{ .YamlFile }}"`
@@ -56,9 +57,11 @@ func downComponent(cmd *cobra.Command, component ComponentDescription) (err erro
 	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
 
 	for _, manifest := range component.Manifests {
+
+		manifestName := strings.TrimSuffix(filepath.Base(manifest), filepath.Ext(manifest))
 		manifestPath := filepath.Join(absoluteProjectDirectory, manifest)
 		manifestDirectory := filepath.Dir(manifestPath)
-		generatedYamlFile := fmt.Sprintf("%v/%v-generated.yaml", manifestDirectory, component.Name)
+		generatedYamlFile := fmt.Sprintf("%v/%v-generated.yaml", manifestDirectory, manifestName)
 
 		deleteYamlCmd, err := GenerateCommand(kubectlDeleteTemplate, KubectlDeleteRequest{
 			YamlFile: generatedYamlFile,

@@ -49,6 +49,7 @@ type ComponentDescription struct {
 	Exposable         bool                   `json:"exposable"`
 	Containers        []ContainerDescription `json:"containers"`
 	Manifests         []string               `json:"manifests"`
+	TemplateConfig    []string               `json:"template_config"`
 }
 
 type ContainerDescription struct {
