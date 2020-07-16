@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"path/filepath"
+	"strings"
+
 	//"github.com/spf13/viper"
 	"os"
 )
@@ -94,6 +96,7 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 	requiredVariables := component.RequiredVariables
 
 	for _, manifest := range component.Manifests {
+		manifestName := strings.TrimSuffix(filepath.Base(manifest), filepath.Ext(manifest))
 		manifestPath := filepath.Join(absoluteProjectDirectory, manifest)
 		manifestDirectory := filepath.Dir(manifestPath)
 		outputYamlFile := fmt.Sprintf("%v/%v-generated.yaml", manifestDirectory, component.Name)
@@ -110,7 +113,7 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 		}
 
 		generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
-			Manifest:       fmt.Sprintf(manifest),
+			Manifest:       fmt.Sprintf("%v/%v.yaml", manifestDirectory, manifestName),
 			TemplateConfig: cf,
 			Env:            envs,
 			OutputFile:     outputYamlFile,
@@ -139,11 +142,9 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 		if err := applyYamlCmd.Run(); err != nil {
 			return err
 		}
-
 	}
 
 	return nil
-
 }
 
 // parseComponentArgs generates a list of ComponentDescriptions from the up command's arguments if provided, defaulting
