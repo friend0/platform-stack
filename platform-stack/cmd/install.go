@@ -59,7 +59,9 @@ var StackCLIDependencies = map[string]DependencyDescription{
 				"sudo mv kubetpl /usr/local/bin/",
 			},
 			"linux": []string{
-				`curl -sSL https://github.com/shyiko/kubetpl/releases/download/{{ .Version }}/kubetpl-{{ .Version }}-$(bash -c '[[ $OSTYPE == darwin* ]] && echo darwin || echo linux')-amd64 -o kubetpl && chmod a+x kubetpl && sudo mv kubetpl /usr/local/bin/`,
+				`curl -sSL https://github.com/shyiko/kubetpl/releases/download/{{ .Version }}/kubetpl-{{ .Version }}-linux-amd64 -o kubetpl`,
+				"chmod a+x kubetpl",
+				"sudo mv kubetpl /usr/local/bin/",
 			},
 		},
 	},
