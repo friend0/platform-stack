@@ -5,7 +5,7 @@ set -e
 # Default tag = latest
 readonly git_tag="${1:-latest}"
 github_repo="altiscope/platform-stack"
-output_path="/usr/local/bin/stack"
+output_path="./stack"
 github_api=api.github.com
 github_oauth_token="$GIT_TOKEN"
 
@@ -29,7 +29,7 @@ curl --show-error --header 'Accept: application/octet-stream' --location --outpu
 https://$github_oauth_token:@$github_api/repos/$github_repo/releases/assets/$asset_id?access_token=$github_oauth_token
 
 if [[ "$?" -eq 0 ]]; then
-  sudo chmod +x "$output_path"
+  chmod a+x "$output_path"
 else
   printf "Error: failed to install stack CLI"
   exit 1

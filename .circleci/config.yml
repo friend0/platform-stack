@@ -84,6 +84,25 @@ jobs:
       - store_test_results:
           path: test-results
 
+  install:
+    machine:
+      image: ubuntu-1604:201903-01    # recommended linux image - includes Ubuntu 16.04, docker 18.09.3, docker-compose 1.23.1
+      docker_layer_caching: true
+    working_directory: /home/circleci/src/github.com/altiscope/platform-stack
+    steps:
+      - checkout
+      - run:
+          name: Run install.sh
+          command: |
+            ./install.sh && sudo mv stack /usr/local/bin
+      - run:
+          name: Which stack
+          command: |
+            which stack    
+      - run:
+          name: Which stack
+          command: |
+            stack --version            
   deploy:
     docker:
       - image: circleci/golang:1.13.6
@@ -110,9 +129,13 @@ workflows:
   build-deploy:
     jobs:
       - build
+      - install:
+          requires:
+            - build        
       - deploy:
           requires:
-            - build
+            - install
           filters:
             branches:
               only: master
+
