@@ -94,7 +94,15 @@ jobs:
       - run:
           name: Run install.sh
           command: |
-            ./install.sh
+            ./install.sh && sudo mv stack /usr/local/bin
+      - run:
+          name: Which stack
+          command: |
+            which stack    
+      - run:
+          name: Which stack
+          command: |
+            stack --version            
   deploy:
     docker:
       - image: circleci/golang:1.13.6
