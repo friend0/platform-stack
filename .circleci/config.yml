@@ -103,6 +103,7 @@ jobs:
           name: Which stack
           command: |
             stack --version            
+
   deploy:
     docker:
       - image: circleci/golang:1.13.6
@@ -129,11 +130,10 @@ workflows:
   build-deploy:
     jobs:
       - build
-      - install:
-          requires:
-            - build        
+      - install  
       - deploy:
           requires:
+            - build
             - install
           filters:
             branches:
