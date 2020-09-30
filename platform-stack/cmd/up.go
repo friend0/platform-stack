@@ -78,7 +78,7 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	wait := viper.GetBool("wait")
 	if wait {
 		api := clientset.CoreV1()
-		err, ctx := waitForStackWithTimeout(api, cmd, 60000)
+		err, ctx := waitForStackWithTimeout(api, cmd, 5*60*1000)
 		if err != nil {
 			return err
 		}
