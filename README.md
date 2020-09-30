@@ -12,7 +12,7 @@ The Stack CLI requires a running kubernetes cluster to perform most commands. Lo
 
 ## [Step 1: Install the Stack CLI](install)
 
-- Option 1: Install `jq` with `brew install jq`, then run the install script `install.sh`
+- Option 1: Install `jq` with `brew install jq`, then run the install script `install.sh`. By default the executable is put onto the path at the current directory - move it to /use/local/bin so it appears on your path.
 You will need to export a github personal access token as GIT_TOKEN `export GIT_TOKEN=<GENERATED_TOKEN_HERE>` [see here](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
 - Option 2: Navigate to https://github.com/altiscope/platform-stack/releases and take the latest.
 Next, put the appropriate binary onto your path renamed as `stack`
