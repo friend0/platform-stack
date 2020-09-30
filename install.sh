@@ -30,9 +30,7 @@ if [[ $token_check -ne 200 ]]; then
 fi
 
 assets=`curl -sL -H "Authorization: token $github_oauth_token" -H "Accept: application/vnd.github.v3.raw" https://$github_api/repos/$github_repo/releases`
-echo $assets
 asset_id=`echo $assets | jq "$parser"`
-echo $asset_id
 
 curl --show-error --header 'Accept: application/octet-stream' --location --output "$output_path" --request GET \
 https://$github_oauth_token:@$github_api/repos/$github_repo/releases/assets/$asset_id?access_token=$github_oauth_token
