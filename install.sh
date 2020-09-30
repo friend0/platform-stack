@@ -29,7 +29,7 @@ curl --show-error --header 'Accept: application/octet-stream' --location --outpu
 https://$github_oauth_token:@$github_api/repos/$github_repo/releases/assets/$asset_id?access_token=$github_oauth_token
 
 if [[ "$?" -eq 0 ]]; then
-  sudo chmod +x "$output_path"
+  chmod +x "$output_path"
 else
   printf "Error: failed to install stack CLI"
   exit 1
