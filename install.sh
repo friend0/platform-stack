@@ -23,15 +23,18 @@ else
   parser=". | map(select(.tag_name == \"git_tag\"))[0].assets | map(select(.name == \"$release_asset_filename\"))[0].id"
 fi
 
-assets=`curl --show-error -o /dev/null -w "%{http_code}" -sL -H "Authorization: token $github_oauth_token" -H "Accept: application/vnd.github.v3.raw" https://$github_api/repos/$github_repo/releases`
-if [[ $assets -ne 200 ]]; then
-  printf "error: failed to install stack CLI: status code %s\n" $assets
+token_check=`curl --show-error -o /dev/null -w "%{http_code}" -sL -H "Authorization: token $github_oauth_token" -H "Accept: application/vnd.github.v3.raw" https://$github_api/repos/$github_repo/releases`
+if [[ $token_check -ne 200 ]]; then
+  printf "error: failed to install stack CLI: status code %s\n" $token_check
   exit 1
 fi
 
-asset_id=`curl -sL -H "Authorization: token $github_oauth_token" -H "Accept: application/vnd.github.v3.raw" https://$github_api/repos/$github_repo/releases` | jq "$parser"
+assets=`curl -sL -H "Authorization: token $github_oauth_token" -H "Accept: application/vnd.github.v3.raw" https://$github_api/repos/$github_repo/releases`
+echo $assets
+asset_id=`echo $assets | jq "$parser"`
+echo $asset_id
 
-curl -s --show-error --header 'Accept: application/octet-stream' --location --output "$output_path" --request GET \
+curl --show-error --header 'Accept: application/octet-stream' --location --output "$output_path" --request GET \
 https://$github_oauth_token:@$github_api/repos/$github_repo/releases/assets/$asset_id?access_token=$github_oauth_token
 
 if [[ "$?" -ne 0 ]]; then
