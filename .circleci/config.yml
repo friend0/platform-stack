@@ -94,7 +94,7 @@ jobs:
       - run:
           name: Run install.sh
           command: |
-            ./install.sh && sudo mv stack /usr/local/bin
+            ./install.sh && sudo chmod a+x ./stack && sudo mv stack /usr/local/bin
       - run:
           name: Which stack
           command: |

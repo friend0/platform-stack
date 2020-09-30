@@ -28,9 +28,7 @@ asset_id=`curl -sL -H "Authorization: token $github_oauth_token" -H "Accept: app
 curl --show-error --header 'Accept: application/octet-stream' --location --output "$output_path" --request GET \
 https://$github_oauth_token:@$github_api/repos/$github_repo/releases/assets/$asset_id?access_token=$github_oauth_token
 
-if [[ "$?" -eq 0 ]]; then
-  chmod a+x "$output_path"
-else
+if [[ "$?" -ne 0 ]]; then
   printf "Error: failed to install stack CLI"
   exit 1
 fi
