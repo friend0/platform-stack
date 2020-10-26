@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"path/filepath"
 	"strings"
-    "time"
+	"time"
 	//"github.com/spf13/viper"
 	"os"
 )
@@ -77,8 +77,8 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	}
 
 	wait := viper.GetInt("wait")
-	if wait >= 0{
-        waitTime := wait * 1000
+	if wait >= 0 {
+		waitTime := wait * 1000
 		api := clientset.CoreV1()
 		err, ctx := waitForStackWithTimeout(api, cmd, time.Duration(waitTime))
 		if err != nil {
@@ -189,6 +189,5 @@ func generateEnvs(requiredVariables []string, getEnv func(string) string) (envs 
 func init() {
 	rootCmd.AddCommand(upCmd)
 	upCmd.Flags().IntP("wait", "w", -1, "Stack readiness wait period in seconds")
-    upCmd.Flags().Lookup("wait").NoOptDefVal = "300"
-
+	upCmd.Flags().Lookup("wait").NoOptDefVal = "300"
 }
