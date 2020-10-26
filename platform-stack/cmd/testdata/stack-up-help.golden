@@ -6,8 +6,8 @@ Usage:
   stack up [<component>...] [flags]
 
 Flags:
-  -h, --help   help for up
-  -w, --wait   Wait until stack is ready before exit
+  -h, --help             help for up
+  -w, --wait int[=300]   Stack readiness wait period in seconds (default -1)
 
 Global Flags:
   -r, --project_directory string     set the project directory of the stack (default ".")
