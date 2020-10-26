@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"path/filepath"
 	"strings"
-
+    "time"
 	//"github.com/spf13/viper"
 	"os"
 )
@@ -44,6 +44,7 @@ If no components are provided as arguments, all configured components will be br
 		return initK8s("")
 	},
 	RunE: upAllComponents,
+	Args: cobra.MaximumNArgs(1),
 }
 
 func upAllComponents(cmd *cobra.Command, args []string) (err error) {
@@ -75,10 +76,11 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 		}
 	}
 
-	wait := viper.GetBool("wait")
-	if wait {
+	wait := viper.GetInt("wait")
+	if wait >= 0{
+        waitTime := wait * 1000
 		api := clientset.CoreV1()
-		err, ctx := waitForStackWithTimeout(api, cmd, 5*60*1000)
+		err, ctx := waitForStackWithTimeout(api, cmd, time.Duration(waitTime))
 		if err != nil {
 			return err
 		}
@@ -186,5 +188,7 @@ func generateEnvs(requiredVariables []string, getEnv func(string) string) (envs 
 
 func init() {
 	rootCmd.AddCommand(upCmd)
-	upCmd.Flags().BoolP("wait", "w", false, "Wait until stack is ready before exit")
+	upCmd.Flags().IntP("wait", "w", -1, "Wait until stack is ready before exit")
+    upCmd.Flags().Lookup("wait").NoOptDefVal = "300"
+
 }
