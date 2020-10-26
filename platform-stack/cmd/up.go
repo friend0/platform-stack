@@ -188,7 +188,7 @@ func generateEnvs(requiredVariables []string, getEnv func(string) string) (envs 
 
 func init() {
 	rootCmd.AddCommand(upCmd)
-	upCmd.Flags().IntP("wait", "w", -1, "Wait until stack is ready before exit")
+	upCmd.Flags().IntP("wait", "w", -1, "Stack readiness wait period in seconds")
     upCmd.Flags().Lookup("wait").NoOptDefVal = "300"
 
 }

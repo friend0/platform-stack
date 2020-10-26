@@ -7,7 +7,7 @@ Usage:
 
 Flags:
   -h, --help             help for up
-  -w, --wait int[=300]   Wait until stack is ready before exit (default -1)
+  -w, --wait int[=300]   Stack readiness wait period in seconds (default -1)
 
 Global Flags:
   -r, --project_directory string     set the project directory of the stack (default ".")
