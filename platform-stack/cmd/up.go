@@ -101,7 +101,7 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 		manifestName := strings.TrimSuffix(filepath.Base(manifest), filepath.Ext(manifest))
 		manifestPath := filepath.Join(absoluteProjectDirectory, manifest)
 		manifestDirectory := filepath.Dir(manifestPath)
-		outputYamlFile := fmt.Sprintf("%v/%v-generated.yaml", manifestDirectory, component.Name)
+		outputYamlFile := fmt.Sprintf("%v/%v-generated.yaml", manifestDirectory, manifestName)
 
 		envs, err := generateEnvs(requiredVariables, os.Getenv)
 		if err != nil {
