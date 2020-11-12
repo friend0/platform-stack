@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 	"net/http"
 	"os"
-	"github.com/altiscope/platform-go-server/pkg"
+	"github.com/altiscope/platform-go-server"
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 
 func run() error {
 
-	s := pkg.NewServer()
+	s := server.NewServer()
 	// add server dependencies here as they come online
 	s.InitDependencies("client")
 	defer s.Close()
