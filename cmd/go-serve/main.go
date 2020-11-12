@@ -10,12 +10,8 @@ import (
 
 func main() {
 
-	viper.SetDefault("API_DB_HOST", "postgres")
-	viper.SetDefault("API_DB_PORT", "5432")
-	viper.SetDefault("API_DB_USERNAME", "postgres")
-	viper.SetDefault("API_DB_PASSWORD", "postgres")
-	viper.SetDefault("API_DB_NAME", "postgres")
-	viper.SetDefault("API_DB_MODE", "disable")
+	// Here we're using the AutomaticEnv capability, but you could call a custom viper init here
+	viper.AutomaticEnv()
 
 	if err := run(); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%s\n", err)
@@ -30,7 +26,7 @@ func run() error {
 	s.InitDependencies("client")
 	defer s.Close()
 
-	if err := http.ListenAndServe(fmt.Sprintf("%v", os.Getenv("GO_SERVER_API_PORT")), s.Engine); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf("%v", viper.GetString("GO_SERVER_API_PORT")), s.Engine); err != nil {
 		return fmt.Errorf("startup error: %v", err.Error())
 	}
 
