@@ -2,6 +2,8 @@ module github.com/altiscope/platform-go-server
 
 go 1.15
 
+replace github.com/altiscope/platform-go-server/pkg => ./pkg
+
 require (
 	github.com/gin-gonic/gin v1.6.3 // indirect
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
