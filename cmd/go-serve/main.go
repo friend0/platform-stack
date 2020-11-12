@@ -2,12 +2,21 @@ package main
 
 import (
 	"fmt"
+	"github.com/spf13/viper"
 	"net/http"
 	"os"
 	"github.com/altiscope/platform-go-server/pkg"
 )
 
 func main() {
+
+	viper.SetDefault("API_DB_HOST", "postgres")
+	viper.SetDefault("API_DB_PORT", "5432")
+	viper.SetDefault("API_DB_USERNAME", "postgres")
+	viper.SetDefault("API_DB_PASSWORD", "postgres")
+	viper.SetDefault("API_DB_NAME", "postgres")
+	viper.SetDefault("API_DB_MODE", "disable")
+
 	if err := run(); err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)

@@ -1,4 +1,4 @@
-package pkg
+package platform_go_server
 
 import (
 	"fmt"
