@@ -53,9 +53,10 @@ type ComponentDescription struct {
 }
 
 type ContainerDescription struct {
-	Dockerfile string `json:"dockerfile"`
-	Context    string `json:"context"`
-	Image      string `json:"image"`
+	Dockerfile   string   `json:"dockerfile"`
+	Context      string   `json:"context"`
+	Image        string   `json:"image"`
+	Environments []string `json:"environments"`
 }
 
 type ManifestDescription struct {

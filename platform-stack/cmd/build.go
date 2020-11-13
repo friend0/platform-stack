@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -42,6 +43,24 @@ func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 	for _, component := range config.Components {
 		if args[0] == component.Name {
 			for _, container := range component.Containers {
+				environments := container.Environments
+				if len(environments) >= 1 {
+					currentEnv, err := getEnvironment()
+					if err != nil {
+						return err
+					}
+					active := false
+					for _, env := range environments {
+						if currentEnv.Name == env {
+							active = true
+							break
+						}
+					}
+					if !active {
+						fmt.Printf("skipping build for image `%v`: not in active environment\n", container.Image)
+						continue
+					}
+				}
 				if len(args) == 2 {
 					if args[1] == container.Image {
 						return buildComponent(container.Context, container.Dockerfile, container.Image, tag)
