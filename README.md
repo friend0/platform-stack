@@ -64,9 +64,6 @@ The following example shows configuration for a simple app with configuration.
           - dockerfile: ./containers/app/Dockerfile
             context: ./containers/app
             image: stack-app
-            environments: 
-              - staging
-              - production
           - dockerfile: ./containers/app/Dockerfile-dev
             context: ./containers/app
             image: stack-app-live
