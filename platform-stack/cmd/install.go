@@ -65,6 +65,27 @@ var StackCLIDependencies = map[string]DependencyDescription{
 			},
 		},
 	},
+	"telepresence": {
+		os:      []string{"darwin"},
+		version: "0.101",
+		test:    "telepresence --version",
+		install: map[string][]string{
+			"darwin": []string{
+				"brew cask install osxfuse",
+				"brew install datawire/blackbird/telepresence",
+			},
+		},
+	},
+	"entr": {
+		os:      []string{"darwin"},
+		version: "4.6",
+		test:    "entr",
+		install: map[string][]string{
+			"darwin": []string{
+				"brew install entr",
+			},
+		},
+	},
 }
 
 func parseDependencyVersionOverrides(dependencyVersions []string) (map[string]string, error) {

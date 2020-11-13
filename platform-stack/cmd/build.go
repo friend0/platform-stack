@@ -38,28 +38,36 @@ For example:
 	RunE: runBuildComponent,
 }
 
+func buildForCurrentEnvironment(cd ContainerDescription, currentEnvName string) bool {
+	e := cd.Environments
+	if len(e) >= 1 {
+		active := false
+		for _, env := range e {
+			if currentEnvName == env {
+				active = true
+				break
+			}
+		}
+		if !active {
+			fmt.Printf("skipping build for image `%v`: not in active environment\n", cd.Image)
+			return false
+		}
+	}
+	return true
+}
+
 func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 	tag, _ := cmd.Flags().GetString("tag")
 	for _, component := range config.Components {
 		if args[0] == component.Name {
 			for _, container := range component.Containers {
-				environments := container.Environments
-				if len(environments) >= 1 {
-					currentEnv, err := getEnvironment()
-					if err != nil {
-						return err
-					}
-					active := false
-					for _, env := range environments {
-						if currentEnv.Name == env {
-							active = true
-							break
-						}
-					}
-					if !active {
-						fmt.Printf("skipping build for image `%v`: not in active environment\n", container.Image)
-						continue
-					}
+				env, err := getEnvironment()
+				if err != nil {
+					return err
+				}
+				environmentEnabled := buildForCurrentEnvironment(container, env.Name)
+				if !environmentEnabled {
+					continue
 				}
 				if len(args) == 2 {
 					if args[1] == container.Image {
