@@ -16,7 +16,7 @@ var env string
 
 const kubectlApplyTemplate = `kubectl apply -f "{{ .YamlFile }}"`
 
-const kubetplRenderTemplate = `kubetpl render -o {{.OutputFile}} --allow-fs-access {{ .Manifest }} {{ range .TemplateConfig }} -i {{.}} {{end}} {{ range .Env }} -s {{.}} {{end}}`
+const kubetplRenderTemplate = `kubetpl render {{if .Output}} -o {{.OutputFile}} {{end}} --allow-fs-access {{ .Manifest }} {{ range .TemplateConfig }} -i {{.}} {{end}} {{ range .Env }} -s {{.}} {{end}}`
 
 type KubectlApplyRequest struct {
 	YamlFile string
@@ -27,6 +27,7 @@ type KubetplRenderRequest struct {
 	TemplateConfig []string
 	Env            []string
 	OutputFile     string
+	Output 		   bool
 }
 
 // upCmd represents the up command
@@ -38,6 +39,10 @@ var upCmd = &cobra.Command{
 If no components are provided as arguments, all configured components will be brought up.'`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		err := viper.BindPFlag("wait", cmd.Flags().Lookup("wait"))
+		if err != nil {
+			return err
+		}
+		err = viper.BindPFlag("dryrun", cmd.Flags().Lookup("dryrun"))
 		if err != nil {
 			return err
 		}
@@ -66,9 +71,13 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 		return err
 	}
 
+	dryrun := viper.GetBool("dryrun")
+
 	// Bring up each configured component
 	for _, component := range upComponents {
-		fmt.Println("Bringing up", component.Name)
+		if !dryrun {
+			fmt.Println("Bringing up", component.Name)
+		}
 		err := componentUpFunction(cmd, component, currentEnv)
 		if err != nil {
 			fmt.Printf("Bringing up `%v` failed", component.Name)
@@ -114,18 +123,14 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 			cf = []string{fmt.Sprintf("%v/config-%v.env", manifestDirectory, stackEnv.Name)}
 		}
 
+		dryrun := viper.GetBool("dryrun")
+
 		generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
 			Manifest:       fmt.Sprintf("%v/%v.yaml", manifestDirectory, manifestName),
 			TemplateConfig: cf,
 			Env:            envs,
 			OutputFile:     outputYamlFile,
-		})
-		if err != nil {
-			return err
-		}
-
-		applyYamlCmd, err := GenerateCommand(kubectlApplyTemplate, KubectlApplyRequest{
-			YamlFile: outputYamlFile,
+			Output: !dryrun,
 		})
 		if err != nil {
 			return err
@@ -139,11 +144,22 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 			return err
 		}
 
-		applyYamlCmd.Stdout = os.Stdout
-		applyYamlCmd.Stderr = os.Stderr
-		if err := applyYamlCmd.Run(); err != nil {
-			return err
+
+		if !dryrun {
+			applyYamlCmd, err := GenerateCommand(kubectlApplyTemplate, KubectlApplyRequest{
+				YamlFile: outputYamlFile,
+			})
+			if err != nil {
+				return err
+			}
+
+			applyYamlCmd.Stdout = os.Stdout
+			applyYamlCmd.Stderr = os.Stderr
+			if err := applyYamlCmd.Run(); err != nil {
+				return err
+			}
 		}
+
 	}
 
 	return nil
@@ -189,5 +205,6 @@ func generateEnvs(requiredVariables []string, getEnv func(string) string) (envs 
 func init() {
 	rootCmd.AddCommand(upCmd)
 	upCmd.Flags().IntP("wait", "w", -1, "Stack readiness wait period in seconds")
+	upCmd.Flags().BoolP("dryrun", "d", true, "Generate yaml only, do not kubectl apply")
 	upCmd.Flags().Lookup("wait").NoOptDefVal = "300"
 }
