@@ -205,6 +205,6 @@ func generateEnvs(requiredVariables []string, getEnv func(string) string) (envs 
 func init() {
 	rootCmd.AddCommand(upCmd)
 	upCmd.Flags().IntP("wait", "w", -1, "Stack readiness wait period in seconds")
-	upCmd.Flags().BoolP("dryrun", "d", true, "Generate yaml only, do not kubectl apply")
+	upCmd.Flags().BoolP("dryrun", "d", false, "Generate yaml only, do not kubectl apply")
 	upCmd.Flags().Lookup("wait").NoOptDefVal = "300"
 }
