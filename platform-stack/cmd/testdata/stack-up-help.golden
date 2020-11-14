@@ -6,6 +6,7 @@ Usage:
   stack up [<component>...] [flags]
 
 Flags:
+  -d, --dryrun           Generate yaml only, do not kubectl apply
   -h, --help             help for up
   -w, --wait int[=300]   Stack readiness wait period in seconds (default -1)
 
