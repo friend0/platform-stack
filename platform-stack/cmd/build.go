@@ -70,11 +70,12 @@ func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 					continue
 				}
 				if len(args) == 2 {
-					if args[1] == container.Image {
-						return buildComponent(container.Context, container.Dockerfile, container.Image, tag)
-					} else {
+					if args[1] != container.Image {
 						continue
 					}
+				}
+				if tag == "" {
+					tag = fmt.Sprintf("%v:%v", container.Image, "latest")
 				}
 				err = buildComponent(container.Context, container.Dockerfile, container.Image, tag)
 				if err != nil {
