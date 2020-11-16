@@ -64,6 +64,11 @@ The following example shows configuration for a simple app with configuration.
           - dockerfile: ./containers/app/Dockerfile
             context: ./containers/app
             image: stack-app
+          - dockerfile: ./containers/app/Dockerfile-dev
+            context: ./containers/app
+            image: stack-app-live
+            environments:
+              - local
         manifests:
           - ./deployments/app.yaml
 
@@ -115,9 +120,11 @@ Stack commands like `up` and `down` will only run after confirming with the user
     }
 
     type Container {
-        Dockerfile string                        # Relative path to Dockerfile
-        Context    string                        # Relative path of context to build Dockerfile
-        Image      string                        # The name of the image to be built from container
+        Dockerfile   string                        # Relative path to Dockerfile
+        Context      string                        # Relative path of context to build Dockerfile
+        Image        string                        # The name of the image to be built from container
+        Environments []string                      # The environment(s) for which this image should be built. 
+                                                   # Leave blank to build for all environments
     } 
     
 Components are logical groupings of kubernetes objects. Each component requires at least one kubernetes manifest, 

@@ -1,13 +1,14 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 )
 
-const dockerBuildTemplate = `docker build {{if .NoCache}} --no-cache {{end}} --build-arg GIT_TOKEN="$GIT_TOKEN" -t {{.Image}}:{{.Tag}} -f {{.Dockerfile}} {{.Context}}`
+const dockerBuildTemplate = `DOCKER_BUILDKIT=1 docker build {{if .NoCache}} --no-cache {{end}} --build-arg GIT_TOKEN="$GIT_TOKEN" -t {{.Tag}} -f {{.Dockerfile}} {{.Context}}`
 
 var noCache bool
 
@@ -37,17 +38,44 @@ For example:
 	RunE: runBuildComponent,
 }
 
+func buildForCurrentEnvironment(cd ContainerDescription, currentEnvName string) bool {
+	e := cd.Environments
+	if len(e) >= 1 {
+		active := false
+		for _, env := range e {
+			if currentEnvName == env {
+				active = true
+				break
+			}
+		}
+		if !active {
+			fmt.Printf("skipping build for image `%v`: not in active environment\n", cd.Image)
+			return false
+		}
+	}
+	return true
+}
+
 func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 	tag, _ := cmd.Flags().GetString("tag")
 	for _, component := range config.Components {
 		if args[0] == component.Name {
 			for _, container := range component.Containers {
+				env, err := getEnvironment()
+				if err != nil {
+					return err
+				}
+				environmentEnabled := buildForCurrentEnvironment(container, env.Name)
+				if !environmentEnabled {
+					continue
+				}
 				if len(args) == 2 {
-					if args[1] == container.Image {
-						return buildComponent(container.Context, container.Dockerfile, container.Image, tag)
-					} else {
+					if args[1] != container.Image {
 						continue
 					}
+				}
+				if tag == "" {
+					tag = fmt.Sprintf("%v:%v", container.Image, "latest")
 				}
 				err = buildComponent(container.Context, container.Dockerfile, container.Image, tag)
 				if err != nil {

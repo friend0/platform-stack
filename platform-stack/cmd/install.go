@@ -65,6 +65,19 @@ var StackCLIDependencies = map[string]DependencyDescription{
 			},
 		},
 	},
+	"tilt": {
+		os:      []string{"darwin", "linux"},
+		version: "v0.17.11",
+		test:    "tilt version",
+		install: map[string][]string{
+			"darwin": []string{
+				"curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash",
+			},
+			"linux": []string{
+				"curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash",
+			},
+		},
+	},
 }
 
 func parseDependencyVersionOverrides(dependencyVersions []string) (map[string]string, error) {

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/stretchr/testify/assert"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
 	"os/exec"
@@ -35,6 +36,37 @@ func TestBuildIntegration(t *testing.T) {
 				result := icmd.RunCmd(icmd.Command(path.Join("stack"), tt.args...))
 				result.Assert(t, icmd.Success)
 			}
+		})
+	}
+}
+
+func TestBuildForCurrentEnvironment(t *testing.T) {
+	tests := []struct {
+		name string
+		stackEnv    string
+		cd ContainerDescription
+		res bool
+	}{
+		{"build no environments given", "local", ContainerDescription{}, true},
+		{"build single environment given, no match", "local", ContainerDescription{
+			Environments: []string{"remote"},
+		}, false},
+		{"build single environment given, match", "local", ContainerDescription{
+			Environments: []string{"local"},
+		}, true},
+		{"build multiple environments given, no match", "ci", ContainerDescription{
+			Environments: []string{"local", "remote"},
+		}, false},
+		{"build multiple environments given, match", "remote", ContainerDescription{
+			Environments: []string{"local", "remote"},
+		}, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := buildForCurrentEnvironment(tt.cd, tt.stackEnv)
+			assert.Equal(t, res, tt.res)
+
 		})
 	}
 }
