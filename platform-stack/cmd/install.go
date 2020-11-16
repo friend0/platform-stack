@@ -65,24 +65,16 @@ var StackCLIDependencies = map[string]DependencyDescription{
 			},
 		},
 	},
-	"telepresence": {
-		os:      []string{"darwin"},
-		version: "0.101",
-		test:    "telepresence --version",
+	"tilt": {
+		os:      []string{"darwin", "linux"},
+		version: "v0.17.11",
+		test:    "tilt version",
 		install: map[string][]string{
 			"darwin": []string{
-				"brew cask install osxfuse",
-				"brew install datawire/blackbird/telepresence",
+				"curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash",
 			},
-		},
-	},
-	"entr": {
-		os:      []string{"darwin"},
-		version: "4.6",
-		test:    "entr",
-		install: map[string][]string{
-			"darwin": []string{
-				"brew install entr",
+			"linux": []string{
+				"curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash",
 			},
 		},
 	},
