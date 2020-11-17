@@ -3,12 +3,15 @@ stack:
 environments:
   - name: local
     activation:
+      env: ENV=local
       context: docker-desktop || minikube || microk8s
   - name: ci
     activation:
+      env: ENV=ci
       context: minikube
   - name: staging
     activation:
+      env: ENV=staging
       context: platform-stg-blue
 components:
   - name: config
