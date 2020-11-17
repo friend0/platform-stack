@@ -113,6 +113,6 @@ func buildComponent(context, dockerfile, image, tag string) (err error) {
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
-	buildCmd.PersistentFlags().StringP("tag", "t", "latest", "Image tag. Tag parameter will override this.")
+	buildCmd.PersistentFlags().StringP("tag", "t", "", "Image tag. Tag parameter will override this.")
 	buildCmd.PersistentFlags().BoolVar(&noCache, "noCache", false, "Build images without cache")
 }
