@@ -56,9 +56,16 @@ If a target argument is provided, then stack will activate the configured enviro
 // isEnvActive determines if the current environment is active under current system conditions
 func isEnvActive(env EnvironmentDescription, kubectx string, getEnv func(string) string) bool {
 	var contextActivation, envActivation bool
-	if kubectx == env.Activation.Context {
-		contextActivation = true
+	kubectxs := strings.Split(env.Activation.Context, "||")
+	for i, ctx := range kubectxs {
+		kubectxs[i] = strings.TrimSpace(ctx)
 	}
+	for _, context := range kubectxs {
+		if kubectx == context {
+			contextActivation = true
+		}
+	}
+
 	if len(env.Activation.Env) == 0 {
 		envActivation = true
 	} else {
@@ -81,6 +88,10 @@ func validateConfiguredEnvironments(configuredEnvironments []EnvironmentDescript
 		}
 		if env.Activation == (ActivationDescription{}) {
 			return fmt.Errorf("environment[%v] has no ActivationDescription", i)
+		} else {
+			if env.Activation.Context == "" {
+				return fmt.Errorf("environment[%v] has no ActivationDescription.Contexts defined: expecting string or || concatenated list", env.Name)
+			}
 		}
 		if isEnvActive(env, kubectx, getEnv) {
 			numActive++
@@ -137,11 +148,22 @@ func setEnvironment(targetEnvironmentName string, out io.Writer) (targetEnvironm
 	if targetEnvironment == (EnvironmentDescription{}) {
 		return targetEnvironment, fmt.Errorf("target environment not found")
 	}
+
 	// activate the context and environment variables described
-	err = setContext(targetEnvironment.Activation.Context)
+	kubectxs := strings.Split(targetEnvironment.Activation.Context, "||")
+	kubectxIndex := 0
+	currentContext := getContext()
+	for i, ctx := range kubectxs {
+		kubectxs[i] = strings.TrimSpace(ctx)
+		if currentContext == kubectxs[i] {
+			kubectxIndex = i
+		}
+	}
+	err = setContext(kubectxs[kubectxIndex])
 	if err != nil {
 		return targetEnvironment, err
 	}
+
 	if targetEnvironment.Activation.Env != "" {
 		envKeyValue := strings.Split(targetEnvironment.Activation.Env, "=")
 		if len(envKeyValue) != 2 {
