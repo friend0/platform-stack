@@ -57,7 +57,6 @@ func buildForCurrentEnvironment(cd ContainerDescription, currentEnvName string) 
 }
 
 func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
-	tag, _ := cmd.Flags().GetString("tag")
 	for _, component := range config.Components {
 		if args[0] == component.Name {
 			for _, container := range component.Containers {
@@ -74,6 +73,7 @@ func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 						continue
 					}
 				}
+				tag, _ := cmd.Flags().GetString("tag")
 				if tag == "" {
 					tag = fmt.Sprintf("%v:%v", container.Image, "latest")
 				}

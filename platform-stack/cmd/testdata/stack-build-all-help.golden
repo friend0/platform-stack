@@ -10,4 +10,4 @@ Global Flags:
       --noCache                      Build images without cache
   -r, --project_directory string     set the project directory of the stack (default ".")
       --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
-  -t, --tag string                   Image tag. Tag parameter will override this. (default "latest")
+  -t, --tag string                   Image tag. Tag parameter will override this.

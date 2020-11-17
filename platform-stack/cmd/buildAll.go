@@ -25,9 +25,20 @@ func buildAllComponents(cmd *cobra.Command, args []string) (err error) {
 		}
 		fmt.Printf("Building all containers for component `%v`:\n", component.Name)
 		for _, container := range component.Containers {
+			env, err := getEnvironment()
+			if err != nil {
+				return err
+			}
+			environmentEnabled := buildForCurrentEnvironment(container, env.Name)
+			if !environmentEnabled {
+				continue
+			}
 			fmt.Printf("Building image `%v`:\n", container.Image)
 			tag, _ := cmd.Flags().GetString("tag")
-			err := buildComponent(container.Context, container.Dockerfile, container.Image, tag)
+			if tag == "" {
+				tag = fmt.Sprintf("%v:%v", container.Image, "latest")
+			}
+			err = buildComponent(container.Context, container.Dockerfile, container.Image, tag)
 			if err != nil {
 				return err
 			}

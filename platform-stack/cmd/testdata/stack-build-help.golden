@@ -18,7 +18,7 @@ Available Commands:
 Flags:
   -h, --help         help for build
       --noCache      Build images without cache
-  -t, --tag string   Image tag. Tag parameter will override this. (default "latest")
+  -t, --tag string   Image tag. Tag parameter will override this.
 
 Global Flags:
   -r, --project_directory string     set the project directory of the stack (default ".")
