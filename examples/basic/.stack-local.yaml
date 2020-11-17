@@ -3,7 +3,7 @@ stack:
 environments:
   - name: local
     activation:
-      context: docker-desktop
+      context: docker-desktop || minikube || microk8s
   - name: ci
     activation:
       context: minikube
