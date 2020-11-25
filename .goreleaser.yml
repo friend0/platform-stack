@@ -5,4 +5,5 @@ builds:
     binary: main
     goos:
       - linux
-      - darwin
+    env:
+      - CGO_ENABLED=0
