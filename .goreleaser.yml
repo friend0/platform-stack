@@ -1,0 +1,8 @@
+# goreleaser.yml
+builds:
+  - main: ./cmd/go-serve/main.go
+    id: "go-serve"
+    binary: main
+    goos:
+      - linux
+      - darwin
