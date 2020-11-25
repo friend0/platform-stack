@@ -18,16 +18,13 @@ type ServerBase struct {
 	DB     *sqlx.DB
 	GQL    *graphql.Client
 	Client *http.Client
+	Viper  *viper.Viper
 }
 
 func NewServer() (s *ServerBase) {
 	return &ServerBase{
 		Engine: SetupEngine(),
 	}
-}
-
-func (s *ServerBase) Routes() {
-
 }
 
 func (s *ServerBase) InitDependencies(dependencies ...string) {
@@ -51,7 +48,11 @@ func (s *ServerBase) InitDependencies(dependencies ...string) {
 				break
 			}
 			s.Client = client
+		case "viper":
+			viper.AutomaticEnv()
+			s.Viper = viper.GetViper()
 		}
+
 	}
 }
 
