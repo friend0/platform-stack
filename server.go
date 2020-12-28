@@ -3,7 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis/v7"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/machinebox/graphql"
@@ -57,7 +57,7 @@ func (s *ServerBase) InitDependencies(dependencies ...string) {
 	}
 }
 
-func (s *ServerBase) InitFunctions(dependencies ...func () error) (err error) {
+func (s *ServerBase) InitFunctions(dependencies ...func() error) (err error) {
 	for _, dep := range dependencies {
 		err = dep()
 		if err != nil {
@@ -131,9 +131,9 @@ func SetupDatabase() (db *sqlx.DB, err error) {
 }
 
 func SetupRedis() (db redis.UniversalClient, err error) {
-	viper.SetDefault("REDIS_DB", 0)	// default DB
+	viper.SetDefault("REDIS_DB", 0) // default DB
 	rdb := redis.NewUniversalClient(&redis.UniversalOptions{
-		Addrs:     []string{viper.GetString("REDIS_ADDR")},
+		Addrs:    []string{viper.GetString("REDIS_ADDR")},
 		Password: viper.GetString("REDIS_PASSWORD"),
 		DB:       viper.GetInt("REDIS_DB"),
 	})
