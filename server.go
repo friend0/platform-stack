@@ -81,7 +81,7 @@ func (s *ServerBase) InitRDB() error {
 	if err != nil {
 		return err
 	}
-	s.RDB = &rdb
+	s.RDB = rdb
 	return nil
 }
 
@@ -130,14 +130,14 @@ func SetupDatabase() (db *sqlx.DB, err error) {
 	return sqlx.Connect("postgres", connectionString)
 }
 
-func SetupRedis() (db redis.UniversalClient, err error) {
+func SetupRedis() (db *redis.UniversalClient, err error) {
 	viper.SetDefault("REDIS_DB", 0) // default DB
 	rdb := redis.NewUniversalClient(&redis.UniversalOptions{
 		Addrs:    []string{viper.GetString("REDIS_ADDR")},
 		Password: viper.GetString("REDIS_PASSWORD"),
 		DB:       viper.GetInt("REDIS_DB"),
 	})
-	return rdb, nil
+	return &rdb, nil
 }
 
 func SetupGQLClient() (db *graphql.Client, err error) {
