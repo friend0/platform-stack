@@ -20,7 +20,7 @@ type ServerBase struct {
 	GQL    *graphql.Client
 	Client *http.Client
 	Viper  *viper.Viper
-	RDB    redis.UniversalClient
+	RDB    *redis.UniversalClient
 }
 
 func NewServer() (s *ServerBase) {
@@ -81,7 +81,7 @@ func (s *ServerBase) InitRDB() error {
 	if err != nil {
 		return err
 	}
-	s.RDB = rdb
+	s.RDB = &rdb
 	return nil
 }
 
