@@ -57,7 +57,7 @@ func (s *ServerBase) InitDependencies(dependencies ...string) {
 	}
 }
 
-func (s *ServerBase) InitFunctions(dependencies ...func() error) (err error) {
+func InitFunctions(dependencies ...func() error) (err error) {
 	for _, dep := range dependencies {
 		err = dep()
 		if err != nil {
