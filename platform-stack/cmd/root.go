@@ -7,6 +7,9 @@ import (
 	"github.com/spf13/viper"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	// See: https://github.com/kubernetes/client-go/blob/53c7adfd0294caa142d961e1f780f74081d5b15f/examples/out-of-cluster-client-configuration/main.go#L31
+	// and https://github.com/kubernetes/client-go/issues/242
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"os"
 	"os/exec"
 	"text/template"
