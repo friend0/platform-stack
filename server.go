@@ -45,6 +45,9 @@ func ParsePGUrl(url string) (pgurl string, err error) {
 
 func (s *ServerBase) InitDatabase(url string) (err error) {
 	pgurl, err := ParsePGUrl(url)
+	if err != nil {
+		return err
+	}
 	db, err := sqlx.Connect("postgres", pgurl)
 	if err != nil {
 		return err
@@ -53,21 +56,22 @@ func (s *ServerBase) InitDatabase(url string) (err error) {
 	return err
 }
 
-func (s *ServerBase) InitRedis(addr, pass string, rdb int) (db *redis.UniversalClient, err error) {
+func (s *ServerBase) InitRedis(addr, pass string, rdb int) (err error) {
 	ruc := redis.NewUniversalClient(&redis.UniversalOptions{
 		Addrs:    []string{addr},
 		Password: pass,
 		DB:       rdb,
 	})
-	return &ruc, nil
+	s.RDB = &ruc
+	return nil
 }
 
-func (s *ServerBase) InitGQLClient(gqlhost string) (db *graphql.Client, err error) {
-	return graphql.NewClient(gqlhost), nil
+func (s *ServerBase) InitGQLClient(gqlhost string) (err error) {
+	s.GQL = graphql.NewClient(gqlhost)
+	return nil
 }
 
-func (s *ServerBase) InitHTTPClient() (client *http.Client, err error) {
-
+func (s *ServerBase) InitHTTPClient() (err error) {
 	tr := &http.Transport{
 		MaxIdleConns:    10,
 		IdleConnTimeout: 5 * time.Second,
@@ -79,17 +83,16 @@ func (s *ServerBase) InitHTTPClient() (client *http.Client, err error) {
 		ResponseHeaderTimeout: 5 * time.Second,
 		ExpectContinueTimeout: 5 * time.Second,
 	}
-	return &http.Client{
+	s.Client = &http.Client{
 		Transport: tr,
 		Timeout:   2 * time.Second,
-	}, nil
-
+	}
+	return nil
 }
 
 func SetupEngine() (router *gin.Engine) {
 	router = gin.Default()
 	return router
-
 }
 
 func (s *ServerBase) ExecuteRequest(req *http.Request) *httptest.ResponseRecorder {
