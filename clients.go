@@ -5,7 +5,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/machinebox/graphql"
-	"github.com/spf13/viper"
 	"github.com/xo/dburl"
 	"net"
 	"net/http"
@@ -13,17 +12,10 @@ import (
 )
 
 type Clients struct {
-	DB     *sqlx.DB
-	GQL    *graphql.Client
-	Client *http.Client
-	Viper  *viper.Viper
-	RDB    *redis.UniversalClient
-}
-
-func (s *Clients) InitViper() error {
-	viper.AutomaticEnv()
-	s.Viper = viper.GetViper()
-	return nil
+	DB    *sqlx.DB
+	GQL   *graphql.Client
+	HTTP  *http.Client
+	RDB   *redis.UniversalClient
 }
 
 func ParsePGUrl(url string) (pgurl string, err error) {
@@ -34,35 +26,29 @@ func ParsePGUrl(url string) (pgurl string, err error) {
 	return dburl.GenPostgres(dbu)
 }
 
-func (s *Clients) InitDatabase(url string) (err error) {
+func InitDatabase(url string) (db *sqlx.DB, err error) {
 	pgurl, err := ParsePGUrl(url)
 	if err != nil {
-		return err
+		return db, err
 	}
-	db, err := sqlx.Connect("postgres", pgurl)
-	if err != nil {
-		return err
-	}
-	s.DB = db
-	return err
+	db, err = sqlx.Connect("postgres", pgurl)
+	return db, err
 }
 
-func (s *Clients) InitRedis(addr, pass string, rdb int) (err error) {
+func InitRedis(addr, pass string, rdb int) (*redis.UniversalClient, error) {
 	ruc := redis.NewUniversalClient(&redis.UniversalOptions{
 		Addrs:    []string{addr},
 		Password: pass,
 		DB:       rdb,
 	})
-	s.RDB = &ruc
-	return nil
+	return &ruc, nil
 }
 
-func (s *Clients) InitGQLClient(gqlhost string) (err error) {
-	s.GQL = graphql.NewClient(gqlhost)
-	return nil
+func InitGQLClient(gqlhost string) (*graphql.Client, error) {
+	return graphql.NewClient(gqlhost), nil
 }
 
-func (s *Clients) InitHTTPClient() (err error) {
+func InitHTTPClient() (*http.Client, error) {
 	tr := &http.Transport{
 		MaxIdleConns:    10,
 		IdleConnTimeout: 5 * time.Second,
@@ -74,11 +60,10 @@ func (s *Clients) InitHTTPClient() (err error) {
 		ResponseHeaderTimeout: 5 * time.Second,
 		ExpectContinueTimeout: 5 * time.Second,
 	}
-	s.Client = &http.Client{
+	return &http.Client{
 		Transport: tr,
 		Timeout:   2 * time.Second,
-	}
-	return nil
+	}, nil
 }
 
 func (s *Clients) Close() {
