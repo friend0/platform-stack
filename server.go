@@ -1,13 +1,13 @@
 package server
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v7"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/machinebox/graphql"
 	"github.com/spf13/viper"
+	"github.com/xo/dburl"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -29,124 +29,44 @@ func NewServer() (s *ServerBase) {
 	}
 }
 
-func (s *ServerBase) InitDependencies(dependencies ...string) {
-	for _, dep := range dependencies {
-		switch dep {
-		case "database":
-			db, err := SetupDatabase()
-			if err != nil {
-				break
-			}
-			s.DB = db
-		case "gql":
-			gql, err := SetupGQLClient()
-			if err != nil {
-				break
-			}
-			s.GQL = gql
-		case "client":
-			client, err := SetupHTTPClient()
-			if err != nil {
-				break
-			}
-			s.Client = client
-		case "viper":
-			viper.AutomaticEnv()
-			s.Viper = viper.GetViper()
-		}
-	}
-}
-
-func InitFunctions(dependencies ...func() error) (err error) {
-	for _, dep := range dependencies {
-		err = dep()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (s *ServerBase) InitDB() error {
-	db, err := SetupDatabase()
-	if err != nil {
-		return err
-	}
-	s.DB = db
-	return nil
-}
-
-func (s *ServerBase) InitRDB() error {
-	rdb, err := SetupRedis()
-	if err != nil {
-		return err
-	}
-	s.RDB = rdb
-	return nil
-}
-
-func (s *ServerBase) InitGQLClient() error {
-	gql, err := SetupGQLClient()
-	if err != nil {
-		return err
-	}
-	s.GQL = gql
-	return nil
-}
-
-func (s *ServerBase) InitHTTPClient() error {
-	client, err := SetupHTTPClient()
-	if err != nil {
-		return err
-	}
-	s.Client = client
-	return nil
-}
-
 func (s *ServerBase) InitViper() error {
 	viper.AutomaticEnv()
 	s.Viper = viper.GetViper()
 	return nil
 }
 
-func (s *ServerBase) InjectDependencies(db *sqlx.DB) {
-	if db != nil {
-		s.DB = db
+func ParsePGUrl(url string) (pgurl string, err error) {
+	dbu, err := dburl.Parse(url)
+	if err != nil {
+		return "", err
 	}
+	return dburl.GenPostgres(dbu)
 }
 
-func SetupDatabase() (db *sqlx.DB, err error) {
-	// todo: connection string
-	host := viper.GetString("API_DB_HOST")
-	port := viper.GetString("API_DB_PORT")
-	user := viper.GetString("API_DB_USERNAME")
-	password := viper.GetString("API_DB_PASSWORD")
-	name := viper.GetString("API_DB_NAME")
-	mode := viper.GetString("API_DB_MODE")
-
-	// todo: template string
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", host, port, user, password, name, mode)
-
-	return sqlx.Connect("postgres", connectionString)
+func (s *ServerBase) InitDatabase(url string) (err error) {
+	pgurl, err := ParsePGUrl(url)
+	db, err := sqlx.Connect("postgres", pgurl)
+	if err != nil {
+		return err
+	}
+	s.DB = db
+	return err
 }
 
-func SetupRedis() (db *redis.UniversalClient, err error) {
-	viper.SetDefault("REDIS_DB", 0) // default DB
-	rdb := redis.NewUniversalClient(&redis.UniversalOptions{
-		Addrs:    []string{viper.GetString("REDIS_ADDR")},
-		Password: viper.GetString("REDIS_PASSWORD"),
-		DB:       viper.GetInt("REDIS_DB"),
+func (s *ServerBase) InitRedis(addr, pass string, rdb int) (db *redis.UniversalClient, err error) {
+	ruc := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs:    []string{addr},
+		Password: pass,
+		DB:       rdb,
 	})
-	return &rdb, nil
+	return &ruc, nil
 }
 
-func SetupGQLClient() (db *graphql.Client, err error) {
-	gqlServer := viper.GetString("API_GQL_HOST")
-
-	return graphql.NewClient(gqlServer), nil
+func (s *ServerBase) InitGQLClient(gqlhost string) (db *graphql.Client, err error) {
+	return graphql.NewClient(gqlhost), nil
 }
 
-func SetupHTTPClient() (client *http.Client, err error) {
+func (s *ServerBase) InitHTTPClient() (client *http.Client, err error) {
 
 	tr := &http.Transport{
 		MaxIdleConns:    10,

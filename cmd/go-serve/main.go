@@ -23,7 +23,6 @@ func run() error {
 
 	s := server.NewServer()
 	// add server dependencies here as they come online
-	s.InitDependencies("client")
 	defer s.Close()
 
 	if err := http.ListenAndServe(fmt.Sprintf("%v", viper.GetString("GO_SERVER_API_PORT")), s.Engine); err != nil {
