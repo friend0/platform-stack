@@ -1,4 +1,4 @@
-package server
+package client
 
 import (
 	mis "github.com/matryer/is"

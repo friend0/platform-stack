@@ -3,7 +3,6 @@ module github.com/altiscope/platform-go-server
 go 1.15
 
 require (
-	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/golang/protobuf v1.4.3 // indirect

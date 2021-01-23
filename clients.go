@@ -1,7 +1,6 @@
-package server
+package client
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v7"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -10,12 +9,10 @@ import (
 	"github.com/xo/dburl"
 	"net"
 	"net/http"
-	"net/http/httptest"
 	"time"
 )
 
-type ServerBase struct {
-	Engine *gin.Engine
+type Clients struct {
 	DB     *sqlx.DB
 	GQL    *graphql.Client
 	Client *http.Client
@@ -23,13 +20,7 @@ type ServerBase struct {
 	RDB    *redis.UniversalClient
 }
 
-func NewServer() (s *ServerBase) {
-	return &ServerBase{
-		Engine: SetupEngine(),
-	}
-}
-
-func (s *ServerBase) InitViper() error {
+func (s *Clients) InitViper() error {
 	viper.AutomaticEnv()
 	s.Viper = viper.GetViper()
 	return nil
@@ -43,7 +34,7 @@ func ParsePGUrl(url string) (pgurl string, err error) {
 	return dburl.GenPostgres(dbu)
 }
 
-func (s *ServerBase) InitDatabase(url string) (err error) {
+func (s *Clients) InitDatabase(url string) (err error) {
 	pgurl, err := ParsePGUrl(url)
 	if err != nil {
 		return err
@@ -56,7 +47,7 @@ func (s *ServerBase) InitDatabase(url string) (err error) {
 	return err
 }
 
-func (s *ServerBase) InitRedis(addr, pass string, rdb int) (err error) {
+func (s *Clients) InitRedis(addr, pass string, rdb int) (err error) {
 	ruc := redis.NewUniversalClient(&redis.UniversalOptions{
 		Addrs:    []string{addr},
 		Password: pass,
@@ -66,12 +57,12 @@ func (s *ServerBase) InitRedis(addr, pass string, rdb int) (err error) {
 	return nil
 }
 
-func (s *ServerBase) InitGQLClient(gqlhost string) (err error) {
+func (s *Clients) InitGQLClient(gqlhost string) (err error) {
 	s.GQL = graphql.NewClient(gqlhost)
 	return nil
 }
 
-func (s *ServerBase) InitHTTPClient() (err error) {
+func (s *Clients) InitHTTPClient() (err error) {
 	tr := &http.Transport{
 		MaxIdleConns:    10,
 		IdleConnTimeout: 5 * time.Second,
@@ -90,23 +81,8 @@ func (s *ServerBase) InitHTTPClient() (err error) {
 	return nil
 }
 
-func SetupEngine() (router *gin.Engine) {
-	router = gin.Default()
-	return router
-}
-
-func (s *ServerBase) ExecuteRequest(req *http.Request) *httptest.ResponseRecorder {
-	rr := httptest.NewRecorder()
-	s.Engine.ServeHTTP(rr, req)
-	return rr
-}
-
-func (s *ServerBase) Close() {
+func (s *Clients) Close() {
 	if s.DB != nil {
 		_ = s.DB.Close()
 	}
-}
-
-func (s *ServerBase) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.Engine.ServeHTTP(w, r)
 }
