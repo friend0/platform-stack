@@ -1,4 +1,4 @@
-package client
+package goserver
 
 import (
 	mis "github.com/matryer/is"

@@ -1,4 +1,4 @@
-package client
+package goserver
 
 import (
 	"github.com/go-redis/redis/v7"
