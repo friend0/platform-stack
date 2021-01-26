@@ -36,7 +36,7 @@ var StackCLIDependencies = map[string]DependencyDescription{
 	},
 	"gsm-buddy": {
 		os:      []string{"darwin", "linux"},
-		version: "v0.1.0",
+		version: "v0.1.1",
 		test:    "gsm-buddy",
 		install: map[string][]string{
 			"darwin": []string{
