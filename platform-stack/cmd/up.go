@@ -27,7 +27,7 @@ type KubetplRenderRequest struct {
 	TemplateConfig []string
 	Env            []string
 	OutputFile     string
-	Output 		   bool
+	Output         bool
 }
 
 // upCmd represents the up command
@@ -130,7 +130,7 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 			TemplateConfig: cf,
 			Env:            envs,
 			OutputFile:     outputYamlFile,
-			Output: !dryrun,
+			Output:         !dryrun,
 		})
 		if err != nil {
 			return err
@@ -143,7 +143,6 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 		if err := generateYamlCmd.Run(); err != nil {
 			return err
 		}
-
 
 		if !dryrun {
 			applyYamlCmd, err := GenerateCommand(kubectlApplyTemplate, KubectlApplyRequest{

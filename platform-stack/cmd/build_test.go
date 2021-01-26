@@ -42,10 +42,10 @@ func TestBuildIntegration(t *testing.T) {
 
 func TestBuildForCurrentEnvironment(t *testing.T) {
 	tests := []struct {
-		name string
-		stackEnv    string
-		cd ContainerDescription
-		res bool
+		name     string
+		stackEnv string
+		cd       ContainerDescription
+		res      bool
 	}{
 		{"build no environments given", "local", ContainerDescription{}, true},
 		{"build single environment given, no match", "local", ContainerDescription{

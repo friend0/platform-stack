@@ -6,9 +6,9 @@ import (
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
 	"os"
+	"os/exec"
 	"path"
 	"testing"
-	"os/exec"
 )
 
 func TestRoot(t *testing.T) {

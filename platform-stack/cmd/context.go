@@ -24,7 +24,7 @@ If no args are provided, the current context is retrieved.
 If a target argument is provided, then stack will activate the configured context for the environment with name matching target.
 If user, namespace, or cluster flags are given, those flags will be used to set-context for the target kubectx prior to target kubectx activation.`,
 	Aliases: []string{"ctx"},
-	Args: cobra.MaximumNArgs(1),
+	Args:    cobra.MaximumNArgs(1),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return initK8s("")
 	},
@@ -44,7 +44,7 @@ If user, namespace, or cluster flags are given, those flags will be used to set-
 				}
 			}
 			if len(setContextFlags) >= 1 {
-				err := runContextFunction(fmt.Sprintf("set-context %v ", args[0]) + strings.Join(setContextFlags, " "), os.Stdout)()
+				err := runContextFunction(fmt.Sprintf("set-context %v ", args[0])+strings.Join(setContextFlags, " "), os.Stdout)()
 				if err != nil {
 
 				}

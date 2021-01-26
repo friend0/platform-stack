@@ -43,7 +43,7 @@ func buildAllComponents(cmd *cobra.Command, args []string) (err error) {
 				return err
 			}
 		}
-		if i < len(config.Components) - 1 {
+		if i < len(config.Components)-1 {
 			fmt.Println("")
 		}
 	}

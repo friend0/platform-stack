@@ -19,7 +19,7 @@ var environmentCmd = &cobra.Command{
 	Long: `Get or set the current active environment.
 If no args are provided, the current environment is retrieved. 
 If a target argument is provided, then stack will activate the configured environment with name matching target.`,
-	Args: cobra.MaximumNArgs(1),
+	Args:    cobra.MaximumNArgs(1),
 	Aliases: []string{"env"},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return validateConfiguredEnvironments(config.Environments, getContext(), os.Getenv)
@@ -80,7 +80,7 @@ func isEnvActive(env EnvironmentDescription, kubectx string, getEnv func(string)
 
 // validateConfiguredEnvironments checks that the environment section of the project config is consistent
 // and has all required fields.
-func validateConfiguredEnvironments(configuredEnvironments []EnvironmentDescription, kubectx string, getEnv func(string)string) (err error) {
+func validateConfiguredEnvironments(configuredEnvironments []EnvironmentDescription, kubectx string, getEnv func(string) string) (err error) {
 	var numActive int
 	for i, env := range configuredEnvironments {
 		if env.Name == "" {

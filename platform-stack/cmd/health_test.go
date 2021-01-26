@@ -222,9 +222,7 @@ func TestWaitForStack(t *testing.T) {
 		},
 	})
 
-	cobraCmd := cobra.Command{
-
-	}
+	cobraCmd := cobra.Command{}
 
 	cobraCmd.Flags().StringP("namespace", "n", "", "Namespace")
 	cobraCmd.Flags().StringSliceP("label", "l", []string{}, "Label selectors")
@@ -305,9 +303,7 @@ func TestWaitForStackTimeout(t *testing.T) {
 		},
 	})
 
-	cobraCmd := cobra.Command{
-
-	}
+	cobraCmd := cobra.Command{}
 
 	cobraCmd.Flags().StringP("namespace", "n", "", "Namespace")
 	cobraCmd.Flags().StringSliceP("label", "l", []string{}, "Label selectors")

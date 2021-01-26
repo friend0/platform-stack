@@ -90,7 +90,7 @@ func printPodListHealth(pods *v1.PodList, out io.Writer) (podsHealthy bool, err 
 						_, _ = fmt.Fprintf(out, "\tContainer Terminated with non-zero ExitCode: %v: %v\n", container.State.Terminated.ExitCode, container.State.Terminated.Message)
 					}
 					if container.State.Running != nil && unhealthyPodsMap[podDetail.Name].DeletionTimestamp != nil {
-						_, _ = fmt.Fprintf(out, "\tContainer Terminating: DeletionTimestamp: %v\n",unhealthyPodsMap[podDetail.Name].DeletionTimestamp)
+						_, _ = fmt.Fprintf(out, "\tContainer Terminating: DeletionTimestamp: %v\n", unhealthyPodsMap[podDetail.Name].DeletionTimestamp)
 					}
 				}
 			}

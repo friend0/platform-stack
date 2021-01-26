@@ -45,8 +45,8 @@ func TestUpCLI(t *testing.T) {
 func TestParseComponentArgs(t *testing.T) {
 	componentArgs := []string{"app", "db"}
 	configuredComponents := []ComponentDescription{
-		{Name:"app"},
-		{Name:"db"},
+		{Name: "app"},
+		{Name: "db"},
 	}
 	parsedComponentArgs, _ := parseComponentArgs(componentArgs, configuredComponents)
 	assert.Equal(t, configuredComponents, parsedComponentArgs)
