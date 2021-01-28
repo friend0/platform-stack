@@ -42,7 +42,7 @@ func TestValidateConfiguredEnvironments(t *testing.T) {
 		Descriptions []EnvironmentDescription
 		Kubectx      string
 		EnvFunc      func(string) string
-		Err bool
+		Err          bool
 	}{
 		{[]EnvironmentDescription{
 			{

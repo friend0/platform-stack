@@ -12,9 +12,9 @@ import (
 const kubectlLogsTemplate = `kubectl logs {{if .Stream}} -f {{end}} {{if .ContainerName}}--container {{ .ContainerName }}{{else}}--all-containers=true{{end}} {{ .PodName}}`
 
 type KubectlLogsRequest struct {
-	PodName string
+	PodName       string
 	ContainerName string
-	Stream     bool
+	Stream        bool
 }
 
 var (
@@ -29,8 +29,8 @@ var logsCmd = &cobra.Command{
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return initK8s("")
 	},
-	Args:  cobra.RangeArgs(1, 2),
-	RunE:  showLogs,
+	Args: cobra.RangeArgs(1, 2),
+	RunE: showLogs,
 }
 
 func showLogs(cmd *cobra.Command, args []string) (err error) {
@@ -86,9 +86,9 @@ func showLogs(cmd *cobra.Command, args []string) (err error) {
 	fmt.Printf("Showing logs for pod %v [containers: %v]\n", targetPod.Name, strings.Join(podContainerNames, ", "))
 
 	fetchLogsCmd, err := GenerateCommand(kubectlLogsTemplate, KubectlLogsRequest{
-		PodName: targetPod.Name,
+		PodName:       targetPod.Name,
 		ContainerName: targetContainerName,
-		Stream: streamLogs,
+		Stream:        streamLogs,
 	})
 
 	if err != nil {

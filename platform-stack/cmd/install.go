@@ -34,6 +34,23 @@ var StackCLIDependencies = map[string]DependencyDescription{
 			"darwin": []string{"xcode-select --install"},
 		},
 	},
+	"gsm-buddy": {
+		os:      []string{"darwin", "linux"},
+		version: "v0.1.1",
+		test:    "gsm-buddy",
+		install: map[string][]string{
+			"darwin": []string{
+				`curl -sSL https://github.com/yamaszone/gcp-secret-manager-buddy/releases/download/{{ .Version }}/gcp-secret-manager-buddy-{{ .Version }}-darwin-amd64 -o gsm-buddy`,
+				"chmod a+x gsm-buddy",
+				"sudo mv gsm-buddy /usr/local/bin/",
+			},
+			"linux": []string{
+				`curl -sSL https://github.com/yamaszone/gcp-secret-manager-buddy/releases/download/{{ .Version }}/gcp-secret-manager-buddy-{{ .Version }}-linux-amd64 -o gsm-buddy`,
+				"chmod a+x gsm-buddy",
+				"sudo mv gsm-buddy /usr/local/bin/",
+			},
+		},
+	},
 	"kubectl": {
 		os:      []string{"darwin", "linux"},
 		test:    "kubectl",
