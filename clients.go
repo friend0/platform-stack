@@ -3,21 +3,21 @@ package goserver
 import (
 	"github.com/go-redis/redis/v7"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"github.com/machinebox/graphql"
 	"github.com/xo/dburl"
+	sqltrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/database/sql"
 	"log"
 	"net"
 	"net/http"
-	sqltrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/database/sql"
 	"time"
 )
 
 type Clients struct {
-	DB    *sqlx.DB
-	GQL   *graphql.Client
-	HTTP  *http.Client
-	RDB   *redis.UniversalClient
+	DB   *sqlx.DB
+	GQL  *graphql.Client
+	HTTP *http.Client
+	RDB  *redis.UniversalClient
 }
 
 func ParsePGUrl(url string) (pgurl string, err error) {
@@ -28,7 +28,8 @@ func ParsePGUrl(url string) (pgurl string, err error) {
 	return dburl.GenPostgres(dbu)
 }
 
-func InitDatabase(url string) (db *sqlx.DB, err error) {
+func InitDatabase(url, serviceName string) (db *sqlx.DB, err error) {
+	sqltrace.Register("postgres", &pq.Driver{}, sqltrace.WithServiceName(serviceName))
 	pgurl, err := ParsePGUrl(url)
 	if err != nil {
 		return db, err
