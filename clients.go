@@ -6,8 +6,10 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/machinebox/graphql"
 	"github.com/xo/dburl"
+	"log"
 	"net"
 	"net/http"
+	sqltrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/database/sql"
 	"time"
 )
 
@@ -31,8 +33,11 @@ func InitDatabase(url string) (db *sqlx.DB, err error) {
 	if err != nil {
 		return db, err
 	}
-	db, err = sqlx.Connect("postgres", pgurl)
-	return db, err
+	sqldb, err := sqltrace.Open("postgres", pgurl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return sqlx.NewDb(sqldb, "postgres"), err
 }
 
 func InitRedis(addr, pass string, rdb int) (*redis.UniversalClient, error) {
