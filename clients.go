@@ -7,6 +7,7 @@ import (
 	"github.com/machinebox/graphql"
 	"github.com/xo/dburl"
 	sqltrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/database/sql"
+	httptrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/net/http"
 	"log"
 	"net"
 	"net/http"
@@ -66,10 +67,10 @@ func InitHTTPClient() (*http.Client, error) {
 		ResponseHeaderTimeout: 5 * time.Second,
 		ExpectContinueTimeout: 5 * time.Second,
 	}
-	return &http.Client{
+	return httptrace.WrapClient(&http.Client{
 		Transport: tr,
 		Timeout:   2 * time.Second,
-	}, nil
+	}), nil
 }
 
 func (s *Clients) Close() {
