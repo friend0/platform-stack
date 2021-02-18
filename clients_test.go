@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-
 func TestParsePGUrl(t *testing.T) {
 	is := mis.New(t)
 	t.Run("test parse PG url", func(t *testing.T) {
