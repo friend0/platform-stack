@@ -103,6 +103,7 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 
 func componentUpFunction(cmd *cobra.Command, component ComponentDescription, stackEnv EnvironmentDescription) (err error) {
 	projectDirectory, _ := cmd.Flags().GetString("project_directory")
+	envOverrides, _ := cmd.Flags().GetStringSlice("env")
 	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
 	requiredVariables := component.RequiredVariables
 
@@ -116,6 +117,7 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 		if err != nil {
 			return err
 		}
+		envs = append(envs, envOverrides...)
 
 		// if a componet does not have config specified, try to find the magic template config
 		cf := component.TemplateConfig
@@ -157,8 +159,8 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 			if err := applyYamlCmd.Run(); err != nil {
 				return err
 			}
-		}
 
+		}
 	}
 
 	return nil
@@ -205,5 +207,6 @@ func init() {
 	rootCmd.AddCommand(upCmd)
 	upCmd.Flags().IntP("wait", "w", -1, "Stack readiness wait period in seconds")
 	upCmd.Flags().BoolP("dryrun", "d", false, "Generate yaml only, do not kubectl apply")
+	upCmd.Flags().StringSliceP("env", "e", []string{}, "Env variables")
 	upCmd.Flags().Lookup("wait").NoOptDefVal = "300"
 }
