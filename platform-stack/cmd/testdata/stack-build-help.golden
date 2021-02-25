@@ -16,9 +16,10 @@ Available Commands:
   all         Builds all containers for all components of the stack.
 
 Flags:
-  -h, --help         help for build
-      --noCache      Build images without cache
-  -t, --tag string   Image tag. Tag parameter will override this.
+  -h, --help              help for build
+  -i, --imageTag string   Set the tag only of the 'name:tag' format and use the stack configured image name as the name.
+      --noCache           Build images without cache
+  -t, --tag string        Name and optionally a tag in the 'name:tag' format (same as docker flag). Defaults to image:latest based on stack config.
 
 Global Flags:
   -r, --project_directory string     set the project directory of the stack (default ".")

@@ -74,12 +74,12 @@ func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 				}
 
 				tag, _ := cmd.Flags().GetString("tag")
-				imagetag, _ := cmd.Flags().GetString("tag")
-				if imagetag == "" {
-					tag = "latest"
-				}
 				if tag == "" {
-					tag = fmt.Sprintf("%v:%v", container.Image, imagetag)
+					imageTag, _ := cmd.Flags().GetString("imageTag")
+					if imageTag == "" {
+						imageTag = "latest"
+					}
+					tag = fmt.Sprintf("%v:%v", container.Image, imageTag)
 				}
 				err = buildComponent(container.Context, container.Dockerfile, tag)
 				if err != nil {
@@ -116,7 +116,7 @@ func buildComponent(context, dockerfile, tag string) (err error) {
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
-	buildCmd.PersistentFlags().StringP("tag", "t", "", "Name and optionally a tag in the 'name:tag' format. Defaults to image:latest.")
-	buildCmd.PersistentFlags().StringP("imagetag", "i", "", "Set the tag only of the 'name:tag' format.")
+	buildCmd.PersistentFlags().StringP("tag", "t", "", "Name and optionally a tag in the 'name:tag' format (same as docker flag). Defaults to image:latest based on stack config.")
+	buildCmd.PersistentFlags().StringP("imageTag", "i", "", "Set the tag only of the 'name:tag' format and use the stack configured image name as the name.")
 	buildCmd.PersistentFlags().BoolVar(&noCache, "noCache", false, "Build images without cache")
 }
