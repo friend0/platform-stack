@@ -18,7 +18,7 @@ type Clients struct {
 	DB   *sqlx.DB
 	GQL  *graphql.Client
 	HTTP *http.Client
-	RDB  *redis.Cmdable
+	RDB  redis.Cmdable
 }
 
 func ParsePGUrl(url string) (pgurl string, err error) {
