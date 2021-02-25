@@ -14,7 +14,6 @@ var noCache bool
 
 type DockerBuildRequest struct {
 	Dockerfile string
-	Image      string
 	Tag        string
 	Context    string
 	NoCache    bool
@@ -73,11 +72,16 @@ func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 						continue
 					}
 				}
+
 				tag, _ := cmd.Flags().GetString("tag")
-				if tag == "" {
-					tag = fmt.Sprintf("%v:%v", container.Image, "latest")
+				imagetag, _ := cmd.Flags().GetString("tag")
+				if imagetag == "" {
+					tag = "latest"
 				}
-				err = buildComponent(container.Context, container.Dockerfile, container.Image, tag)
+				if tag == "" {
+					tag = fmt.Sprintf("%v:%v", container.Image, imagetag)
+				}
+				err = buildComponent(container.Context, container.Dockerfile, tag)
 				if err != nil {
 					return err
 				}
@@ -87,14 +91,13 @@ func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func buildComponent(context, dockerfile, image, tag string) (err error) {
+func buildComponent(context, dockerfile, tag string) (err error) {
 	configDirectory, _ := filepath.Abs(viper.GetString("project_directory"))
 	contextPath := filepath.Join(configDirectory, context)
 	dockerfilePath := filepath.Join(configDirectory, dockerfile)
 
 	dockerBuildCommand, err := GenerateCommand(dockerBuildTemplate, DockerBuildRequest{
 		Dockerfile: dockerfilePath,
-		Image:      image,
 		Tag:        tag,
 		Context:    contextPath,
 		NoCache:    noCache,
@@ -113,6 +116,7 @@ func buildComponent(context, dockerfile, image, tag string) (err error) {
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
-	buildCmd.PersistentFlags().StringP("tag", "t", "", "Image tag. Tag parameter will override this.")
+	buildCmd.PersistentFlags().StringP("tag", "t", "", "Name and optionally a tag in the 'name:tag' format. Defaults to image:latest.")
+	buildCmd.PersistentFlags().StringP("imagetag", "i", "", "Set the tag only of the 'name:tag' format.")
 	buildCmd.PersistentFlags().BoolVar(&noCache, "noCache", false, "Build images without cache")
 }
