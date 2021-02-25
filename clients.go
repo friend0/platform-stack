@@ -1,7 +1,7 @@
 package goserver
 
 import (
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"github.com/machinebox/graphql"
@@ -18,7 +18,7 @@ type Clients struct {
 	DB   *sqlx.DB
 	GQL  *graphql.Client
 	HTTP *http.Client
-	RDB  *redis.UniversalClient
+	RDB  *redis.Cmdable
 }
 
 func ParsePGUrl(url string) (pgurl string, err error) {
