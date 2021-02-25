@@ -38,7 +38,7 @@ func buildAllComponents(cmd *cobra.Command, args []string) (err error) {
 			if tag == "" {
 				tag = fmt.Sprintf("%v:%v", container.Image, "latest")
 			}
-			err = buildComponent(container.Context, container.Dockerfile, container.Image, tag)
+			err = buildComponent(container.Context, container.Dockerfile, tag)
 			if err != nil {
 				return err
 			}
