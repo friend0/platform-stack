@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"path/filepath"
@@ -50,7 +51,7 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
-	if currentEnv == (EnvironmentDescription{}) {
+	if currentEnv == (latest.EnvironmentDescription{}) {
 		return fmt.Errorf("no active environment detected")
 	}
 	if currentEnv.Activation.ConfirmWithUser {
@@ -88,8 +89,8 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (err error) {
-	projectDirectory, _ := cmd.Flags().GetString("project_directory")
+func componentUpFunction(cmd *cobra.Command, component latest.ComponentDescription) (err error) {
+	projectDirectory, _ := cmd.Flags().GetString("stack_directory")
 	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
 
 	for _, manifest := range component.Manifests {
@@ -141,7 +142,7 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription) (er
 
 // parseComponentArgs generates a list of ComponentDescriptions from the up command's arguments if provided, defaulting
 // to all configured components if none are provided
-func parseComponentArgs(args []string, configuredComponents []ComponentDescription) (components []ComponentDescription, err error) {
+func parseComponentArgs(args []string, configuredComponents []latest.ComponentDescription) (components []latest.ComponentDescription, err error) {
 	if len(configuredComponents) < 1 {
 		return components, fmt.Errorf("no components found - double check you are in a stack directory with configured components")
 	}
