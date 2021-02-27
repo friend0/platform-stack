@@ -1,10 +1,11 @@
 version: 2.1
 orbs:
-  go: circleci/go@0.2.0
+  go: circleci/go@1.5.0
   kubernetes: circleci/kubernetes@0.11.0
   docker: circleci/docker@1.5.0
 jobs:
   build:
+    resource_class: large
     machine:
       image: ubuntu-1604:202010-01
       docker_layer_caching: true
@@ -28,7 +29,9 @@ jobs:
           name: Uninstall machine go
           command: |
             sudo rm -rf /usr/local/go
-      - go/install
+      - go/install:
+          version: 1.15.6
+      - go/mod-download-cached
       - run:
           name: Build executable
           command: |

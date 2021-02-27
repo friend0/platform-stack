@@ -1,6 +1,6 @@
 module github.com/altiscope/platform-stack
 
-go 1.12
+go 1.15
 
 replace (
 	github.com/altiscope/platform-stack/pkg => ./pkg
