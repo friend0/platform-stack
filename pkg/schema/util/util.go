@@ -14,7 +14,6 @@ limitations under the License.
 package util
 
 import (
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -29,7 +28,6 @@ func ReadStackConfiguration(filename string) ([]byte, error) {
 	workingFilePath := filename
 	// adds yaml if none present in base filename, handles secret files wrt  filepath Ext
 	if filepath.Ext(strings.TrimPrefix(filepath.Base(filename), ".")) == "" {
-		fmt.Println("detect nmo yaml")
 		workingFilePath += ".yaml"
 	}
 	contents, err := ioutil.ReadFile(workingFilePath)

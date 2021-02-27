@@ -13,6 +13,7 @@ import (
 //  - Version
 // 2. No removal
 // 3. No Updates
+//  - RequiredVariables is an object, not a list of strings. The keys are the variable names, values are the secret manager id.
 func (config *StackConfig) Upgrade() (util.VersionedConfig, error) {
 	var newConfig next.StackConfig
 	skaffoldUtil.CloneThroughJSON(config, &newConfig)

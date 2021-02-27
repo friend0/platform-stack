@@ -38,7 +38,7 @@ type EnvironmentDescription struct {
 
 type ComponentDescription struct {
 	Name              string                 `json:"name"`
-	RequiredVariables []string               `json:"required_variables"`
+	RequiredVariables map[string]string      `json:"required_variables" yaml:"requiredVariables"`
 	Exposable         bool                   `json:"exposable"`
 	Containers        []ContainerDescription `json:"containers"`
 	Manifests         []string               `json:"manifests"`
