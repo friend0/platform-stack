@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/magiconair/properties/assert"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
@@ -44,7 +45,7 @@ func TestUpCLI(t *testing.T) {
 
 func TestParseComponentArgs(t *testing.T) {
 	componentArgs := []string{"app", "db"}
-	configuredComponents := []ComponentDescription{
+	configuredComponents := []latest.ComponentDescription{
 		{Name: "app"},
 		{Name: "db"},
 	}

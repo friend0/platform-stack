@@ -1,3 +1,4 @@
+apiVersion: stack/v0beta1
 stack:
   name: app
 environments:
@@ -27,5 +28,3 @@ components:
         image: stack-app
     manifests:
       - ./deployments/app.yaml
-postgres_deployment: postgres
-env_prefix: examples

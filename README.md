@@ -157,7 +157,7 @@ check manifest in the examples directory to see this in practice.
 ⚠ **Ensure you are in a configured directory, or have explicitly provided a path to a stack configuration file** 
 
 The stack CLI assumes the present working directory is the root project directory, and that a configuration file 
-exists. Alternately, you can provide the desired root directory (with configuration file) by setting the `project_directory` flag on the root stack command.
+exists. Alternately, you can provide the desired root directory (with configuration file) by setting the `stack_directory` flag on the root stack command.
 
 Build all dependent containers for the stack by running:
 

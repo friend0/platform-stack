@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"path/filepath"
 	"strings"
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 )
 
 const kubectlDeleteTemplate = `kubectl delete -f "{{ .YamlFile }}"`
@@ -30,7 +31,7 @@ func downAllComponents(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
-	if currentEnv == (EnvironmentDescription{}) {
+	if currentEnv == (latest.EnvironmentDescription{}) {
 		return fmt.Errorf("no active environment detected")
 	}
 	if currentEnv.Activation.ConfirmWithUser {
@@ -52,8 +53,8 @@ func downAllComponents(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func downComponent(cmd *cobra.Command, component ComponentDescription) (err error) {
-	projectDirectory, _ := cmd.Flags().GetString("project_directory")
+func downComponent(cmd *cobra.Command, component latest.ComponentDescription) (err error) {
+	projectDirectory, _ := cmd.Flags().GetString("stack_directory")
 	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
 
 	for _, manifest := range component.Manifests {

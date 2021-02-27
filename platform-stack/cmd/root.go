@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/altiscope/platform-stack/pkg/schema"
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/kubernetes"
@@ -12,14 +15,16 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"text/template"
+	"github.com/gookit/color"
+
 )
 
 // alias for simple mocking in test. Do not remove
 var execCommand = exec.Command
 
 var stackConfigurationFile string
-var stackConfigurationFileName string
 
 var (
 	clientset        *kubernetes.Clientset
@@ -28,7 +33,7 @@ var (
 
 // config is the global configuration object made available to all root sub-commands.
 // It has trivial values up until the `initConfig` function is run.
-var config Config
+var config latest.StackConfig
 var Version = "development"
 
 type StackDescription struct {
@@ -90,6 +95,20 @@ var rootCmd = &cobra.Command{
 		}
 		return cmd.Help()
 	},
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		stackDirectory := viper.GetString("stack_directory")
+		stackConfig := viper.GetString("stack_config_file")
+		path, _ := filepath.Abs(filepath.Join(stackDirectory, stackConfig))
+		parsed, err := schema.ParseConfig(path, true)
+		if err != nil {
+			color.Danger.Println("no stack configuration loaded")
+			return err
+		}
+		config = *parsed.(*latest.StackConfig)
+		res2B, _ := json.MarshalIndent(config, "", "\t")
+		fmt.Println(string(res2B))
+		return nil
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -101,34 +120,30 @@ func Execute() {
 }
 
 func init() {
-	// todo do not allow config file path directly until project directory is appropriately overriden to reflect config's location
-	//rootCmd.PersistentFlags().StringVar(&stackConfigurationFile, "config", "", "config file (default is $HOME/.{{name of project}}.yaml)")
-	rootCmd.PersistentFlags().StringVar(&stackConfigurationFileName, "stack_configuration", ".stack-local", "set the name of the configuration file to be used")
-	rootCmd.PersistentFlags().StringP("project_directory", "r", ".", "set the project directory of the stack")
+	rootCmd.PersistentFlags().StringP("stack_directory", "r", ".", "Set the project directory for stack CLI")
+	rootCmd.PersistentFlags().StringP("stack_config_file", "s", ".stack-local", "Set the name of the configuration file to be used")
 	rootCmd.Flags().BoolP("version", "v", false, "Print the stack CLI version")
-	viper.BindPFlag("project_directory", rootCmd.PersistentFlags().Lookup("project_directory"))
+	_ = viper.BindPFlag("stack_directory", rootCmd.PersistentFlags().Lookup("stack_directory"))
+	_ = viper.BindPFlag("stack_config_file", rootCmd.PersistentFlags().Lookup("stack_config_file"))
 	cobra.OnInitialize(initConfig)
 }
 
-// initConfig reads in config file and ENV variables if set.
+// initConfig reads the stack configuration file, making available all values defined there to Viper.
+// Configuration is also unmarshalled into a structure to prevent excessive type assertions throughout the code.
 func initConfig() {
-	if stackConfigurationFile != "" {
-		viper.SetConfigFile(stackConfigurationFile)
-	} else {
-		configDirectory := viper.GetString("project_directory")
-		viper.AddConfigPath(configDirectory)
-		viper.SetConfigName(stackConfigurationFileName)
-	}
+	stackDirectory := viper.GetString("stack_directory")
+	stackConfig := viper.GetString("stack_config_file")
+
+	viper.AddConfigPath(stackDirectory)
+	viper.SetConfigName(stackConfig)
 
 	// todo: allow configurable env prefix
-	viper.SetEnvPrefix(viper.GetString("env_prefix"))
+	//viper.SetEnvPrefix(viper.GetString("env_prefix"))
 	viper.AutomaticEnv() // read in environment variables that match
-
-	viper.ReadInConfig()
+	_ = viper.ReadInConfig()
 
 	// Defaults
 	viper.SetDefault("env", "local")
-	viper.Unmarshal(&config)
 }
 
 // GenerateCommandString builds a non-executable command string
