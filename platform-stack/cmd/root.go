@@ -36,48 +36,7 @@ var (
 var config latest.StackConfig
 var Version = "development"
 
-type StackDescription struct {
-	Name string
-}
 
-type ActivationDescription struct {
-	ConfirmWithUser bool
-	Env             string
-	Context         string
-}
-
-type EnvironmentDescription struct {
-	Name       string
-	Activation ActivationDescription
-}
-
-type ComponentDescription struct {
-	Name              string                 `json:"name"`
-	RequiredVariables []string               `json:"required_variables"`
-	Exposable         bool                   `json:"exposable"`
-	Containers        []ContainerDescription `json:"containers"`
-	Manifests         []string               `json:"manifests"`
-	TemplateConfig    []string               `json:"template_config"`
-}
-
-type ContainerDescription struct {
-	Dockerfile   string   `json:"dockerfile"`
-	Context      string   `json:"context"`
-	Image        string   `json:"image"`
-	Environments []string `json:"environments"`
-}
-
-type ManifestDescription struct {
-	Dockerfile string `json:"dockerfile"`
-	Context    string `json:"context"`
-	Image      string `json:"image"`
-}
-
-type Config struct {
-	Components   []ComponentDescription
-	Environments []EnvironmentDescription
-	Stack        StackDescription
-}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

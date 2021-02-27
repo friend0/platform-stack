@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/stretchr/testify/assert"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
@@ -44,20 +45,20 @@ func TestBuildForCurrentEnvironment(t *testing.T) {
 	tests := []struct {
 		name     string
 		stackEnv string
-		cd       ContainerDescription
+		cd       latest.ContainerDescription
 		res      bool
 	}{
-		{"build no environments given", "local", ContainerDescription{}, true},
-		{"build single environment given, no match", "local", ContainerDescription{
+		{"build no environments given", "local", latest.ContainerDescription{}, true},
+		{"build single environment given, no match", "local", latest.ContainerDescription{
 			Environments: []string{"remote"},
 		}, false},
-		{"build single environment given, match", "local", ContainerDescription{
+		{"build single environment given, match", "local", latest.ContainerDescription{
 			Environments: []string{"local"},
 		}, true},
-		{"build multiple environments given, no match", "ci", ContainerDescription{
+		{"build multiple environments given, no match", "ci", latest.ContainerDescription{
 			Environments: []string{"local", "remote"},
 		}, false},
-		{"build multiple environments given, match", "remote", ContainerDescription{
+		{"build multiple environments given, match", "remote", latest.ContainerDescription{
 			Environments: []string{"local", "remote"},
 		}, true},
 	}

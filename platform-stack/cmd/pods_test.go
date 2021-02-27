@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"github.com/stretchr/testify/assert"
 	"gotest.tools/v3/golden"
 	v1 "k8s.io/api/core/v1"
@@ -15,7 +16,7 @@ func TestGetPodList(t *testing.T) {
 	api := fake.NewSimpleClientset(&v1.Pod{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Pod",
-			APIVersion: "v1",
+			APIVersion: "stack/v1alpha1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "tls-app-579f7cd745-t6fdg",
@@ -71,7 +72,7 @@ func TestPrintPods(t *testing.T) {
 		},
 	})
 
-	pods, _ := api.CoreV1().Pods("default").List(metav1.ListOptions{})
+	pods, _ := api.CoreV1().Pods("default").List(context.TODO(), metav1.ListOptions{})
 	assert.True(t, len(pods.Items) == 1)
 
 	var buf bytes.Buffer

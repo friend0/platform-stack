@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -37,7 +38,7 @@ For example:
 	RunE: runBuildComponent,
 }
 
-func buildForCurrentEnvironment(cd ContainerDescription, currentEnvName string) bool {
+func buildForCurrentEnvironment(cd latest.ContainerDescription, currentEnvName string) bool {
 	e := cd.Environments
 	if len(e) >= 1 {
 		active := false

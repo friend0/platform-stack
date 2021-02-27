@@ -22,36 +22,44 @@ type StackConfig struct {
 }
 
 type StackDescription struct {
-	Name string `yaml:"name"`
+	Name string
 }
 
 type ActivationDescription struct {
-	ConfirmWithUser bool   `yaml:"confirm_with_user"`
-	Env             string `yaml:"env"`
-	Context         string `yaml:"context"`
+	ConfirmWithUser bool
+	Env             string
+	Context         string
 }
 
 type EnvironmentDescription struct {
-	Name       string                `yaml:"name"`
-	Activation ActivationDescription `yaml:"activation"`
+	Name       string
+	Activation ActivationDescription
 }
 
 type ComponentDescription struct {
-	Name              string                 `yaml:"name"`
-	RequiredVariables []string               `yaml:"requiredVariables"`
-	Exposable         bool                   `yaml:"exposable"`
-	Containers        []ContainerDescription `yaml:"containers"`
-	Manifests         []string               `yaml:"manifests"`
+	Name              string                 `json:"name"`
+	RequiredVariables []string               `json:"required_variables"`
+	Exposable         bool                   `json:"exposable"`
+	Containers        []ContainerDescription `json:"containers"`
+	Manifests         []string               `json:"manifests"`
+	TemplateConfig    []string               `json:"template_config"`
 }
 
 type ContainerDescription struct {
-	Dockerfile string `yaml:"dockerfile"`
-	Context    string `yaml:"context"`
-	Image      string `yaml:"image"`
+	Dockerfile   string   `json:"dockerfile"`
+	Context      string   `json:"context"`
+	Image        string   `json:"image"`
+	Environments []string `json:"environments"`
 }
 
 type ManifestDescription struct {
-	Dockerfile string `yaml:"dockerfile"`
-	Context    string `yaml:"context"`
-	Image      string `yaml:"image"`
+	Dockerfile string `json:"dockerfile"`
+	Context    string `json:"context"`
+	Image      string `json:"image"`
+}
+
+type Config struct {
+	Components   []ComponentDescription
+	Environments []EnvironmentDescription
+	Stack        StackDescription
 }

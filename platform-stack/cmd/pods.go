@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/spf13/cobra"
 	"io"
@@ -83,7 +84,7 @@ func getPodsList(api v12.CoreV1Interface, ns string, label, field []string) (lis
 		FieldSelector: fieldSelect,
 	}
 
-	pods, err := api.Pods(currentNamespace).List(listOptions)
+	pods, err := api.Pods(currentNamespace).List(context.Background(), listOptions)
 	if err != nil {
 		return pods, err
 	}
