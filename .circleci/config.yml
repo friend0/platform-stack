@@ -31,7 +31,6 @@ jobs:
             sudo rm -rf /usr/local/go
       - go/install:
           version: 1.15.6
-      - go/mod-download-cached
       - run:
           name: Build executable
           command: |
