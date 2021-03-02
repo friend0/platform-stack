@@ -1,4 +1,7 @@
 Tearing down components at config...
-`config` component failed teardown. You may need to delete it manually.
+configmap "stack-env" deleted
+
 Tearing down components at app...
-`app` component failed teardown. You may need to delete it manually.
+service "app" deleted
+deployment.apps "app" deleted
+

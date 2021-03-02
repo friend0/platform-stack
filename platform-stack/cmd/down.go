@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"path/filepath"
 	"strings"
 	"github.com/altiscope/platform-stack/pkg/schema/latest"
@@ -54,8 +55,7 @@ func downAllComponents(cmd *cobra.Command, args []string) (err error) {
 }
 
 func downComponent(cmd *cobra.Command, component latest.ComponentDescription) (err error) {
-	projectDirectory, _ := cmd.Flags().GetString("stack_directory")
-	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
+	absoluteProjectDirectory, _ := filepath.Abs(viper.GetString("stack_directory"))
 
 	for _, manifest := range component.Manifests {
 

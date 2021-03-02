@@ -103,10 +103,10 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 }
 
 func componentUpFunction(cmd *cobra.Command, component latest.ComponentDescription, stackEnv latest.EnvironmentDescription) (err error) {
-	projectDirectory, _ := cmd.Flags().GetString("stack_directory`")
-	envOverrides, _ := cmd.Flags().GetStringSlice("env")
-	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
+
+	absoluteProjectDirectory, _ := filepath.Abs(viper.GetString("stack_directory"))
 	requiredVariables := component.RequiredVariables
+	envOverrides, _ := cmd.Flags().GetStringSlice("env")
 
 	for _, manifest := range component.Manifests {
 		manifestName := strings.TrimSuffix(filepath.Base(manifest), filepath.Ext(manifest))
