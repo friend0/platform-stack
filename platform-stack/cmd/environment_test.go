@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/stretchr/testify/assert"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
@@ -39,15 +40,15 @@ func TestEnvironmentIntegration(t *testing.T) {
 
 func TestValidateConfiguredEnvironments(t *testing.T) {
 	tests := []struct {
-		Descriptions []EnvironmentDescription
+		Descriptions []latest.EnvironmentDescription
 		Kubectx      string
 		EnvFunc      func(string) string
 		Err          bool
 	}{
-		{[]EnvironmentDescription{
+		{[]latest.EnvironmentDescription{
 			{
 				Name: "testenv",
-				Activation: ActivationDescription{
+				Activation: latest.ActivationDescription{
 					Env:     "env=activationtest",
 					Context: "testcontext",
 				},
@@ -55,17 +56,17 @@ func TestValidateConfiguredEnvironments(t *testing.T) {
 		}, "minikube", func(string) string {
 			return "activationtest"
 		}, false},
-		{[]EnvironmentDescription{
+		{[]latest.EnvironmentDescription{
 			{
 				Name: "testenv",
-				Activation: ActivationDescription{
+				Activation: latest.ActivationDescription{
 					Env:     "env=activationtest",
 					Context: "testcontext",
 				},
 			},
 			{
 				Name: "testenv",
-				Activation: ActivationDescription{
+				Activation: latest.ActivationDescription{
 					Env:     "env=activationtest",
 					Context: "testcontext",
 				},
@@ -86,10 +87,10 @@ func TestValidateConfiguredEnvironments(t *testing.T) {
 }
 
 func TestGetCurrentEnvironment(t *testing.T) {
-	env, err := getCurrentEnvironment([]EnvironmentDescription{
+	env, err := getCurrentEnvironment([]latest.EnvironmentDescription{
 		{
 			Name: "testenv",
-			Activation: ActivationDescription{
+			Activation: latest.ActivationDescription{
 				Env:     "env=activationtest",
 				Context: "testcontext",
 			},
