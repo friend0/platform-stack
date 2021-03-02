@@ -74,7 +74,7 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringP("stack_directory", "r", ".", "Set the project directory for stack CLI")
-	rootCmd.PersistentFlags().StringP("stack_config_file", "s", ".stack-local", "Set the name of the configuration file to be used")
+	rootCmd.PersistentFlags().String("stack_config_file", ".stack-local", "Set the name of the configuration file to be used")
 	rootCmd.Flags().BoolP("version", "v", false, "Print the stack CLI version")
 	_ = viper.BindPFlag("stack_directory", rootCmd.PersistentFlags().Lookup("stack_directory"))
 	_ = viper.BindPFlag("stack_config_file", rootCmd.PersistentFlags().Lookup("stack_config_file"))

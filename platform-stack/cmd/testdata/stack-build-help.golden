@@ -22,7 +22,7 @@ Flags:
   -t, --tag string        Name and optionally a tag in the 'name:tag' format (same as docker flag). Defaults to image:latest based on stack config.
 
 Global Flags:
-  -r, --stack_directory string     set the project directory of the stack (default ".")
-      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
+      --stack_config_file string   Set the name of the configuration file to be used (default ".stack-local")
+  -r, --stack_directory string     Set the project directory for stack CLI (default ".")
 
 Use "stack build [command] --help" for more information about a command.

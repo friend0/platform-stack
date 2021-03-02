@@ -12,5 +12,5 @@ Flags:
   -w, --wide                                          Wide cell (default true)
 
 Global Flags:
-  -r, --stack_directory string     set the project directory of the stack (default ".")
-      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
+      --stack_config_file string   Set the name of the configuration file to be used (default ".stack-local")
+  -r, --stack_directory string     Set the project directory for stack CLI (default ".")

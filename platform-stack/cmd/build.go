@@ -93,7 +93,7 @@ func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 }
 
 func buildComponent(context, dockerfile, tag string) (err error) {
-	configDirectory, _ := filepath.Abs(viper.GetString("project_directory"))
+	configDirectory, _ := filepath.Abs(viper.GetString("stack_directory"))
 	contextPath := filepath.Join(configDirectory, context)
 	dockerfilePath := filepath.Join(configDirectory, dockerfile)
 

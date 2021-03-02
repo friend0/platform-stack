@@ -140,7 +140,6 @@ func upgradeToLatest(vc util.VersionedConfig) (util.VersionedConfig, error) {
 	}
 
 	for vc.GetVersion() != latest.Version {
-		fmt.Println(vc.GetVersion(), latest.Version)
 		vc, err = vc.Upgrade()
 		if err != nil {
 			return nil, fmt.Errorf("transforming stack config: %v", err)

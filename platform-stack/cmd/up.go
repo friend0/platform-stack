@@ -103,7 +103,7 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 }
 
 func componentUpFunction(cmd *cobra.Command, component latest.ComponentDescription, stackEnv latest.EnvironmentDescription) (err error) {
-	projectDirectory, _ := cmd.Flags().GetString("project_directory")
+	projectDirectory, _ := cmd.Flags().GetString("stack_directory`")
 	envOverrides, _ := cmd.Flags().GetStringSlice("env")
 	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
 	requiredVariables := component.RequiredVariables
