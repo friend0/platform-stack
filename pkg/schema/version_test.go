@@ -21,7 +21,7 @@ stack:
 environments:
   - name: local
     activation:
-      context: cluster1
+      context: minikube
 components: []
 `
 	completeConfig = `
@@ -31,7 +31,7 @@ stack:
 environments:
   - name: local
     activation:
-      context: cluster1
+      context: minikube
 components:
   - name: app
     exposable: true
@@ -53,24 +53,19 @@ func TestParseConfig(t *testing.T) {
 		shouldErr   bool
 	}{
 		{
+			apiVersion:  "stack/v0beta1",
+			description: "ApiVersion not specified",
+			config:      minimalConfig,
+			expected: config(
+				withNoComponents(),
+			),
+		},
+		{
 			apiVersion:  latest.Version,
 			description: "Minimal config",
 			config:      minimalConfig,
 			expected: config(
-				withLocalEnvironment(
-				),
-				//withKubectlDeploy("k8s/*.yaml"),
-			),
-		},
-		{
-			apiVersion:  "stack/v1alpha1",
-			description: "Old minimal config",
-			config:      minimalConfig,
-			expected: config(
-				withLocalEnvironment(
-					//withGitTagger(),
-				),
-				//withKubectlDeploy("k8s/*.yaml"),
+				withNoComponents(),
 			),
 		},
 		{
@@ -78,11 +73,9 @@ func TestParseConfig(t *testing.T) {
 			description: "Simple config",
 			config:      simpleConfig,
 			expected: config(
-				withLocalEnvironment(
-					//withGitTagger(),
-					//withDockerArtifact("example", ".", "Dockerfile"),
-				),
-				//withKubectlDeploy("k8s/*.yaml"),
+				withLocalEnvironment(),
+				withNoComponents(),
+				withStackDescription("app"),
 			),
 		},
 		{
@@ -90,29 +83,21 @@ func TestParseConfig(t *testing.T) {
 			description: "Complete config",
 			config:      completeConfig,
 			expected: config(
-				withLocalEnvironment(
-					//withShaTagger(),
-					//withDockerArtifact("image1", "./examples/app1", "Dockerfile.dev"),
-					//withBazelArtifact("image2", "./examples/app2", "//:example.tar"),
-				),
-				//withKubectlDeploy("dep.yaml", "svc.yaml"),
+				withStackDescription("app"),
+				withLocalEnvironment(),
+				withBasicComponent(),
 			),
 		},
-		{
-			apiVersion:  "",
-			description: "ApiVersion not specified",
-			config:      minimalConfig,
-			shouldErr:   true,
-		},
+
 	}
 	for _, test := range tests {
 		testutil.Run(t, test.description, func(t *testutil.T) {
 			t.SetupFakeKubernetesContext(api.Config{CurrentContext: "cluster1"})
 
 			tmpDir := t.NewTempDir().
-				Write(".stack.yaml", fmt.Sprintf("apiVersion: %s\nkind: Config\n%s", test.apiVersion, test.config))
+				Write(".stack-local.yaml", fmt.Sprintf("%s", test.config))
 
-			cfg, err := ParseConfig(tmpDir.Path(".stack.yaml"), true)
+			cfg, err := ParseConfig(tmpDir.Path(".stack-local.yaml"), true)
 			// todo: add handling of defaults here
 			t.CheckErrorAndDeepEqual(test.shouldErr, err, test.expected, cfg)
 		})
@@ -120,11 +105,23 @@ func TestParseConfig(t *testing.T) {
 }
 
 func config(ops ...func(*latest.StackConfig)) *latest.StackConfig {
-	cfg := &latest.StackConfig{ApiVersion: latest.Version, Stack: latest.StackDescription{Name: "testApp"}}
+	cfg := &latest.StackConfig{ApiVersion: latest.Version}
 	for _, op := range ops {
 		op(cfg)
 	}
 	return cfg
+}
+
+func withStackDescription(name string) func(stackConfig *latest.StackConfig) {
+	return func(cfg *latest.StackConfig) {
+		cfg.Stack.Name = name
+	}
+}
+
+func withNoEnvironment(ops ...func(stackConfig *latest.EnvironmentDescription)) func(stackConfig *latest.StackConfig) {
+	return func(cfg *latest.StackConfig) {
+		cfg.Environments = []latest.EnvironmentDescription{}
+	}
 }
 
 func withLocalEnvironment(ops ...func(stackConfig *latest.EnvironmentDescription)) func(stackConfig *latest.StackConfig) {
@@ -134,6 +131,33 @@ func withLocalEnvironment(ops ...func(stackConfig *latest.EnvironmentDescription
 			op(&b)
 		}
 		cfg.Environments = []latest.EnvironmentDescription{b}
+	}
+}
+
+func withNoComponents(ops ...func(stackConfig *latest.EnvironmentDescription)) func(stackConfig *latest.StackConfig) {
+	return func(cfg *latest.StackConfig) {
+		cfg.Components = []latest.ComponentDescription{}
+	}
+}
+
+func withBasicComponent(ops ...func(stackConfig *latest.EnvironmentDescription)) func(stackConfig *latest.StackConfig) {
+	return func(cfg *latest.StackConfig) {
+		cfg.Components = []latest.ComponentDescription{
+			latest.ComponentDescription{
+				Name:              "app",
+				RequiredVariables: map[string]string{},
+				Exposable:         true,
+				Containers:        []latest.ContainerDescription{
+					latest.ContainerDescription{
+						Dockerfile:   "./containers/app/Dockerfile",
+						Context:      "./containers/app",
+						Image:        "stack-app",
+						Environments: nil,
+					},
+				},
+				Manifests:         []string{"./deployments/app.yaml"},
+			},
+		}
 	}
 }
 

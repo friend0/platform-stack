@@ -1,3 +1,16 @@
 Bringing up app
-service/app created
-deployment.apps/app created
+open /home/f0/developer/platform-stack/platform-stack/cmd/deployments/config-local.env: no such file or directory 
+Bringing up `app` failedError: exit status 1
+Usage:
+  stack up [<component>...] [flags]
+
+Flags:
+  -d, --dryrun           Generate yaml only, do not kubectl apply
+  -e, --env strings      Env variables
+  -h, --help             help for up
+  -w, --wait int[=300]   Stack readiness wait period in seconds (default -1)
+
+Global Flags:
+      --stack_config_file string   Set the name of the configuration file to be used (default ".stack-local")
+  -r, --stack_directory string     Set the project directory for stack CLI (default ".")
+
