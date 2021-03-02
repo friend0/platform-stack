@@ -20,13 +20,13 @@ func (config *StackConfig) Upgrade() (util.VersionedConfig, error) {
 	skaffoldUtil.CloneThroughJSON(config.Environments, &newConfig.Environments)
 	skaffoldUtil.CloneThroughJSON(config.Stack, &newConfig.Stack)
 	ncd := make([]next.ComponentDescription, len(config.Components))
+	requiredVariableMap := make(map[string]string)
 	for i, comp := range config.Components {
 		ncd[i].Name = comp.Name
 		skaffoldUtil.CloneThroughJSON(comp.Containers, &ncd[i].Containers)
 		ncd[i].Exposable = comp.Exposable
 		ncd[i].Manifests = comp.Manifests
 		ncd[i].TemplateConfig = comp.TemplateConfig
-		requiredVariableMap := make(map[string]string)
 		for j := 0; j < len(comp.RequiredVariables); j++ {
 			requiredVariableMap[comp.RequiredVariables[j]] = comp.RequiredVariables[j]
 		}

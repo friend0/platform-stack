@@ -34,7 +34,6 @@ If user, namespace, or cluster flags are given, those flags will be used to set-
 			if currentContext == "" {
 				return fmt.Errorf("no context was returned")
 			}
-			fmt.Println(currentContext)
 		} else {
 			var setContextFlags []string
 			for _, flag := range []string{"user", "cluster", "namespace"} {
