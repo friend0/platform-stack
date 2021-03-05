@@ -5,7 +5,7 @@ go 1.12
 replace github.com/altiscope/platform-stack/platform-stack/cmd => ./platform-stack/cmd
 
 require (
-	github.com/cenkalti/backoff v2.2.1+incompatible
+	github.com/cenkalti/backoff/v4 v4.1.0
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/gookit/color v1.2.2
 	github.com/imdario/mergo v0.3.8 // indirect

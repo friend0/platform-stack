@@ -3,7 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/cenkalti/backoff"
+	"github.com/cenkalti/backoff/v4"
 	"github.com/spf13/cobra"
 	"io"
 	v1 "k8s.io/api/core/v1"
@@ -120,6 +120,7 @@ func waitForStack(api v12.CoreV1Interface, cmd *cobra.Command, ctx context.Conte
 	ticker := backoff.NewTicker(backoffConfig)
 	defer ticker.Stop()
 
+	lastPrintTime := time.Now()
 	podList, err := getPodsList(api, ns, label, field)
 	for {
 		select {
@@ -135,9 +136,18 @@ func waitForStack(api v12.CoreV1Interface, cmd *cobra.Command, ctx context.Conte
 			if err != nil {
 				return err
 			}
-			healthy, err := printPodListHealth(podList, null)
+			var healthy bool
+			var printer io.Writer
+
+			if  time.Since(lastPrintTime).Seconds() >= 30 {
+				lastPrintTime = time.Now()
+				printer = os.Stdout
+			} else {
+				printer = null
+			}
+			healthy, err = printPodListHealth(podList, printer)
 			if err != nil {
-				_, _ = printPodListHealth(podList, os.Stdout)
+				_, _ = printPodListHealth(podList, os.Stderr)
 				return err
 			}
 			if healthy {

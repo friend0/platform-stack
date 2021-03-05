@@ -28,11 +28,12 @@ jobs:
           name: Uninstall machine go
           command: |
             sudo rm -rf /usr/local/go
-      - go/install
+      - go/install:
+          version: 1.15.6
       - run:
           name: Build executable
           command: |
-            go build -o stack -v ./platform-stack/main.go
+            CGO_ENABLED=0 GOOS=linux  go build -o stack -v ./platform-stack/main.go
       - run:
           name: Copy executable onto path
           command: |
