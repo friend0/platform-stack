@@ -59,7 +59,7 @@ func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 	for _, component := range config.Components {
 		if args[0] == component.Name {
 			for _, container := range component.Containers {
-				env, err := getEnvironment()
+				env, err := getBuildEnvironment()
 				if err != nil {
 					return err
 				}
@@ -68,7 +68,7 @@ func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 					continue
 				}
 				if len(args) == 2 {
-					if args[1] != container.Image {
+					if args[1] != container.Image { // todo: || container.ShortName
 						continue
 					}
 				}
