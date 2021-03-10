@@ -9,8 +9,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/altiscope/platform-stack/pkg/schema/latest"
+	"github.com/spf13/cobra"
 )
 
 // environmentCmd represents the environment command
@@ -81,7 +81,7 @@ func isEnvActive(env latest.EnvironmentDescription, kubectx string, getEnv func(
 
 // validateConfiguredEnvironments checks that the environment section of the project config is consistent
 // and has all required fields.
-func validateConfiguredEnvironments(configuredEnvironments []latest.EnvironmentDescription, kubectx string, getEnv func(string)string) (err error) {
+func validateConfiguredEnvironments(configuredEnvironments []latest.EnvironmentDescription, kubectx string, getEnv func(string) string) (err error) {
 	var numActive int
 	for i, env := range configuredEnvironments {
 		if env.Name == "" {
@@ -135,7 +135,7 @@ func getCurrentEnvironment(configuredEnvironments []latest.EnvironmentDescriptio
 }
 
 // isBuildEnvActive determines if the current build environment is active under current system conditions
-func isBuildEnvActive(env EnvironmentDescription, getEnv func(string) string) bool {
+func isBuildEnvActive(env latest.EnvironmentDescription, getEnv func(string) string) bool {
 	var envActivation bool
 	if len(env.Activation.Env) == 0 {
 		envActivation = true
@@ -151,9 +151,9 @@ func isBuildEnvActive(env EnvironmentDescription, getEnv func(string) string) bo
 
 // getBuildEnvironment inspects the current environment variables to determine the active environment.
 // This determination is made based on the EnvironmentDescriptions provided at the top level of the project's stack configuration file.
-func getBuildEnvironment() (currentEnvironment EnvironmentDescription, err error) {
+func getBuildEnvironment() (currentEnvironment latest.EnvironmentDescription, err error) {
 	if len(config.Environments) <= 0 {
-		return EnvironmentDescription{}, fmt.Errorf("no environments found - double check you are in a stack directory with configured environments")
+		return latest.EnvironmentDescription{}, fmt.Errorf("no environments found - double check you are in a stack directory with configured environments")
 	}
 	currentEnvironment, err = getCurrentBuildEnvironment(config.Environments, os.Getenv)
 	if err != nil {
@@ -162,18 +162,16 @@ func getBuildEnvironment() (currentEnvironment EnvironmentDescription, err error
 	return currentEnvironment, nil
 }
 
-
 // getBuildEnvironment will return the current build environment (no kubectx considered)
-func getCurrentBuildEnvironment(configuredEnvironments []EnvironmentDescription, getEnv func(string) string) (EnvironmentDescription, error) {
+func getCurrentBuildEnvironment(configuredEnvironments []latest.EnvironmentDescription, getEnv func(string) string) (latest.EnvironmentDescription, error) {
 	for _, env := range configuredEnvironments {
 		envActive := isBuildEnvActive(env, getEnv)
 		if envActive {
 			return env, nil
 		}
 	}
-	return EnvironmentDescription{}, nil
+	return latest.EnvironmentDescription{}, nil
 }
-
 
 // setEnvironment sets the current kubectx and environment flags to those defined by the EnvironmentDescription with name
 // matching the provided argument. EnvironmentDescriptions are defined at the top level of a stack configuration file.
