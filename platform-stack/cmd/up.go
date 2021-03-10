@@ -53,6 +53,22 @@ If no components are provided as arguments, all configured components will be br
 	Args: cobra.MaximumNArgs(1),
 }
 
+// envsApply checks a list of environment names, and returns true or false if any members match currentEnvName
+func envsApply(e []string, currentEnvName string) bool {
+	if len(e) >= 1 {
+		active := false
+		for _, env := range e {
+			if currentEnvName == env {
+				active = true
+				break
+			}
+		}
+		return active
+	}
+	return true
+}
+
+
 func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 
 	currentEnv, err := getEnvironment()
@@ -77,6 +93,10 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	// Bring up each configured component
 	for _, component := range upComponents {
 		if !dryrun {
+			if !envsApply(component.Environments, currentEnv.Name) {
+				fmt.Printf("skipping `up` for component `%v`: not in active environment\n", component.Name)
+				continue
+			}
 			fmt.Println("Bringing up", component.Name)
 		}
 		err := componentUpFunction(cmd, component, currentEnv)
@@ -153,13 +173,11 @@ func componentUpFunction(cmd *cobra.Command, component latest.ComponentDescripti
 			if err != nil {
 				return err
 			}
-
 			applyYamlCmd.Stdout = os.Stdout
 			applyYamlCmd.Stderr = os.Stderr
 			if err := applyYamlCmd.Run(); err != nil {
 				return err
 			}
-
 		}
 	}
 

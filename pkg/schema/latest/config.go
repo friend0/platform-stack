@@ -38,6 +38,7 @@ type EnvironmentDescription struct {
 
 type ComponentDescription struct {
 	Name              string                 `yaml:"name" json:"name"`
+	Environments      []string               `yaml:"environments" json:"environments"`
 	RequiredVariables []string               `yaml:"requiredVariables" json:"requiredVariables"`
 	Exposable         bool                   `yaml:"exposable" json:"exposable"`
 	Containers        []ContainerDescription `yaml:"containers" json:"containers"`
@@ -59,7 +60,7 @@ type ManifestDescription struct {
 }
 
 type Config struct {
-	Components   []ComponentDescription `yaml:"components" json:"components"`
+	Components   []ComponentDescription   `yaml:"components" json:"components"`
 	Environments []EnvironmentDescription `yaml:"environments" json:"environments"`
-	Stack        StackDescription `yaml:"stack" json:"stack"`
+	Stack        StackDescription         `yaml:"stack" json:"stack"`
 }

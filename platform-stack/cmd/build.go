@@ -52,8 +52,8 @@ func buildForCurrentEnvironment(cd latest.ContainerDescription, currentEnvName s
 			}
 		}
 		if !active {
-			fmt.Printf("skipping build for image `%v`: not in active environment\n", cd.Image)
-			return false
+`			fmt.Printf("skipping build for image `%v`: not in active environment\n", cd.Image)
+`			return false
 		}
 	}
 	return true
