@@ -1,4 +1,4 @@
-Error: no environments found - double check you are in a stack directory with configured environments
+Error: read stack config: double check you are in a configured stack directory, or have provided one as the `stack_directory` option
 Usage:
   stack environment [target] [flags]
   stack environment [command]

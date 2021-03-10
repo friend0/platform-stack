@@ -1,4 +1,4 @@
-Error: no components found - double check you are in a configured stack directory
+Error: read stack config: double check you are in a configured stack directory, or have provided one as the `stack_directory` option
 Usage:
   stack build all [flags]
 
