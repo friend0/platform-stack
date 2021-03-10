@@ -22,6 +22,9 @@ If no args are provided, the current environment is retrieved.
 If a target argument is provided, then stack will activate the configured environment with name matching target.`,
 	Args:    cobra.MaximumNArgs(1),
 	Aliases: []string{"env"},
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return validateConfiguredEnvironments(config.Environments, getContext(), os.Getenv)
 	},

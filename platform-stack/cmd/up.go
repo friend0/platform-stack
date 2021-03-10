@@ -6,14 +6,11 @@ import (
 	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
-	//"github.com/spf13/viper"
-	"os"
 )
-
-var env string
 
 const kubectlApplyTemplate = `kubectl apply -f "{{ .YamlFile }}"`
 
@@ -48,6 +45,9 @@ If no components are provided as arguments, all configured components will be br
 			return err
 		}
 		return initK8s("")
+	},
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
 	},
 	RunE: upAllComponents,
 	Args: cobra.MaximumNArgs(1),
