@@ -72,7 +72,11 @@ func init() {
 func configPreRunnerE(cmd *cobra.Command, args []string) error {
 	stackDirectory := viper.GetString("stack_directory")
 	stackConfig := viper.GetString("stack_config_file")
-	path, _ := filepath.Abs(filepath.Join(stackDirectory, stackConfig))
+
+	path, err := filepath.Abs(filepath.Join(stackDirectory, stackConfig))
+	if err != nil {
+		return err
+	}
 	parsed, err := schema.ParseConfig(path, true)
 	if err != nil {
 		return err
