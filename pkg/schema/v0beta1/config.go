@@ -59,7 +59,7 @@ type ManifestDescription struct {
 }
 
 type Config struct {
-	Components   []ComponentDescription `yaml:"components" json:"components"`
+	Components   []ComponentDescription   `yaml:"components" json:"components"`
 	Environments []EnvironmentDescription `yaml:"environments" json:"environments"`
-	Stack        StackDescription `yaml:"stack" json:"stack"`
+	Stack        StackDescription         `yaml:"stack" json:"stack"`
 }

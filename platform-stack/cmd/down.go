@@ -3,11 +3,11 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"path/filepath"
 	"strings"
-	"github.com/altiscope/platform-stack/pkg/schema/latest"
 )
 
 const kubectlDeleteTemplate = `kubectl delete -f "{{ .YamlFile }}"`

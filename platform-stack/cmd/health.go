@@ -139,7 +139,7 @@ func waitForStack(api v12.CoreV1Interface, cmd *cobra.Command, ctx context.Conte
 			var healthy bool
 			var printer io.Writer
 
-			if  time.Since(lastPrintTime).Seconds() >= 30 {
+			if time.Since(lastPrintTime).Seconds() >= 30 {
 				lastPrintTime = time.Now()
 				printer = os.Stdout
 			} else {

@@ -68,7 +68,6 @@ func envsApply(e []string, currentEnvName string) bool {
 	return true
 }
 
-
 func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 
 	currentEnv, err := getEnvironment()

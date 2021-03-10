@@ -88,7 +88,6 @@ func TestParseConfig(t *testing.T) {
 				withBasicComponent(),
 			),
 		},
-
 	}
 	for _, test := range tests {
 		testutil.Run(t, test.description, func(t *testutil.T) {
@@ -147,7 +146,7 @@ func withBasicComponent(ops ...func(stackConfig *latest.EnvironmentDescription))
 				Name:              "app",
 				RequiredVariables: []string{},
 				Exposable:         true,
-				Containers:        []latest.ContainerDescription{
+				Containers: []latest.ContainerDescription{
 					latest.ContainerDescription{
 						Dockerfile:   "./containers/app/Dockerfile",
 						Context:      "./containers/app",
@@ -155,7 +154,7 @@ func withBasicComponent(ops ...func(stackConfig *latest.EnvironmentDescription))
 						Environments: nil,
 					},
 				},
-				Manifests:         []string{"./deployments/app.yaml"},
+				Manifests: []string{"./deployments/app.yaml"},
 			},
 		}
 	}
