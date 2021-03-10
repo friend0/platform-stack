@@ -145,7 +145,7 @@ func withBasicComponent(ops ...func(stackConfig *latest.EnvironmentDescription))
 		cfg.Components = []latest.ComponentDescription{
 			latest.ComponentDescription{
 				Name:              "app",
-				RequiredVariables: map[string]string{},
+				RequiredVariables: []string{},
 				Exposable:         true,
 				Containers:        []latest.ContainerDescription{
 					latest.ContainerDescription{

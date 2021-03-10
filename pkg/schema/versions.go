@@ -27,7 +27,7 @@ import (
 )
 
 type APIVersion struct {
-	Version string `yaml:"apiVersion"`
+	Version string `yaml:"apiVersion" json:"apiVersion"`
 }
 
 var VersionList = Versions{
@@ -78,7 +78,8 @@ func ParseConfig(filename string, upgrade bool) (util.VersionedConfig, error) {
 	}
 
 	if apiVersion.Version == "" {
-		fmt.Printf("Stack configuration missing version - treating config as `stack/v0beta1`\n")
+		// todo: want to warn, but can break dryrun used by tilt
+		//fmt.Printf("Stack configuration missing version - treating config as `stack/v0beta1`\n")
 		apiVersion.Version = "stack/v0beta1"
 	}
 

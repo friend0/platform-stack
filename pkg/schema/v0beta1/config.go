@@ -14,53 +14,52 @@ func (config *StackConfig) GetVersion() string {
 	return Version
 }
 
-
 type StackConfig struct {
-	ApiVersion   string                   `yaml:"apiVersion"`
-	Components   []ComponentDescription   `yaml:"components"`
-	Environments []EnvironmentDescription `yaml:"environments"`
-	Stack        StackDescription         `yaml:"stack"`
+	ApiVersion   string                   `yaml:"apiVersion" json:"apiVersion"`
+	Components   []ComponentDescription   `yaml:"components" json:"components"`
+	Environments []EnvironmentDescription `yaml:"environments" json:"environments"`
+	Stack        StackDescription         `yaml:"stack" json:"stack"`
 }
 
 type StackDescription struct {
-	Name string
+	Name string `yaml:"name" json:"name"`
 }
 
 type ActivationDescription struct {
-	ConfirmWithUser bool
-	Env             string
-	Context         string
+	ConfirmWithUser bool   `yaml:"confirmWithUser" json:"confirmWithUser"`
+	Env             string `yaml:"env" json:"env"`
+	Context         string `yaml:"context" json:"context"`
 }
 
 type EnvironmentDescription struct {
-	Name       string
-	Activation ActivationDescription
+	Name       string                `yaml:"name" json:"name"`
+	Activation ActivationDescription `yaml:"activation" json:"activation"`
 }
 
 type ComponentDescription struct {
-	Name              string                 `json:"name"`
-	RequiredVariables []string               `json:"required_variables" yaml:"requiredVariables"`
-	Exposable         bool                   `json:"exposable"`
-	Containers        []ContainerDescription `json:"containers"`
-	Manifests         []string               `json:"manifests"`
-	TemplateConfig    []string               `json:"template_config"`
+	Name              string                 `yaml:"name" json:"name"`
+	RequiredVariables []string               `yaml:"requiredVariables" json:"requiredVariables"`
+	Exposable         bool                   `yaml:"exposable" json:"exposable"`
+	Containers        []ContainerDescription `yaml:"containers" json:"containers"`
+	Manifests         []string               `yaml:"manifests" json:"manifests"`
+	TemplateConfig    []string               `yaml:"templateConfig" json:"templateConfig"`
 }
 
 type ContainerDescription struct {
-	Dockerfile   string   `json:"dockerfile"`
-	Context      string   `json:"context"`
-	Image        string   `json:"image"`
-	Environments []string `json:"environments"`
+	Dockerfile   string   `yaml:"dockerfile" json:"dockerfile"`
+	Context      string   `yaml:"context" json:"context"`
+	Image        string   `yaml:"image" json:"image"`
+	Environments []string `yaml:"environments" json:"environments"`
 }
 
 type ManifestDescription struct {
-	Dockerfile string `json:"dockerfile"`
-	Context    string `json:"context"`
-	Image      string `json:"image"`
+	Dockerfile string `yaml:"dockerfile" json:"dockerfile"`
+	Context    string `yaml:"context" json:"context"`
+	Image      string `yaml:"image" json:"image"`
 }
 
 type Config struct {
-	Components   []ComponentDescription
-	Environments []EnvironmentDescription
-	Stack        StackDescription
+	Components   []ComponentDescription `yaml:"components" json:"components"`
+	Environments []EnvironmentDescription `yaml:"environments" json:"environments"`
+	Stack        StackDescription `yaml:"stack" json:"stack"`
 }

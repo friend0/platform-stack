@@ -56,11 +56,12 @@ var rootCmd = &cobra.Command{
 		stackConfig := viper.GetString("stack_config_file")
 		path, _ := filepath.Abs(filepath.Join(stackDirectory, stackConfig))
 		parsed, err := schema.ParseConfig(path, true)
-		if err == nil {
+		if err != nil {
+			return err
+		} else {
 			config = *parsed.(*latest.StackConfig)
 			return nil
 		}
-		return nil
 	},
 }
 

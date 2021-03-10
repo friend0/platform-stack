@@ -12,27 +12,21 @@ import (
 // 1. Additions
 //  - Version
 // 2. No removal
-// 3. No Updates
+// 3. Updates
 //  - RequiredVariables is an object, not a list of strings. The keys are the variable names, values are the secret manager id.
 func (config *StackConfig) Upgrade() (util.VersionedConfig, error) {
 	var newConfig next.StackConfig
-
-	skaffoldUtil.CloneThroughJSON(config.Environments, &newConfig.Environments)
-	skaffoldUtil.CloneThroughJSON(config.Stack, &newConfig.Stack)
-	ncd := make([]next.ComponentDescription, len(config.Components))
-	requiredVariableMap := make(map[string]string)
-	for i, comp := range config.Components {
-		ncd[i].Name = comp.Name
-		skaffoldUtil.CloneThroughJSON(comp.Containers, &ncd[i].Containers)
-		ncd[i].Exposable = comp.Exposable
-		ncd[i].Manifests = comp.Manifests
-		ncd[i].TemplateConfig = comp.TemplateConfig
-		for j := 0; j < len(comp.RequiredVariables); j++ {
-			requiredVariableMap[comp.RequiredVariables[j]] = comp.RequiredVariables[j]
-		}
-		ncd[i].RequiredVariables = requiredVariableMap
+	var newComps []next.ComponentDescription
+	skaffoldUtil.CloneThroughYAML(config.Components, &newComps)
+	var newEnvs []next.EnvironmentDescription
+	skaffoldUtil.CloneThroughYAML(config.Environments, &newEnvs)
+	var newStack next.StackDescription
+	skaffoldUtil.CloneThroughYAML(config.Stack, &newConfig.Stack)
+	nextConfig := &next.StackConfig{
+		ApiVersion:   next.Version,
+		Components:   newComps,
+		Environments: newEnvs,
+		Stack:        newStack,
 	}
-	skaffoldUtil.CloneThroughJSON(ncd, &newConfig.Components)
-	newConfig.ApiVersion = next.Version
-	return &newConfig, nil
+	return nextConfig, nil
 }

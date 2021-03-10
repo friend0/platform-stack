@@ -113,11 +113,8 @@ func componentUpFunction(cmd *cobra.Command, component latest.ComponentDescripti
 		manifestPath := filepath.Join(absoluteProjectDirectory, manifest)
 		manifestDirectory := filepath.Dir(manifestPath)
 		outputYamlFile := fmt.Sprintf("%v/%v-generated.yaml", manifestDirectory, manifestName)
-		rvs := make([]string, 0, len(requiredVariables))
-		for k := range requiredVariables {
-			rvs = append(rvs, k)
-		}
-		envs, err := generateEnvs(rvs, os.Getenv)
+
+		envs, err := generateEnvs(requiredVariables, os.Getenv)
 		if err != nil {
 			return err
 		}
@@ -130,7 +127,6 @@ func componentUpFunction(cmd *cobra.Command, component latest.ComponentDescripti
 		}
 
 		dryrun := viper.GetBool("dryrun")
-
 		generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
 			Manifest:       fmt.Sprintf("%v/%v.yaml", manifestDirectory, manifestName),
 			TemplateConfig: cf,
