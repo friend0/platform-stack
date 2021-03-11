@@ -26,7 +26,7 @@ type VersionedConfig interface {
 
 func ReadStackConfiguration(filename string) ([]byte, error) {
 	workingFilePath := filename
-	// adds yaml if none present in base filename, handles secret files wrt  filepath Ext
+	// adds yaml if none present in base filename, handles secret files wrt filepath Ext
 	if filepath.Ext(strings.TrimPrefix(filepath.Base(filename), ".")) == "" {
 		workingFilePath += ".yaml"
 	}

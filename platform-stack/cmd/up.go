@@ -6,14 +6,11 @@ import (
 	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
-	//"github.com/spf13/viper"
-	"os"
 )
-
-var env string
 
 const kubectlApplyTemplate = `kubectl apply -f "{{ .YamlFile }}"`
 
@@ -49,8 +46,26 @@ If no components are provided as arguments, all configured components will be br
 		}
 		return initK8s("")
 	},
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	RunE: upAllComponents,
 	Args: cobra.MaximumNArgs(1),
+}
+
+// envsApply checks a list of environment names, and returns true or false if any members match currentEnvName
+func envsApply(e []string, currentEnvName string) bool {
+	if len(e) >= 1 {
+		active := false
+		for _, env := range e {
+			if currentEnvName == env {
+				active = true
+				break
+			}
+		}
+		return active
+	}
+	return true
 }
 
 func upAllComponents(cmd *cobra.Command, args []string) (err error) {
@@ -77,6 +92,10 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	// Bring up each configured component
 	for _, component := range upComponents {
 		if !dryrun {
+			if !envsApply(component.Environments, currentEnv.Name) {
+				fmt.Printf("skipping `up` for component `%v`: not in active environment\n", component.Name)
+				continue
+			}
 			fmt.Println("Bringing up", component.Name)
 		}
 		err := componentUpFunction(cmd, component, currentEnv)
@@ -113,11 +132,8 @@ func componentUpFunction(cmd *cobra.Command, component latest.ComponentDescripti
 		manifestPath := filepath.Join(absoluteProjectDirectory, manifest)
 		manifestDirectory := filepath.Dir(manifestPath)
 		outputYamlFile := fmt.Sprintf("%v/%v-generated.yaml", manifestDirectory, manifestName)
-		rvs := make([]string, 0, len(requiredVariables))
-		for k := range requiredVariables {
-			rvs = append(rvs, k)
-		}
-		envs, err := generateEnvs(rvs, os.Getenv)
+
+		envs, err := generateEnvs(requiredVariables, os.Getenv)
 		if err != nil {
 			return err
 		}
@@ -130,7 +146,6 @@ func componentUpFunction(cmd *cobra.Command, component latest.ComponentDescripti
 		}
 
 		dryrun := viper.GetBool("dryrun")
-
 		generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
 			Manifest:       fmt.Sprintf("%v/%v.yaml", manifestDirectory, manifestName),
 			TemplateConfig: cf,
@@ -157,13 +172,11 @@ func componentUpFunction(cmd *cobra.Command, component latest.ComponentDescripti
 			if err != nil {
 				return err
 			}
-
 			applyYamlCmd.Stdout = os.Stdout
 			applyYamlCmd.Stderr = os.Stderr
 			if err := applyYamlCmd.Run(); err != nil {
 				return err
 			}
-
 		}
 	}
 

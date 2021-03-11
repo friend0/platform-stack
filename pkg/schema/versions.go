@@ -20,14 +20,13 @@ import (
 	stackUtils "github.com/altiscope/platform-stack/pkg/schema/util"
 	"github.com/altiscope/platform-stack/pkg/schema/v0beta1"
 	"github.com/blang/semver"
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	"regexp"
 	"strings"
 )
 
 type APIVersion struct {
-	Version string `yaml:"apiVersion"`
+	Version string `yaml:"apiVersion" json:"apiVersion"`
 }
 
 var VersionList = Versions{
@@ -69,7 +68,7 @@ func GetSemver(v string) (semver.Version, error) {
 func ParseConfig(filename string, upgrade bool) (util.VersionedConfig, error) {
 	buf, err := stackUtils.ReadStackConfiguration(filename)
 	if err != nil {
-		return nil, errors.Wrap(err, "read stack config")
+		return nil, fmt.Errorf("read stack config: double check you are in a configured stack directory, or have provided one as the `stack_directory` option")
 	}
 
 	apiVersion := &APIVersion{}
@@ -78,7 +77,8 @@ func ParseConfig(filename string, upgrade bool) (util.VersionedConfig, error) {
 	}
 
 	if apiVersion.Version == "" {
-		fmt.Printf("Stack configuration missing version - treating config as `stack/v0beta1`\n")
+		// todo: want to warn, but can break dryrun used by tilt
+		//fmt.Printf("Stack configuration missing version - treating config as `stack/v0beta1`\n")
 		apiVersion.Version = "stack/v0beta1"
 	}
 

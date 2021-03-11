@@ -35,6 +35,9 @@ For example:
 
 	stack build app app-image			# build the image 'app:latest' for the container 'app' defined by the component 'app'
 `,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	RunE: runBuildComponent,
 }
 

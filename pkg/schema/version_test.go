@@ -14,6 +14,16 @@ import (
 const (
 	minimalConfig = ``
 
+	simpleConfigNoApiVersion = `
+stack:
+  name: app
+environments:
+  - name: local
+    activation:
+      context: minikube
+components: []
+`
+
 	simpleConfig = `
 apiVersion: stack/v0beta1
 stack:
@@ -25,7 +35,6 @@ environments:
 components: []
 `
 	completeConfig = `
-apiVersion: stack/v0beta1
 stack:
   name: app
 environments:
@@ -53,14 +62,6 @@ func TestParseConfig(t *testing.T) {
 		shouldErr   bool
 	}{
 		{
-			apiVersion:  "stack/v0beta1",
-			description: "ApiVersion not specified",
-			config:      minimalConfig,
-			expected: config(
-				withNoComponents(),
-			),
-		},
-		{
 			apiVersion:  latest.Version,
 			description: "Minimal config",
 			config:      minimalConfig,
@@ -69,13 +70,23 @@ func TestParseConfig(t *testing.T) {
 			),
 		},
 		{
+			apiVersion:  "",
+			description: "ApiVersion not specified",
+			config:      simpleConfigNoApiVersion,
+			expected: config(
+				withStackDescription("app"),
+				withLocalEnvironment(),
+				withStackDescription("app"),
+			),
+		},
+		{
 			apiVersion:  latest.Version,
 			description: "Simple config",
 			config:      simpleConfig,
 			expected: config(
+				withStackDescription("app"),
 				withLocalEnvironment(),
 				withNoComponents(),
-				withStackDescription("app"),
 			),
 		},
 		{
@@ -88,15 +99,14 @@ func TestParseConfig(t *testing.T) {
 				withBasicComponent(),
 			),
 		},
-
 	}
 	for _, test := range tests {
 		testutil.Run(t, test.description, func(t *testutil.T) {
 			t.SetupFakeKubernetesContext(api.Config{CurrentContext: "cluster1"})
-
 			tmpDir := t.NewTempDir().
 				Write(".stack-local.yaml", fmt.Sprintf("%s", test.config))
 
+			fmt.Println(tmpDir)
 			cfg, err := ParseConfig(tmpDir.Path(".stack-local.yaml"), true)
 			// todo: add handling of defaults here
 			t.CheckErrorAndDeepEqual(test.shouldErr, err, test.expected, cfg)
@@ -105,7 +115,12 @@ func TestParseConfig(t *testing.T) {
 }
 
 func config(ops ...func(*latest.StackConfig)) *latest.StackConfig {
-	cfg := &latest.StackConfig{ApiVersion: latest.Version}
+	cfg := &latest.StackConfig{
+		ApiVersion: latest.Version,
+		Environments: []latest.EnvironmentDescription{},
+		Components: []latest.ComponentDescription{},
+		Stack: latest.StackDescription{},
+	}
 	for _, op := range ops {
 		op(cfg)
 	}
@@ -118,7 +133,7 @@ func withStackDescription(name string) func(stackConfig *latest.StackConfig) {
 	}
 }
 
-func withNoEnvironment(ops ...func(stackConfig *latest.EnvironmentDescription)) func(stackConfig *latest.StackConfig) {
+func withNoEnvironment() func(stackConfig *latest.StackConfig) {
 	return func(cfg *latest.StackConfig) {
 		cfg.Environments = []latest.EnvironmentDescription{}
 	}
@@ -126,7 +141,10 @@ func withNoEnvironment(ops ...func(stackConfig *latest.EnvironmentDescription)) 
 
 func withLocalEnvironment(ops ...func(stackConfig *latest.EnvironmentDescription)) func(stackConfig *latest.StackConfig) {
 	return func(cfg *latest.StackConfig) {
-		b := latest.EnvironmentDescription{Name: "local", Activation: latest.ActivationDescription{Context: "minikube"}}
+		b := latest.EnvironmentDescription{
+			Name: "local",
+			Activation: latest.ActivationDescription{Context: "minikube"},
+		}
 		for _, op := range ops {
 			op(&b)
 		}
@@ -143,19 +161,20 @@ func withNoComponents(ops ...func(stackConfig *latest.EnvironmentDescription)) f
 func withBasicComponent(ops ...func(stackConfig *latest.EnvironmentDescription)) func(stackConfig *latest.StackConfig) {
 	return func(cfg *latest.StackConfig) {
 		cfg.Components = []latest.ComponentDescription{
-			latest.ComponentDescription{
+			{
 				Name:              "app",
-				RequiredVariables: map[string]string{},
+				RequiredVariables: []string{},
 				Exposable:         true,
-				Containers:        []latest.ContainerDescription{
-					latest.ContainerDescription{
+				Containers: []latest.ContainerDescription{
+					{
 						Dockerfile:   "./containers/app/Dockerfile",
 						Context:      "./containers/app",
 						Image:        "stack-app",
-						Environments: nil,
 					},
 				},
-				Manifests:         []string{"./deployments/app.yaml"},
+				Manifests: []string{"./deployments/app.yaml"},
+				TemplateConfig: []string{},
+				Environments: []string{},
 			},
 		}
 	}

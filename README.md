@@ -36,6 +36,7 @@ The configuration file is where you describe the Environments, and Components ne
 By default, this file should be named `.stack-local.yaml`, and should be included at the base directory of the project.
 The following example shows configuration for a simple app with configuration.
 
+    apiVersion: stack/v1alpha1
     stack:                                  
         name: example-stack
     environments:
@@ -72,10 +73,11 @@ The following example shows configuration for a simple app with configuration.
         manifests:
           - ./deployments/app.yaml
 
-There are currently three main components of a Stack configuration file:
-- Stack
-- Environments
-- Components
+There are currently four main components of a Stack configuration file:
+- ApiVersion: Used to maintain compatibility of configs with the latest Stack CLI as new features are added
+- Stack: Metadata about the stack
+- Environments: Description of the environments the stack deploys in
+- Components: Description of the k8s manifests, env, etc. related to deploying a particular component
 
 #### [Stack](stack-description)
 
@@ -110,9 +112,10 @@ Stack commands like `up` and `down` will only run after confirming with the user
      
      
 #### [Components](component-description)
-        
+
     Component {
         Name              string                 # The name we'll use to refer to the component
+        Environments      []string               # The environment(s) for which this component should be applied. 
         RequiredVariables []string               # A list of environment variables that mus tbe present on the system at runtime
         Exposable         bool                   # Should this component be exposable via kubectl port-forward?
         Containers        []Container            # A list of dependent container descriptions

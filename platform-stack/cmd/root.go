@@ -9,12 +9,13 @@ import (
 	"github.com/spf13/viper"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"path/filepath"
+
 	// See: https://github.com/kubernetes/client-go/blob/53c7adfd0294caa142d961e1f780f74081d5b15f/examples/out-of-cluster-client-configuration/main.go#L31
 	// and https://github.com/kubernetes/client-go/issues/242
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"text/template"
 )
 
@@ -33,8 +34,6 @@ var (
 var config latest.StackConfig
 var Version = "development"
 
-
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "stack",
@@ -50,17 +49,6 @@ var rootCmd = &cobra.Command{
 			return nil
 		}
 		return cmd.Help()
-	},
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		stackDirectory := viper.GetString("stack_directory")
-		stackConfig := viper.GetString("stack_config_file")
-		path, _ := filepath.Abs(filepath.Join(stackDirectory, stackConfig))
-		parsed, err := schema.ParseConfig(path, true)
-		if err == nil {
-			config = *parsed.(*latest.StackConfig)
-			return nil
-		}
-		return nil
 	},
 }
 
@@ -79,6 +67,23 @@ func init() {
 	_ = viper.BindPFlag("stack_directory", rootCmd.PersistentFlags().Lookup("stack_directory"))
 	_ = viper.BindPFlag("stack_config_file", rootCmd.PersistentFlags().Lookup("stack_config_file"))
 	cobra.OnInitialize(initConfig)
+}
+
+func configPreRunnerE(cmd *cobra.Command, args []string) error {
+	stackDirectory := viper.GetString("stack_directory")
+	stackConfig := viper.GetString("stack_config_file")
+
+	path, err := filepath.Abs(filepath.Join(stackDirectory, stackConfig))
+	if err != nil {
+		return err
+	}
+	parsed, err := schema.ParseConfig(path, true)
+	if err != nil {
+		return err
+	} else {
+		config = *parsed.(*latest.StackConfig)
+		return nil
+	}
 }
 
 // initConfig reads the stack configuration file, making available all values defined there to Viper.

@@ -3,11 +3,11 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"path/filepath"
 	"strings"
-	"github.com/altiscope/platform-stack/pkg/schema/latest"
 )
 
 const kubectlDeleteTemplate = `kubectl delete -f "{{ .YamlFile }}"`
@@ -23,6 +23,9 @@ var downCmd = &cobra.Command{
 	Long: `Tears down the stack.
 
 If no arguments are provided, all configured objects will be taken down.`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	RunE: downAllComponents,
 }
 
