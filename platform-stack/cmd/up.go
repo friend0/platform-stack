@@ -3,16 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
-	//"github.com/spf13/viper"
-	"os"
 )
-
-var env string
 
 const kubectlApplyTemplate = `kubectl apply -f "{{ .YamlFile }}"`
 
@@ -48,8 +46,26 @@ If no components are provided as arguments, all configured components will be br
 		}
 		return initK8s("")
 	},
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	RunE: upAllComponents,
 	Args: cobra.MaximumNArgs(1),
+}
+
+// envsApply checks a list of environment names, and returns true or false if any members match currentEnvName
+func envsApply(e []string, currentEnvName string) bool {
+	if len(e) >= 1 {
+		active := false
+		for _, env := range e {
+			if currentEnvName == env {
+				active = true
+				break
+			}
+		}
+		return active
+	}
+	return true
 }
 
 func upAllComponents(cmd *cobra.Command, args []string) (err error) {
@@ -58,7 +74,7 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
-	if currentEnv == (EnvironmentDescription{}) {
+	if currentEnv == (latest.EnvironmentDescription{}) {
 		return fmt.Errorf("no active environment detected")
 	}
 	if currentEnv.Activation.ConfirmWithUser {
@@ -76,6 +92,10 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	// Bring up each configured component
 	for _, component := range upComponents {
 		if !dryrun {
+			if !envsApply(component.Environments, currentEnv.Name) {
+				fmt.Printf("skipping `up` for component `%v`: not in active environment\n", component.Name)
+				continue
+			}
 			fmt.Println("Bringing up", component.Name)
 		}
 		err := componentUpFunction(cmd, component, currentEnv)
@@ -101,11 +121,11 @@ func upAllComponents(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func componentUpFunction(cmd *cobra.Command, component ComponentDescription, stackEnv EnvironmentDescription) (err error) {
-	projectDirectory, _ := cmd.Flags().GetString("project_directory")
-	envOverrides, _ := cmd.Flags().GetStringSlice("env")
-	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
+func componentUpFunction(cmd *cobra.Command, component latest.ComponentDescription, stackEnv latest.EnvironmentDescription) (err error) {
+
+	absoluteProjectDirectory, _ := filepath.Abs(viper.GetString("stack_directory"))
 	requiredVariables := component.RequiredVariables
+	envOverrides, _ := cmd.Flags().GetStringSlice("env")
 
 	for _, manifest := range component.Manifests {
 		manifestName := strings.TrimSuffix(filepath.Base(manifest), filepath.Ext(manifest))
@@ -126,7 +146,6 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 		}
 
 		dryrun := viper.GetBool("dryrun")
-
 		generateYamlCmd, err := GenerateCommand(kubetplRenderTemplate, KubetplRenderRequest{
 			Manifest:       fmt.Sprintf("%v/%v.yaml", manifestDirectory, manifestName),
 			TemplateConfig: cf,
@@ -153,13 +172,11 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 			if err != nil {
 				return err
 			}
-
 			applyYamlCmd.Stdout = os.Stdout
 			applyYamlCmd.Stderr = os.Stderr
 			if err := applyYamlCmd.Run(); err != nil {
 				return err
 			}
-
 		}
 	}
 
@@ -168,7 +185,7 @@ func componentUpFunction(cmd *cobra.Command, component ComponentDescription, sta
 
 // parseComponentArgs generates a list of ComponentDescriptions from the up command's arguments if provided, defaulting
 // to all configured components if none are provided
-func parseComponentArgs(args []string, configuredComponents []ComponentDescription) (components []ComponentDescription, err error) {
+func parseComponentArgs(args []string, configuredComponents []latest.ComponentDescription) (components []latest.ComponentDescription, err error) {
 	if len(configuredComponents) < 1 {
 		return components, fmt.Errorf("no components found - double check you are in a stack directory with configured components")
 	}

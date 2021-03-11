@@ -7,8 +7,8 @@ Flags:
   -h, --help   help for all
 
 Global Flags:
-  -i, --imageTag string              Set the tag only of the 'name:tag' format and use the stack configured image name as the name.
-      --noCache                      Build images without cache
-  -r, --project_directory string     set the project directory of the stack (default ".")
-      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
-  -t, --tag string                   Name and optionally a tag in the 'name:tag' format (same as docker flag). Defaults to image:latest based on stack config.
+  -i, --imageTag string            Set the tag only of the 'name:tag' format and use the stack configured image name as the name.
+      --noCache                    Build images without cache
+      --stack_config_file string   Set the name of the configuration file to be used (default ".stack-local")
+  -r, --stack_directory string     Set the project directory for stack CLI (default ".")
+  -t, --tag string                 Name and optionally a tag in the 'name:tag' format (same as docker flag). Defaults to image:latest based on stack config.

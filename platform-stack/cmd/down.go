@@ -3,7 +3,9 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"path/filepath"
 	"strings"
 )
@@ -21,6 +23,9 @@ var downCmd = &cobra.Command{
 	Long: `Tears down the stack.
 
 If no arguments are provided, all configured objects will be taken down.`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	RunE: downAllComponents,
 }
 
@@ -30,7 +35,7 @@ func downAllComponents(cmd *cobra.Command, args []string) (err error) {
 	if err != nil {
 		return err
 	}
-	if currentEnv == (EnvironmentDescription{}) {
+	if currentEnv == (latest.EnvironmentDescription{}) {
 		return fmt.Errorf("no active environment detected")
 	}
 	if currentEnv.Activation.ConfirmWithUser {
@@ -52,9 +57,8 @@ func downAllComponents(cmd *cobra.Command, args []string) (err error) {
 	return nil
 }
 
-func downComponent(cmd *cobra.Command, component ComponentDescription) (err error) {
-	projectDirectory, _ := cmd.Flags().GetString("project_directory")
-	absoluteProjectDirectory, _ := filepath.Abs(projectDirectory)
+func downComponent(cmd *cobra.Command, component latest.ComponentDescription) (err error) {
+	absoluteProjectDirectory, _ := filepath.Abs(viper.GetString("stack_directory"))
 
 	for _, manifest := range component.Manifests {
 

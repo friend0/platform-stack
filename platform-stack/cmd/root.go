@@ -3,10 +3,14 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"github.com/altiscope/platform-stack/pkg/schema"
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"path/filepath"
+
 	// See: https://github.com/kubernetes/client-go/blob/53c7adfd0294caa142d961e1f780f74081d5b15f/examples/out-of-cluster-client-configuration/main.go#L31
 	// and https://github.com/kubernetes/client-go/issues/242
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -19,7 +23,6 @@ import (
 var execCommand = exec.Command
 
 var stackConfigurationFile string
-var stackConfigurationFileName string
 
 var (
 	clientset        *kubernetes.Clientset
@@ -28,51 +31,8 @@ var (
 
 // config is the global configuration object made available to all root sub-commands.
 // It has trivial values up until the `initConfig` function is run.
-var config Config
+var config latest.StackConfig
 var Version = "development"
-
-type StackDescription struct {
-	Name string
-}
-
-type ActivationDescription struct {
-	ConfirmWithUser bool
-	Env             string
-	Context         string
-}
-
-type EnvironmentDescription struct {
-	Name       string
-	Activation ActivationDescription
-}
-
-type ComponentDescription struct {
-	Name              string                 `json:"name"`
-	RequiredVariables []string               `json:"required_variables"`
-	Exposable         bool                   `json:"exposable"`
-	Containers        []ContainerDescription `json:"containers"`
-	Manifests         []string               `json:"manifests"`
-	TemplateConfig    []string               `json:"template_config"`
-}
-
-type ContainerDescription struct {
-	Dockerfile   string   `json:"dockerfile"`
-	Context      string   `json:"context"`
-	Image        string   `json:"image"`
-	Environments []string `json:"environments"`
-}
-
-type ManifestDescription struct {
-	Dockerfile string `json:"dockerfile"`
-	Context    string `json:"context"`
-	Image      string `json:"image"`
-}
-
-type Config struct {
-	Components   []ComponentDescription
-	Environments []EnvironmentDescription
-	Stack        StackDescription
-}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -101,34 +61,47 @@ func Execute() {
 }
 
 func init() {
-	// todo do not allow config file path directly until project directory is appropriately overriden to reflect config's location
-	//rootCmd.PersistentFlags().StringVar(&stackConfigurationFile, "config", "", "config file (default is $HOME/.{{name of project}}.yaml)")
-	rootCmd.PersistentFlags().StringVar(&stackConfigurationFileName, "stack_configuration", ".stack-local", "set the name of the configuration file to be used")
-	rootCmd.PersistentFlags().StringP("project_directory", "r", ".", "set the project directory of the stack")
+	rootCmd.PersistentFlags().StringP("stack_directory", "r", ".", "Set the project directory for stack CLI")
+	rootCmd.PersistentFlags().String("stack_config_file", ".stack-local", "Set the name of the configuration file to be used")
 	rootCmd.Flags().BoolP("version", "v", false, "Print the stack CLI version")
-	viper.BindPFlag("project_directory", rootCmd.PersistentFlags().Lookup("project_directory"))
+	_ = viper.BindPFlag("stack_directory", rootCmd.PersistentFlags().Lookup("stack_directory"))
+	_ = viper.BindPFlag("stack_config_file", rootCmd.PersistentFlags().Lookup("stack_config_file"))
 	cobra.OnInitialize(initConfig)
 }
 
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if stackConfigurationFile != "" {
-		viper.SetConfigFile(stackConfigurationFile)
-	} else {
-		configDirectory := viper.GetString("project_directory")
-		viper.AddConfigPath(configDirectory)
-		viper.SetConfigName(stackConfigurationFileName)
+func configPreRunnerE(cmd *cobra.Command, args []string) error {
+	stackDirectory := viper.GetString("stack_directory")
+	stackConfig := viper.GetString("stack_config_file")
+
+	path, err := filepath.Abs(filepath.Join(stackDirectory, stackConfig))
+	if err != nil {
+		return err
 	}
+	parsed, err := schema.ParseConfig(path, true)
+	if err != nil {
+		return err
+	} else {
+		config = *parsed.(*latest.StackConfig)
+		return nil
+	}
+}
+
+// initConfig reads the stack configuration file, making available all values defined there to Viper.
+// Configuration is also unmarshalled into a structure to prevent excessive type assertions throughout the code.
+func initConfig() {
+	stackDirectory := viper.GetString("stack_directory")
+	stackConfig := viper.GetString("stack_config_file")
+
+	viper.AddConfigPath(stackDirectory)
+	viper.SetConfigName(stackConfig)
 
 	// todo: allow configurable env prefix
-	viper.SetEnvPrefix(viper.GetString("env_prefix"))
+	//viper.SetEnvPrefix(viper.GetString("env_prefix"))
 	viper.AutomaticEnv() // read in environment variables that match
-
-	viper.ReadInConfig()
+	_ = viper.ReadInConfig()
 
 	// Defaults
 	viper.SetDefault("env", "local")
-	viper.Unmarshal(&config)
 }
 
 // GenerateCommandString builds a non-executable command string

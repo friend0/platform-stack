@@ -1,4 +1,4 @@
-Error: no environments found - double check you are in a stack directory with configured environments
+Error: read stack config: double check you are in a configured stack directory, or have provided one as the `stack_directory` option
 Usage:
   stack environment [target] [flags]
   stack environment [command]
@@ -13,8 +13,8 @@ Flags:
   -h, --help   help for environment
 
 Global Flags:
-  -r, --project_directory string     set the project directory of the stack (default ".")
-      --stack_configuration string   set the name of the configuration file to be used (default ".stack-local")
+      --stack_config_file string   Set the name of the configuration file to be used (default ".stack-local")
+  -r, --stack_directory string     Set the project directory for stack CLI (default ".")
 
 Use "stack environment [command] --help" for more information about a command.
 

@@ -1,10 +1,12 @@
 version: 2.1
 orbs:
-  go: circleci/go@0.2.0
+  go: circleci/go@1.5.0
   kubernetes: circleci/kubernetes@0.11.0
   docker: circleci/docker@1.5.0
+
 jobs:
   build:
+    resource_class: large
     machine:
       image: ubuntu-1604:202010-01
       docker_layer_caching: true
@@ -37,12 +39,13 @@ jobs:
       - run:
           name: Copy executable onto path
           command: |
-            sudo cp ./stack /usr/local/bin
+            sudo chmod a+x ./stack
+            sudo mv ./stack /usr/local/bin
+            which stack
       - run:
           name: Install stack dependencies
           command: |
             stack install
-
       - run:
           name: Install minikube
           command: |

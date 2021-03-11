@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -34,10 +35,13 @@ For example:
 
 	stack build app app-image			# build the image 'app:latest' for the container 'app' defined by the component 'app'
 `,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	RunE: runBuildComponent,
 }
 
-func buildForCurrentEnvironment(cd ContainerDescription, currentEnvName string) bool {
+func buildForCurrentEnvironment(cd latest.ContainerDescription, currentEnvName string) bool {
 	e := cd.Environments
 	if len(e) >= 1 {
 		active := false
@@ -92,7 +96,7 @@ func runBuildComponent(cmd *cobra.Command, args []string) (err error) {
 }
 
 func buildComponent(context, dockerfile, tag string) (err error) {
-	configDirectory, _ := filepath.Abs(viper.GetString("project_directory"))
+	configDirectory, _ := filepath.Abs(viper.GetString("stack_directory"))
 	contextPath := filepath.Join(configDirectory, context)
 	dockerfilePath := filepath.Join(configDirectory, dockerfile)
 

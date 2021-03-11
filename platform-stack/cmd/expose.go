@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -29,11 +28,6 @@ var exposeCmd = &cobra.Command{
 
 		if len(args) != 3 {
 			return fmt.Errorf("expecting exactly three arguments: see `stack expose help`")
-		}
-
-		err := viper.Unmarshal(&config)
-		if err != nil {
-			return err
 		}
 
 		if len(config.Components) < 1 {
