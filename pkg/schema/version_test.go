@@ -25,7 +25,6 @@ environments:
 components: []
 `
 	completeConfig = `
-apiVersion: stack/v0beta1
 stack:
   name: app
 environments:
@@ -73,9 +72,9 @@ func TestParseConfig(t *testing.T) {
 			description: "Simple config",
 			config:      simpleConfig,
 			expected: config(
+				withStackDescription("app"),
 				withLocalEnvironment(),
 				withNoComponents(),
-				withStackDescription("app"),
 			),
 		},
 		{
@@ -92,10 +91,10 @@ func TestParseConfig(t *testing.T) {
 	for _, test := range tests {
 		testutil.Run(t, test.description, func(t *testutil.T) {
 			t.SetupFakeKubernetesContext(api.Config{CurrentContext: "cluster1"})
-
 			tmpDir := t.NewTempDir().
 				Write(".stack-local.yaml", fmt.Sprintf("%s", test.config))
 
+			fmt.Println(tmpDir)
 			cfg, err := ParseConfig(tmpDir.Path(".stack-local.yaml"), true)
 			// todo: add handling of defaults here
 			t.CheckErrorAndDeepEqual(test.shouldErr, err, test.expected, cfg)
@@ -104,7 +103,12 @@ func TestParseConfig(t *testing.T) {
 }
 
 func config(ops ...func(*latest.StackConfig)) *latest.StackConfig {
-	cfg := &latest.StackConfig{ApiVersion: latest.Version}
+	cfg := &latest.StackConfig{
+		ApiVersion: latest.Version,
+		Environments: []latest.EnvironmentDescription{},
+		Components: []latest.ComponentDescription{},
+		Stack: latest.StackDescription{},
+	}
 	for _, op := range ops {
 		op(cfg)
 	}
@@ -117,7 +121,7 @@ func withStackDescription(name string) func(stackConfig *latest.StackConfig) {
 	}
 }
 
-func withNoEnvironment(ops ...func(stackConfig *latest.EnvironmentDescription)) func(stackConfig *latest.StackConfig) {
+func withNoEnvironment() func(stackConfig *latest.StackConfig) {
 	return func(cfg *latest.StackConfig) {
 		cfg.Environments = []latest.EnvironmentDescription{}
 	}
@@ -147,14 +151,16 @@ func withBasicComponent(ops ...func(stackConfig *latest.EnvironmentDescription))
 				RequiredVariables: []string{},
 				Exposable:         true,
 				Containers: []latest.ContainerDescription{
-					latest.ContainerDescription{
+					{
 						Dockerfile:   "./containers/app/Dockerfile",
 						Context:      "./containers/app",
 						Image:        "stack-app",
-						Environments: nil,
+						Environments: []string{},
+
 					},
 				},
 				Manifests: []string{"./deployments/app.yaml"},
+				TemplateConfig: []string{},
 			},
 		}
 	}
