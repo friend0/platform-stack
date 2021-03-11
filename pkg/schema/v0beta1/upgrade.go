@@ -15,13 +15,12 @@ import (
 // 3. Updates
 //  - RequiredVariables is an object, not a list of strings. The keys are the variable names, values are the secret manager id.
 func (config *StackConfig) Upgrade() (util.VersionedConfig, error) {
-	var newConfig next.StackConfig
 	var newComps []next.ComponentDescription
 	skaffoldUtil.CloneThroughYAML(config.Components, &newComps)
 	var newEnvs []next.EnvironmentDescription
 	skaffoldUtil.CloneThroughYAML(config.Environments, &newEnvs)
 	var newStack next.StackDescription
-	skaffoldUtil.CloneThroughYAML(config.Stack, &newConfig.Stack)
+	skaffoldUtil.CloneThroughYAML(config.Stack, &newStack)
 	nextConfig := &next.StackConfig{
 		ApiVersion:   next.Version,
 		Components:   newComps,
