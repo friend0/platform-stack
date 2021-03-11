@@ -14,6 +14,16 @@ import (
 const (
 	minimalConfig = ``
 
+	simpleConfigNoApiVersion = `
+stack:
+  name: app
+environments:
+  - name: local
+    activation:
+      context: minikube
+components: []
+`
+
 	simpleConfig = `
 apiVersion: stack/v0beta1
 stack:
@@ -52,19 +62,21 @@ func TestParseConfig(t *testing.T) {
 		shouldErr   bool
 	}{
 		{
-			apiVersion:  "stack/v0beta1",
-			description: "ApiVersion not specified",
+			apiVersion:  latest.Version,
+			description: "Minimal config",
 			config:      minimalConfig,
 			expected: config(
 				withNoComponents(),
 			),
 		},
 		{
-			apiVersion:  latest.Version,
-			description: "Minimal config",
-			config:      minimalConfig,
+			apiVersion:  "",
+			description: "ApiVersion not specified",
+			config:      simpleConfigNoApiVersion,
 			expected: config(
-				withNoComponents(),
+				withStackDescription("app"),
+				withLocalEnvironment(),
+				withStackDescription("app"),
 			),
 		},
 		{
