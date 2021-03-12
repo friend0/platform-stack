@@ -25,6 +25,9 @@ var enterCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Short: "Initiates a terminal session to a container in a pod of the given k8s deployment",
 	Long:  `Initiates a terminal session to a container in a pod of the given k8s deployment`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return initK8s("")
 	},

@@ -47,6 +47,9 @@ var exposeCmd = &cobra.Command{
 		}
 		return nil
 	},
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	RunE: runExpose,
 }
 

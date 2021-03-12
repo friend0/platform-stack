@@ -41,6 +41,9 @@ Available SecretTypes:
 "SERVICE_PRINCIPLE_ID" and "SERVICE_PRINCIPLE_PASSWORD" variables to be set in the host environment.
 `,
 	Args: cobra.MaximumNArgs(1),
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		err := viper.BindPFlag("registry", cmd.Flags().Lookup("registry"))
 		if err != nil {

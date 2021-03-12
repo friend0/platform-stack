@@ -21,6 +21,9 @@ var healthCmd = &cobra.Command{
 	Use:   "health",
 	Short: "Get the health of the stack.",
 	Long:  `List running pods.`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return initK8s("")
 	},

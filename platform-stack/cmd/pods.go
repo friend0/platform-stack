@@ -40,6 +40,9 @@ var podsCmd = &cobra.Command{
 	Use:   "pods",
 	Short: "List running pods.",
 	Long:  `List running pods.`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return initK8s("")
 	},
