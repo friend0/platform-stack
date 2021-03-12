@@ -14,11 +14,6 @@ fi
 release_asset_filename="stack_$([[ $OSTYPE == darwin* ]] && echo darwin || echo linux)_amd64"
 # Get the "github tag id" of this release
 if [[ "$git_tag" == "latest" ]]; then
-	github_tag_id=$(curl --silent --show-error \
-	                     --header "Authorization: token $github_oauth_token" \
-	                     --request GET \
-	                     "https://api.github.com/repos/$github_repo_owner/$github_repo_name/releases" \
-	                     | jq --raw-output ".[0].assets | map(select(.name == \"$release_asset_filename\"))[0].id")
 
 	download_url=$(curl --silent --show-error \
 	                   --header "Authorization: token $github_oauth_token" \
@@ -26,7 +21,7 @@ if [[ "$git_tag" == "latest" ]]; then
 	                   --location \
 	                   --request GET \
 	                   "https://api.github.com/repos/$github_repo_owner/$github_repo_name/releases" \
-	                   | jq --raw-output ".[0].assets[0] | select(.name==\"$release_asset_filename\").url")
+	                   | jq --raw-output ".[0].assets[] | select(.name==\"$release_asset_filename\").url")
 else
 	github_tag_id=$(curl --silent --show-error \
 	                     --header "Authorization: token $github_oauth_token" \
@@ -63,3 +58,5 @@ else
   printf "Error: failed to install stack CLI"
   exit 1
 fi
+
+stack -v

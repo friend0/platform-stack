@@ -107,7 +107,7 @@ jobs:
       - run:
           name: Run install.sh
           command: |
-            ./test-installer.sh
+            ./test-installer.sh 
       - run:
           name: Which stack
           command: |
