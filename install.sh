@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Credits: https://gist.github.com/josh-padnick/fdae42c07e648c798fc27dec2367da21
+
 set -e
 default_tag=latest
 readonly git_tag="${1:-$default_tag}"
