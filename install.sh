@@ -5,7 +5,7 @@ default_tag=latest
 readonly git_tag="${1:-$default_tag}"
 github_repo_owner="altiscope"
 github_repo_name="platform-stack"
-output_path="/usr/local/bin/stack"
+output_path="./stack"
 github_oauth_token="$GIT_TOKEN"
 if [[ -z "$github_oauth_token" ]]; then
   printf "Error: GIT_TOKEN not set in the environment. Run 'export GIT_TOKEN=<your-git-access-token>' and retry.\n"
@@ -58,7 +58,7 @@ curl --silent --show-error \
           --request GET \
           "$redirect_url"
 if [[ "$?" -eq 0 ]]; then
-  sudo chmod +x "$output_path"
+  sudo chmod +x "$output_path" && sudo mv "$output_path" /usr/local/bin/stack
 else
   printf "Error: failed to install stack CLI"
   exit 1
