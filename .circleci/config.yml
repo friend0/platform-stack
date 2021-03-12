@@ -107,7 +107,7 @@ jobs:
       - run:
           name: Run install.sh
           command: |
-            ./install.sh && sudo chmod a+x ./stack && sudo mv stack /usr/local/bin
+            ./test-installer.sh
       - run:
           name: Which stack
           command: |
