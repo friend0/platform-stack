@@ -25,6 +25,9 @@ If a target argument is provided, then stack will activate the configured contex
 If user, namespace, or cluster flags are given, those flags will be used to set-context for the target kubectx prior to target kubectx activation.`,
 	Aliases: []string{"ctx"},
 	Args:    cobra.MaximumNArgs(1),
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return configPreRunnerE(cmd, args)
+	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		return initK8s("")
 	},
