@@ -1,4 +1,4 @@
-Error: no configured components
+Error: component not found
 Usage:
   stack expose <component> <local port> <remote port> [flags]
 

@@ -25,25 +25,8 @@ var exposeCmd = &cobra.Command{
 	Short: "Exposes a kubernetes deployment to your local machine.",
 	Long:  `Exposes a kubernetes deployment to your local machine.`,
 	Args: func(cmd *cobra.Command, args []string) error {
-
 		if len(args) != 3 {
 			return fmt.Errorf("expecting exactly three arguments: see `stack expose help`")
-		}
-
-		if len(config.Components) < 1 {
-			return fmt.Errorf("no configured components")
-		}
-
-		for idx, component := range config.Components {
-			if component.Name == args[0] {
-				if !component.Exposable {
-					return fmt.Errorf("component not exposable")
-				}
-				break
-			}
-			if idx >= len(config.Components)-1 {
-				return fmt.Errorf("component not found")
-			}
 		}
 		return nil
 	},
@@ -54,6 +37,23 @@ var exposeCmd = &cobra.Command{
 }
 
 func runExpose(cmd *cobra.Command, args []string) (err error) {
+
+	if len(config.Components) < 1 {
+		return fmt.Errorf("no configured components")
+	}
+
+	for idx, component := range config.Components {
+		if component.Name == args[0] {
+			if !component.Exposable {
+				return fmt.Errorf("component not exposable")
+			}
+			break
+		}
+		if idx >= len(config.Components)-1 {
+			return fmt.Errorf("component not found")
+		}
+	}
+	
 	fmt.Printf("Exposing %v", args[0])
 
 	c := make(chan os.Signal)
