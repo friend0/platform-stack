@@ -58,18 +58,18 @@ func InitGQLClient(gqlhost string) (*graphql.Client, error) {
 func InitHTTPClient() (*http.Client, error) {
 	tr := &http.Transport{
 		MaxIdleConns:    10,
-		IdleConnTimeout: 5 * time.Second,
+		IdleConnTimeout: 10 * time.Second,
 		Dial: (&net.Dialer{
 			Timeout:   30 * time.Second,
 			KeepAlive: 30 * time.Second,
 		}).Dial,
-		TLSHandshakeTimeout:   5 * time.Second,
-		ResponseHeaderTimeout: 5 * time.Second,
-		ExpectContinueTimeout: 5 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ResponseHeaderTimeout: 10 * time.Second,
+		ExpectContinueTimeout: 10 * time.Second,
 	}
 	return httptrace.WrapClient(&http.Client{
 		Transport: tr,
-		Timeout:   2 * time.Second,
+		Timeout:   30 * time.Second,
 	}), nil
 }
 
