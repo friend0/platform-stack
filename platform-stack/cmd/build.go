@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const dockerBuildTemplate = `DOCKER_BUILDKIT=1 docker build {{if .NoCache}} --no-cache {{end}} --build-arg GIT_TOKEN="$GIT_TOKEN" --build-arg GIT_COMMIT=$(git rev-parse HEAD) -t {{.Tag}} -f {{.Dockerfile}} {{.Context}}`
+const dockerBuildTemplate = `DOCKER_BUILDKIT=1 docker build {{if .NoCache}} --no-cache {{end}} --build-arg GIT_TOKEN="$GIT_TOKEN" --build-arg GIT_COMMIT=$([ -d .git ] && git rev-parse HEAD) -t {{.Tag}} -f {{.Dockerfile}} {{.Context}}`
 
 var noCache bool
 
