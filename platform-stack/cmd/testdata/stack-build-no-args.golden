@@ -7,6 +7,7 @@ Available Commands:
   all         Builds all containers for all components of the stack.
 
 Flags:
+      --gitHash           Build image with build arg GIT_COMMIT set to git hash
   -h, --help              help for build
   -i, --imageTag string   Set the tag only of the 'name:tag' format and use the stack configured image name as the name.
       --noCache           Build images without cache
