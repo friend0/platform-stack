@@ -2,14 +2,15 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+
 	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"os"
-	"path/filepath"
 )
 
-const dockerBuildTemplate = `DOCKER_BUILDKIT=1 docker build {{if .NoCache}} --no-cache {{end}} --build-arg GIT_TOKEN="$GIT_TOKEN" -t {{.Tag}} -f {{.Dockerfile}} {{.Context}}`
+const dockerBuildTemplate = `DOCKER_BUILDKIT=1 docker build {{if .NoCache}} --no-cache {{end}} --build-arg GIT_TOKEN="$GIT_TOKEN" --build-arg GIT_COMMIT=$(git rev-parse HEAD) -t {{.Tag}} -f {{.Dockerfile}} {{.Context}}`
 
 var noCache bool
 
