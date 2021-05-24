@@ -143,11 +143,11 @@ workflows:
   build-deploy:
     jobs:
       - build
-      - install
+      #- install
       - deploy:
           requires:
             - build
-            - install
+            #- install
           filters:
             branches:
               only: master
