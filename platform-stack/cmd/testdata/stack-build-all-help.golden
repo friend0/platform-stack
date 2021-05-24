@@ -7,6 +7,7 @@ Flags:
   -h, --help   help for all
 
 Global Flags:
+      --gitHash                    Build image with build arg GIT_COMMIT set to git hash
   -i, --imageTag string            Set the tag only of the 'name:tag' format and use the stack configured image name as the name.
       --noCache                    Build images without cache
       --stack_config_file string   Set the name of the configuration file to be used (default ".stack-local")
