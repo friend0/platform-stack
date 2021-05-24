@@ -147,7 +147,7 @@ workflows:
       - deploy:
           requires:
             - build
-            - install
+            #- install
           filters:
             branches:
               only: master
