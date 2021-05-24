@@ -143,7 +143,7 @@ workflows:
   build-deploy:
     jobs:
       - build
-      - install
+      #- install
       - deploy:
           requires:
             - build
