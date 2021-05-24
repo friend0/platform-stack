@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 )
 
+
 const dockerBuildTemplate = `DOCKER_BUILDKIT=1 docker build {{if .NoCache}} --no-cache {{end}} --build-arg GIT_TOKEN="$GIT_TOKEN" -t {{.Tag}} -f {{.Dockerfile}} {{.Context}}`
 
 var noCache bool
