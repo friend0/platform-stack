@@ -2,25 +2,22 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
-
 	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
+	"path/filepath"
 )
 
-const dockerBuildTemplate = `DOCKER_BUILDKIT=1 docker build {{if .NoCache}} --no-cache {{end}} --build-arg GIT_TOKEN="$GIT_TOKEN" {{if .GitHash}}--build-arg GIT_COMMIT=$(git rev-parse HEAD){{end}} -t {{.Tag}} -f {{.Dockerfile}} {{.Context}}`
+const dockerBuildTemplate = `DOCKER_BUILDKIT=1 docker build {{if .NoCache}} --no-cache {{end}} --build-arg GIT_TOKEN="$GIT_TOKEN" -t {{.Tag}} -f {{.Dockerfile}} {{.Context}}`
 
 var noCache bool
-var gitHash bool
 
 type DockerBuildRequest struct {
 	Dockerfile string
 	Tag        string
 	Context    string
 	NoCache    bool
-	GitHash    bool
 }
 
 // buildCmd represents the build command
@@ -108,7 +105,6 @@ func buildComponent(context, dockerfile, tag string) (err error) {
 		Tag:        tag,
 		Context:    contextPath,
 		NoCache:    noCache,
-		GitHash:    gitHash,
 	})
 	if err != nil {
 		return err
@@ -127,5 +123,4 @@ func init() {
 	buildCmd.PersistentFlags().StringP("tag", "t", "", "Name and optionally a tag in the 'name:tag' format (same as docker flag). Defaults to image:latest based on stack config.")
 	buildCmd.PersistentFlags().StringP("imageTag", "i", "", "Set the tag only of the 'name:tag' format and use the stack configured image name as the name.")
 	buildCmd.PersistentFlags().BoolVar(&noCache, "noCache", false, "Build images without cache")
-	buildCmd.PersistentFlags().BoolVar(&gitHash, "gitHash", false, "Build image with build arg GIT_COMMIT set to git hash")
 }
