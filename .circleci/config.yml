@@ -12,9 +12,9 @@ jobs:
       docker_layer_caching: true
     environment:
       ENV: ci
-      K8S_VERSION: v1.17.0
+      K8S_VERSION: v1.19.11
       KUBECONFIG: /home/circleci/.kube/config
-      MINIKUBE_VERSION: v1.6.2
+      MINIKUBE_VERSION: v1.19.0
       MINIKUBE_WANTUPDATENOTIFICATION: false
       MINIKUBE_WANTREPORTERRORPROMPT: false
       MINIKUBE_HOME: /home/circleci
@@ -46,15 +46,12 @@ jobs:
           name: Install stack dependencies
           command: |
             stack install
-      - run:
-          name: Install minikube
-          command: |
-            printf "Installing minikube ...\n"
-            curl -Lo minikube https://storage.googleapis.com/minikube/releases/"${MINIKUBE_VERSION}"/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
 
       - run:
           name: Start minikube
           command: |
+            # See: https://github.com/manusa/actions-setup-minikube/issues/7
+            sudo apt-get update -y && sudo apt-get install -y conntrack
             sudo -E minikube start --vm-driver=none --cpus 2 --memory 2048 --kubernetes-version=${K8S_VERSION}
 
       - run:
@@ -107,7 +104,7 @@ jobs:
       - run:
           name: Run install.sh
           command: |
-            ./test-installer.sh 
+            ./test-installer.sh
       - run:
           name: Which stack
           command: |

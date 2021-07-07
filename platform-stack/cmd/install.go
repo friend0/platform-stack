@@ -54,7 +54,7 @@ var StackCLIDependencies = map[string]DependencyDescription{
 	"kubectl": {
 		os:      []string{"darwin", "linux"},
 		test:    "kubectl",
-		version: "v1.17.0",
+		version: getEnv("KUBECTL_VERSION", "v1.19.11"),
 		install: map[string][]string{
 			"darwin": []string{
 				"curl -LO https://storage.googleapis.com/kubernetes-release/release/{{ .Version }}/bin/darwin/amd64/kubectl",
@@ -79,6 +79,19 @@ var StackCLIDependencies = map[string]DependencyDescription{
 				`curl -sSL https://github.com/shyiko/kubetpl/releases/download/{{ .Version }}/kubetpl-{{ .Version }}-linux-amd64 -o kubetpl`,
 				"chmod a+x kubetpl",
 				"sudo mv kubetpl /usr/local/bin/",
+			},
+		},
+	},
+	"minikube": {
+		os:      []string{"darwin", "linux"},
+		test:    "minikube",
+		version: getEnv("MINIKUBE_VERSION", "v1.19.0"),
+		install: map[string][]string{
+			"darwin": []string{
+				"curl -Lo minikube https://storage.googleapis.com/minikube/releases/{{ .Version }}/minikube-darwin-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube",
+			},
+			"linux": []string{
+				"curl -Lo minikube https://storage.googleapis.com/minikube/releases/{{ .Version }}/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube",
 			},
 		},
 	},
@@ -228,6 +241,13 @@ func installDependency(args []string, version string) (err error) {
 		}
 	}
 	return nil
+}
+
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }
 
 func init() {
