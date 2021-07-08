@@ -250,7 +250,7 @@ frontend serving up compiled assets. This example uses CRA for a simple web fron
 and calls out to a Golang backend.
 
 # Develop and Release
-Releasing a new version of the `stack` binary requires a `git tag` which is automatically created via [`semantics`](github.com/stevenmatthewt/semantics) from the [commit messages](https://github.com/stevenmatthewt/semantics#how-it-works) when a PR is merged to `master`. The release process is opinionated and requires planning when you [start developing a feature](https://github.com/stevenmatthewt/semantics#faq). Please follow these steps:
+Releasing a new version of the `stack` binary requires a `git tag` which is automatically generated via [`semantics`](github.com/stevenmatthewt/semantics) and created via [`ghr`](github.com/tcnksm/ghr) from the [commit messages](https://github.com/stevenmatthewt/semantics#how-it-works) when a PR is merged to `master`. The release process is opinionated and requires planning when you [start developing a feature](https://github.com/stevenmatthewt/semantics#faq). Please follow these steps:
 1. Checkout your feature branch `<your_github_username>/<Jira_ID>_feature_name` and open a PR against `master`
 2. Commit changes to your branch as usual with typical commit messages
 3. Decorate __only one__ of the `commit messages` in your PR with one of the prefixes `major:, minor:, patch:` which will be automatically used to create a release tag
