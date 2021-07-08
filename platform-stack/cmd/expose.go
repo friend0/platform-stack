@@ -53,7 +53,7 @@ func runExpose(cmd *cobra.Command, args []string) (err error) {
 			return fmt.Errorf("component not found")
 		}
 	}
-	
+
 	fmt.Printf("Exposing %v", args[0])
 
 	c := make(chan os.Signal)
