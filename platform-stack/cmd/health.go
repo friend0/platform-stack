@@ -55,6 +55,9 @@ func printPodListHealth(pods *v1.PodList, out io.Writer) (podsHealthy bool, err 
 	podsHealthy = true
 	var podsMeta []PodColumns
 	unhealthyPodsMap := make(map[string]*v1.Pod)
+	if len(pods.Items) < 1 {
+		podsHealthy = false
+	}
 	for i := range pods.Items {
 		podMeta, _ := printPod(&pods.Items[i])
 		podsMeta = append(podsMeta, podMeta)
@@ -67,7 +70,7 @@ func printPodListHealth(pods *v1.PodList, out io.Writer) (podsHealthy bool, err 
 	if podsHealthy {
 		_, _ = fmt.Fprintf(out, "All pods are healthy\n")
 	} else {
-		_, _ = fmt.Fprintf(out, "Not all pods are healthy\n")
+		_, _ = fmt.Fprintf(out, "Not all pods are healthy or no pods exist yet\n")
 	}
 	for _, podDetail := range podsMeta {
 		if podDetail.Healthy {
