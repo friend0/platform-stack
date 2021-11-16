@@ -86,19 +86,19 @@ func fetchSecrets(cmd *cobra.Command, args []string) error {
 
 		saKey, err := base64.StdEncoding.DecodeString(os.Getenv(secretReaderEnvVar))
 		if err != nil {
-			return fmt.Errorf("failed to decode GSM reader service account key:", err)
+			return fmt.Errorf("failed to decode GSM reader service account key: %v", err)
 		}
 
 		if _, err := os.Stat(sa); os.IsNotExist(err) {
 			_, err := os.Create(sa)
 			if err != nil {
-				return fmt.Errorf("failed to create a file to save GSM reader service account key:", err)
+				return fmt.Errorf("failed to create a file to save GSM reader service account key: %v", err)
 			}
 		}
 
 		err = os.WriteFile(sa, saKey, 0644)
 		if err != nil {
-			return fmt.Errorf("failed to save GSM reader service account key:", err)
+			return fmt.Errorf("failed to save GSM reader service account key: %v", err)
 		}
 	}
 
