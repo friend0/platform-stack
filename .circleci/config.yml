@@ -12,13 +12,7 @@ jobs:
       docker_layer_caching: true
     environment:
       ENV: ci
-      K8S_VERSION: v1.19.11
-      KUBECONFIG: /home/circleci/.kube/config
-      MINIKUBE_VERSION: v1.19.0
-      MINIKUBE_WANTUPDATENOTIFICATION: false
-      MINIKUBE_WANTREPORTERRORPROMPT: false
-      MINIKUBE_HOME: /home/circleci
-      CHANGE_MINIKUBE_NONE_USER: true
+      K8S_VERSION: v1.20.12
     working_directory: /home/circleci/src/github.com/altiscope/platform-stack
     steps:
       - docker/check:
