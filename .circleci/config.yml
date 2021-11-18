@@ -13,6 +13,11 @@ jobs:
     environment:
       ENV: ci
       K8S_VERSION: v1.20.12
+      KUBECONFIG: /home/circleci/.kube/config
+      MINIKUBE_WANTUPDATENOTIFICATION: false
+      MINIKUBE_WANTREPORTERRORPROMPT: false
+      MINIKUBE_HOME: /home/circleci
+      CHANGE_MINIKUBE_NONE_USER: true
     working_directory: /home/circleci/src/github.com/altiscope/platform-stack
     steps:
       - docker/check:
