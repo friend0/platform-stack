@@ -54,7 +54,7 @@ var StackCLIDependencies = map[string]DependencyDescription{
 	"kubectl": {
 		os:      []string{"darwin", "linux"},
 		test:    "kubectl",
-		version: getEnv("KUBECTL_VERSION", "v1.19.11"),
+		version: getEnv("KUBECTL_VERSION", "v1.20.12"),
 		install: map[string][]string{
 			"darwin": []string{
 				"curl -LO https://storage.googleapis.com/kubernetes-release/release/{{ .Version }}/bin/darwin/amd64/kubectl",
@@ -85,7 +85,7 @@ var StackCLIDependencies = map[string]DependencyDescription{
 	"minikube": {
 		os:      []string{"darwin", "linux"},
 		test:    "minikube",
-		version: getEnv("MINIKUBE_VERSION", "v1.19.0"),
+		version: getEnv("MINIKUBE_VERSION", "v1.20.0"),
 		install: map[string][]string{
 			"darwin": []string{
 				"curl -Lo minikube https://storage.googleapis.com/minikube/releases/{{ .Version }}/minikube-darwin-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube",
