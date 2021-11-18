@@ -56,7 +56,8 @@ func runExpose(cmd *cobra.Command, args []string) (err error) {
 
 	fmt.Printf("Exposing %v", args[0])
 
-	c := make(chan os.Signal)
+	// FIXME: do we need a larger channel?
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
 	forwardCmd, err := exposeDeployment(args[0], args[1], args[2])
