@@ -71,11 +71,11 @@ func fetchSecrets(cmd *cobra.Command, args []string) error {
 		if env == "local" || env == "ci" {
 			secretReaderEnvVar = "GSM_SECRET_READER_DEV_" + strings.ToUpper(saFlavor)
 		} else if env == "prev" || env == "preview" {
-			secretReaderEnvVar = "GSM_SECRET_READER_PREV" + strings.ToUpper(saFlavor)
+			secretReaderEnvVar = "GSM_SECRET_READER_PREV_" + strings.ToUpper(saFlavor)
 		} else if env == "stg" || env == "staging" {
-			secretReaderEnvVar = "GSM_SECRET_READER_STG" + strings.ToUpper(saFlavor)
+			secretReaderEnvVar = "GSM_SECRET_READER_STG_" + strings.ToUpper(saFlavor)
 		} else if env == "prod" || env == "production" {
-			secretReaderEnvVar = "GSM_SECRET_READER_PROD" + strings.ToUpper(saFlavor)
+			secretReaderEnvVar = "GSM_SECRET_READER_PROD_" + strings.ToUpper(saFlavor)
 		} else {
 			return fmt.Errorf("no GCP Secret Manager Project configured for the target environment.")
 		}
