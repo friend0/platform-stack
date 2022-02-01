@@ -238,7 +238,14 @@ Remove all secrets:
 Remove a specific secret:
 
     stack secrets delete registry       # deletes only the registry secret created above
+
+### Fetch Secrets from GCP Secret Manager
+Stack CLI provides workflow to fetch application runtime secrets from GCP Secret Manager (GSM).
+
+    stack secrets fetch [-e <env>] [-p <gcp-project-id>] [-i <input-file-directory>] [-o <output-file-directory>] [flags]
     
+Run `stack secrets fetch -h` to find details about the parameters.
+
 ## [Examples](examples)
 
 If you would like to use the Stack CLI without first configuring your own project, you can navigate to the examples 
