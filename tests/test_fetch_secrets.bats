@@ -16,7 +16,7 @@ fi
 	run stack secrets fetch -e ci
 	[ "$status" -eq 0 ]
 
-	run bash -c "cat deployments/secrets-local.json | grep no-secret"
+	run bash -c "cat deployments/secrets-ci.json | grep no-secret"
 	[ "$status" -eq 0 ]
 	cd -
 }
@@ -26,7 +26,7 @@ fi
 	run stack secrets fetch -e ci -p utmgsmdev -i deployments
 	[ "$status" -eq 0 ]
 
-	run bash -c "cat deployments/secrets-local.json | grep no-secret"
+	run bash -c "cat deployments/secrets-ci.json | grep no-secret"
 	[ "$status" -eq 0 ]
 	cd -
 }
