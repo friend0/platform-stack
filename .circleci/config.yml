@@ -78,6 +78,11 @@ jobs:
             go test -v ./...
 
       - run:
+          name: e2e BATS tests
+          command: |
+            bats tests/
+
+      - run:
           name: Delete kubernetes resources
           command: |
             kubectl delete all --all
