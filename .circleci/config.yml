@@ -1,20 +1,19 @@
 version: 2.1
 orbs:
-  go: circleci/go@1.5.0
-  kubernetes: circleci/kubernetes@0.11.0
-  docker: circleci/docker@1.5.0
+  go: circleci/go@1.7.0
+  kubernetes: circleci/kubernetes@0.12.0
+  docker: circleci/docker@2.0.1
 
 jobs:
   build:
     resource_class: large
     machine:
-      image: ubuntu-1604:202010-01
+      image: ubuntu-2004:202010-01
       docker_layer_caching: true
     environment:
       ENV: ci
-      K8S_VERSION: v1.19.11
+      K8S_VERSION: v1.20.12
       KUBECONFIG: /home/circleci/.kube/config
-      MINIKUBE_VERSION: v1.19.0
       MINIKUBE_WANTUPDATENOTIFICATION: false
       MINIKUBE_WANTREPORTERRORPROMPT: false
       MINIKUBE_HOME: /home/circleci
@@ -31,7 +30,7 @@ jobs:
           command: |
             sudo rm -rf /usr/local/go
       - go/install:
-          version: 1.16.5
+          version: 1.17.3
       - run:
           name: Build executable
           command: |
@@ -97,7 +96,7 @@ jobs:
 
   install:
     machine:
-      image: ubuntu-1604:202010-01
+      image: ubuntu-2004:202010-01
       docker_layer_caching: true
     working_directory: /home/circleci/src/github.com/altiscope/platform-stack
     steps:
@@ -121,7 +120,7 @@ jobs:
 
   deploy:
     docker:
-      - image: circleci/golang:1.13.6
+      - image: cimg/go:1.17.3
     steps:
       - add_ssh_keys:
           fingerprints:
