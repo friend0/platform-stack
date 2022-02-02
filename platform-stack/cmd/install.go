@@ -27,6 +27,18 @@ type DependencyDescription struct {
 var dependencyVersionMap map[string]string
 
 var StackCLIDependencies = map[string]DependencyDescription{
+	"bats": {
+		os:   []string{"darwin", "linux"},
+		test: "bats -v",
+		install: map[string][]string{
+			"darwin": []string{
+				"git clone --depth 1 --branch v1.5.0 https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr/local && cd - && rm -rf bats-core",
+			},
+			"linux": []string{
+				"git clone --depth 1 --branch v1.5.0 https://github.com/bats-core/bats-core.git && cd bats-core && sudo ./install.sh /usr/local && cd - && rm -rf bats-core",
+			},
+		},
+	},
 	"xcode": {
 		os:   []string{"darwin"},
 		test: "xcode-select -v",

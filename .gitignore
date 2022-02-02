@@ -30,3 +30,6 @@ yarn-debug.log*
 yarn-error.log*
 
 *.log
+
+# Files containing secrets
+examples/basic/deployments/secrets*
