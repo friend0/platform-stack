@@ -12,7 +12,7 @@ jobs:
       docker_layer_caching: true
     environment:
       ENV: ci
-      K8S_VERSION: v1.21.5
+      K8S_VERSION: v1.22.8
       KUBECONFIG: /home/circleci/.kube/config
       MINIKUBE_WANTUPDATENOTIFICATION: false
       MINIKUBE_WANTREPORTERRORPROMPT: false
