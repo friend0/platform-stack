@@ -19,7 +19,7 @@ func TestUpCLI(t *testing.T) {
 		args    []string
 		fixture string
 	}{
-		{"up", []string{"help", "up"}, "stack-up-help.golden"},
+		{"up", []string{"-r=../../examples/react-app", "up", "config", "backend"}, "stack-up-react-app.golden"},
 		{"up", []string{"-r=../../examples/basic", "up", "app"}, "stack-up-app.golden"},
 		{"up", []string{"-r=../../examples/basic", "up"}, "stack-up-no-args.golden"},
 	}
@@ -29,6 +29,8 @@ func TestUpCLI(t *testing.T) {
 
 			if tt.fixture != "" {
 				cmd := exec.Command(path.Join(".", "stack"), tt.args...)
+				cmd.Env = os.Environ()
+				cmd.Env = append(cmd.Env, "ENV=local")
 				result, err := cmd.CombinedOutput()
 				if err != nil {
 					t.Error(err)

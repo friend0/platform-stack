@@ -3,13 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/altiscope/platform-stack/pkg/schema/latest"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/altiscope/platform-stack/pkg/schema/latest"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 const kubectlApplyTemplate = `kubectl apply -f "{{ .YamlFile }}"`
@@ -49,8 +50,7 @@ If no components are provided as arguments, all configured components will be br
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		return configPreRunnerE(cmd, args)
 	},
-	RunE: upAllComponents,
-	Args: cobra.MaximumNArgs(1),
+	RunE: upComponents,
 }
 
 // envsApply checks a list of environment names, and returns true or false if any members match currentEnvName
@@ -66,6 +66,63 @@ func envsApply(e []string, currentEnvName string) bool {
 		return active
 	}
 	return true
+}
+
+func upComponents(cmd *cobra.Command, args []string) (err error) {
+
+	if len(args) == 0 {
+		return upAllComponents(cmd, args)
+	}
+
+	currentEnv, err := getEnvironment()
+	if err != nil {
+		return err
+	}
+	if currentEnv == (latest.EnvironmentDescription{}) {
+		return fmt.Errorf("no active environment detected")
+	}
+	if currentEnv.Activation.ConfirmWithUser {
+		confirmWithUser(fmt.Sprintf("You are about to deploy to environment `%v`", currentEnv.Name))
+	}
+
+	// Determine component list from config
+	upComponents, err := parseComponentArgs(args, config.Components)
+	if err != nil {
+		return err
+	}
+
+	dryrun := viper.GetBool("dryrun")
+
+	// Bring up each configured component
+	for _, component := range upComponents {
+		if !dryrun {
+			if !envsApply(component.Environments, currentEnv.Name) {
+				fmt.Printf("skipping `up` for component `%v`: not in active environment\n", component.Name)
+				continue
+			}
+			fmt.Println("Bringing up", component.Name)
+		}
+		err := componentUpFunction(cmd, component, currentEnv)
+		if err != nil {
+			fmt.Printf("Bringing up `%v` failed", component.Name)
+			return err
+		}
+	}
+
+	wait := viper.GetInt("wait")
+	if wait >= 0 {
+		waitTime := wait * 1000
+		api := clientset.CoreV1()
+		err, ctx := waitForStackWithTimeout(api, cmd, time.Duration(waitTime))
+		if err != nil {
+			return err
+		}
+		if ctx.Err() == context.DeadlineExceeded {
+			return fmt.Errorf("timed out waiting for stack")
+		}
+	}
+
+	return nil
 }
 
 func upAllComponents(cmd *cobra.Command, args []string) (err error) {
@@ -196,12 +253,12 @@ func parseComponentArgs(args []string, configuredComponents []latest.ComponentDe
 
 	for _, component := range configuredComponents {
 		if len(args) >= 1 {
-			if argMap[component.Name] == true {
+			if argMap[component.Name] {
 				components = append(components, component)
 			}
-			continue
+		} else {
+			components = append(components, component)
 		}
-		components = append(components, component)
 	}
 	return components, nil
 }
