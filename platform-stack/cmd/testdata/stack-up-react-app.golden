@@ -1,0 +1,5 @@
+Bringing up config
+configmap/react-app-env created
+Bringing up backend
+service/backend created
+deployment.apps/backend created
