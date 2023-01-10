@@ -1,13 +1,15 @@
 package cmd
 
 import (
+	"os"
+	"os/exec"
+	"path"
+	"testing"
+
 	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/magiconair/properties/assert"
 	"gotest.tools/v3/golden"
 	"gotest.tools/v3/icmd"
-	"os/exec"
-	"path"
-	"testing"
 )
 
 func TestUpCLI(t *testing.T) {
@@ -35,7 +37,7 @@ func TestUpCLI(t *testing.T) {
 				if err != nil {
 					t.Error(err)
 				}
-				golden.AssertBytes(t, result, tt.fixture)
+				golden.Assert(t, string(result), tt.fixture)
 			} else {
 				result := icmd.RunCmd(icmd.Command(path.Join(".", "stack"), tt.args...))
 				result.Assert(t, icmd.Success)
