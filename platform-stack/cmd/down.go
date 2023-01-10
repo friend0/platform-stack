@@ -3,11 +3,12 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"path/filepath"
+	"strings"
+
 	"github.com/altiscope/platform-stack/pkg/schema/latest"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"path/filepath"
-	"strings"
 )
 
 const kubectlDeleteTemplate = `kubectl delete -f "{{ .YamlFile }}"`
@@ -26,7 +27,38 @@ If no arguments are provided, all configured objects will be taken down.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		return configPreRunnerE(cmd, args)
 	},
-	RunE: downAllComponents,
+	RunE: downComponents,
+}
+
+func downComponents(cmd *cobra.Command, args []string) (err error) {
+
+	if len(args) == 0 {
+		return downAllComponents(cmd, args)
+	}
+	currentEnv, err := getEnvironment()
+	if err != nil {
+		return err
+	}
+	if currentEnv == (latest.EnvironmentDescription{}) {
+		return fmt.Errorf("no active environment detected")
+	}
+	if currentEnv.Activation.ConfirmWithUser {
+		confirmWithUser(fmt.Sprintf("You are about to destroy pods in `%v`", currentEnv.Name))
+	}
+
+	components, err := parseComponentArgs(args, config.Components)
+	if err != nil {
+		return err
+	}
+
+	for _, component := range components {
+		fmt.Printf("Tearing down components at %v...\n", component.Name)
+		err := downComponent(cmd, component)
+		if err != nil {
+			fmt.Printf("`%v` component failed teardown. You may need to delete it manually.\n", component.Name)
+		}
+	}
+	return nil
 }
 
 func downAllComponents(cmd *cobra.Command, args []string) (err error) {
