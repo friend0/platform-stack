@@ -1,9 +1,9 @@
 stack:
   name: react-app
-environments:                       # Define a local context that's active on kubectx=docker-desktop, ENV=local
-  - name: local
-    activation:                     # Environment activation conditions - ALL conditions must be met for an environment to be active
-      context: docker-desktop       # The name of the current kubernetes context that should be active in order for this environment to be active
+environments:                                  # Define a local context that's active on kubectx=docker-desktop, ENV=local
+  - name: local 
+    activation:                                # Environment activation conditions - ALL conditions must be met for an environment to be active
+      context: docker-desktop || minikube      # The name of the current kubernetes context that should be active in order for this environment to be active
   - name: ci
     activation:
       env: ENV=ci
