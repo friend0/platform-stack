@@ -1,9 +1,41 @@
 # [Stack](stack)
 
-Stack is a tool for defining and running multi-object Kubernetes applications. 
-With Stack, you use a configuration file to define the services that make up your application. 
-Then, with a few simple commands, you create and start all the services from your configuration. 
+Stack is a command-line workflow for mapping your application's deployment to a Kubernetes cluster. 
+Stack bootstraps common deployment and debug workflows onto your applications by reading a configuration file specifying the environments, containers, and manifests that make it up. 
 
+Example configuration:
+```
+    apiVersion: stack/v1alpha1
+    stack:                                  
+        name: aSimpleApp
+    environments:
+      - name: local
+        activation:
+          context: docker-desktop || minikube          
+    components:
+      - name: config
+        requiredVariables:
+          - ENV
+        manifests:
+          - ./deployments/config.yaml
+      - name: app                                       
+        containers:
+          - dockerfile: ./containers/app/Dockerfile
+            context: ./containers/app
+            image: stack-app
+        manifests:
+          - ./deployments/app.yaml
+```
+Then, in the directory of this config (or by passing a path to a config file as an option) run the follwing:
+
+`$ stack up`
+
+This will nominally show all the components defined for this stack have been brought up successfully. 
+Alternatively, to bring up only a subset of the components, run:
+
+`$ stack up config app`
+
+In the above, only the components `config` and `app` are brought up.
 # [Prerequisites](prereqs)
 
 The Stack CLI requires a running kubernetes cluster to perform most commands. Locally, this will usually be Docker-Desktop, or Minikube.
